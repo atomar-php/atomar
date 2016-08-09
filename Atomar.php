@@ -110,6 +110,8 @@ class Atomar {
         // load manifest
         self::$manifest = new ReadOnlyArray(json_decode(file_get_contents(__DIR__ . '/manifest.json'), true));
 
+        mkdir(self::$config['ext_dir'], 0775);
+
         self::$is_initialized = true;
     }
 
@@ -435,7 +437,7 @@ HTML;
      * @return string
      */
     public static function application_dir() {
-        return self::$config['app_dir'];
+        return self::$config['app_dir'].rtrim('/') . '/';
     }
 
     /**
