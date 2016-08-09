@@ -238,7 +238,7 @@ class API extends ApiController {
                 }
                 break;
             case 'migration':
-                $migration_dir = Atomar::atomic_dir() . '/migration/';
+                $migration_dir = Atomar::atomar_dir() . '/migration/';
                 $from = $_REQUEST['from'];
                 $to = $_REQUEST['to'];
 

@@ -106,16 +106,16 @@ class Templator {
      */
     public static function render_error($title, $message) {
         \Twig_Autoloader::register();
-        $loader = new \Twig_Loader_Filesystem(Atomar::atomic_dir() . '/views');
-        $twig = new AtomicTwigEnvironment($loader, array(
+        $loader = new \Twig_Loader_Filesystem(Atomar::atomar_dir() . '/views');
+        $twig = new AtomarTwigEnvironment($loader, array(
             'debug' => true
         ));
         $twig->addExtension(new \Twig_Extension_Debug());
-        $atomic['css'][] = '/assets/css/bootstrap.min.css';
-        $atomic['css'][] = '/assets/css/main.css';
-        $atomic['version'] = Atomar::version();
+        $atomar['css'][] = '/assets/css/bootstrap.min.css';
+        $atomar['css'][] = '/assets/css/main.css';
+        $atomar['version'] = Atomar::version();
 
-        $atomic['css_inline'] = <<<CSS
+        $atomar['css_inline'] = <<<CSS
 body {
   padding-top: 40px;
   padding-bottom: 40px;
@@ -160,8 +160,8 @@ CSS;
             'body_class' => 'install',
             'title' => $title,
             'message' => $message,
-            'atomar' => $atomic,
-            'sys' => $atomic // TRICKY: backwards compatability
+            'atomar' => $atomar,
+            'sys' => $atomar // TRICKY: backwards compatability
         ));
     }
 
@@ -205,15 +205,15 @@ CSS;
         try {
             // initialize twig template engine
             $loader = new \Twig_Loader_Filesystem(array(
-                Atomar::atomic_dir() . DIRECTORY_SEPARATOR . 'views',
+                Atomar::atomar_dir() . DIRECTORY_SEPARATOR . 'views',
                 Atomar::extension_dir(),
                 Atomar::application_dir() . '../'
             ));
             if (Atomar::$config['debug']) {
-                $twig = new AtomicTwigEnvironment($loader, array(
+                $twig = new AtomarTwigEnvironment($loader, array(
                     'debug' => Atomar::$config['debug'],
                 ));
-                require_once(Atomar::atomic_dir() . '/vendor/Twig/Extension/Debug.php');
+                require_once(Atomar::atomar_dir() . '/vendor/Twig/Extension/Debug.php');
                 $twig->addExtension(new \Twig_Extension_debug());
                 // delete the cache if it exists
                 if (is_dir(Atomar::$config['cache'] . 'twig')) {
@@ -225,7 +225,7 @@ CSS;
                     mkdir(Atomar::$config['cache'] . 'twig', 0777, true);
                     umask($old);
                 }
-                $twig = new AtomicTwigEnvironment($loader, array(
+                $twig = new AtomarTwigEnvironment($loader, array(
                     'cache' => Atomar::$config['cache'] . 'twig'
                 ));
             }
@@ -544,8 +544,8 @@ CSS;
                 print_debug($ex);
             } else {
                 // fall back is to display 500 error.
-                $loader = new \Twig_Loader_Filesystem(Atomar::atomic_dir() . '/views');
-                $twig = new AtomicTwigEnvironment($loader);
+                $loader = new \Twig_Loader_Filesystem(Atomar::atomar_dir() . '/views');
+                $twig = new AtomarTwigEnvironment($loader);
                 Logger::log_error($ex->getMessage(), $ex->getTraceAsString());
                 return $twig->render('500.html');
             }
