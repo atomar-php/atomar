@@ -1,0 +1,21 @@
+{% extends "_plain.html" %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block content %}
+<div class="text-center">
+  <h2>{{title}}</h2>
+</div>
+<div class="error-page">
+	<div class="row">
+		<div class="panel">
+			<div class="panel-body">
+				{{message|raw}}
+			</div>
+		</div>
+	</div>
+  <div class="row text-right">
+    <a href="/" class="btn btn-primary" data-loading-text="Loading..." ><span class="glyphicon glyphicon-repeat"></span> Reload the page</a>
+  </div>
+</div>
+{% endblock %}

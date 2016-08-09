@@ -1,0 +1,105 @@
+{% extends "admin/_base.html" %}
+
+{% block title %}Extensions{% endblock %}
+
+{% block content %}
+<div class="jumbotron hidden-phone">
+    <h1>Extensions</h1>
+
+    <p>Extensions allow you to extend the functionality of the system without changing the core code. This makes it easy
+        to keep the main core updated and to easily add new functionality.</p>
+
+    <p>
+        <a data-lightbox="/admin/extensions/new" class="btn btn-primary">New Extension</a>
+        <a data-lightbox="/admin/migrations/new" class="btn btn-primary">New Migration</a>
+    </p>
+
+    <p>Atomar version: {{ sys.version }}</p>
+    <hr/>
+    {% if app %}
+        <h2>Application: {{ app.name }}</h2>
+        <p>{{ app.description }}</p>
+        {% if app.installed_version != '0' %}
+            <p>Version: {{ app.installed_version }} {% if app.is_update_pending %}<a href="/!/install_app" class="btn btn-success">Update to {{ app.version }}</a>{% endif %}</p>
+            <!--TODO: need to provide an uninstall button-->
+        {% else %}
+            <p><a href="/!/install_app" class="btn btn-success">Install {{ app.version }}</a></p>
+        {% endif %}
+        {% if app.is_missing_dependencies %}
+        <p class="warning">Some dependencies are missing</p>
+        {% endif %}
+    {% endif %}
+</div>
+{% if extensions%}
+<form action="/admin/extensions" method="POST">
+    <table class="table table-striped table-bordered table-hover">
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Version</th>
+            <th>Atomar</th>
+            <th>Dependencies</th>
+            <th></th>
+        </tr>
+        {% for ext in extensions %}
+        {% if ext.is_enabled %}
+        <tr class="success">
+            {% else %}
+        <tr>
+            {% endif %}
+            <td>{{ ext.name }}</td>
+            <td>{{ ext.description }}</td>
+            <td>
+                {% if ext.is_enabled %}
+                {{ ext.installed_version }}
+                {% if ext.is_update_pending %}
+                <span class="glyphicon glyphicon-gift pull-right tip"
+                      title="Version {{ ext.version }} is available"></span>
+                {% endif %}
+                {% else %}
+                {{ ext.version }}
+                {% if ext.installed_version %}
+                <a href="/!/uninstall_extension?id={{ ext.id }}" class="tip pull-right text-muted"
+                   data-confirm="CAUTION! Are you sure you want to completely uninstall this extension. This may result in data loss."
+                   title="Completely uninstall extension"><span class="glyphicon glyphicon-trash"></span></a>
+                {% endif %}
+                {% endif %}
+            </td>
+            {% if ext.is_supported == '0' %}
+            <td class="danger">
+                {% else %}
+            <td>
+                {% endif %}
+                {{ ext.core }}
+            </td>
+            <td>
+                {% for d in ext.dependencies %}
+                {% if d.is_enabled == false %}
+                {% set class = 'text-warning' %}
+                {% set extra = ' <span class="text-muted">(disabled)</span>' %}
+                {% else %}
+                {% set class = 'text-success' %}
+                {% set extra = '' %}
+                {% endif %}
+                {% if d.exists != 1 %}
+                {% set class = 'text-error' %}
+                {% set extra = ' <span class="text-muted">(missing)</span>' %}
+                {% endif %}
+                <span class="{{class}}">{{ d.slug }}</span>{{ extra|raw }},
+                {% endfor %}
+            </td>
+            <td>
+                <input type="checkbox" name="extensions[{{ ext.id }}]" {% if ext.is_enabled %}checked{% endif %} {% if
+                       ext.required %}disabled{% endif %}>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <button type="submit" class="btn btn-success pull-right" data-loading-text="Loading...">Update</button>
+</form>
+{% else %}
+<div class="well">
+    No extensions were found in <code>{{ ext_dir }}</code>
+</div>
+{% endif%}
+{% endblock %}

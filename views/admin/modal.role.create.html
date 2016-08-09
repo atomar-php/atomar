@@ -1,0 +1,25 @@
+{% extends "_lightbox.html" %}
+
+{% block lightbox %}
+<div class="row">
+  <div class="col-xs-6">
+    <label for="field-name">Name:*</label>
+    <input type="text" class="form-control" data-validate="role-name" name="name" id="field-name" autocomplete="off" value="{{name}}" required>
+  </div>
+  <div class="col-xs-6">
+    <div class="text-muted" id="slug"></div>
+    <input type="hidden" id="field-slug" name="slug">
+  </div>
+</div>
+<div class="row">
+  <div class="col-xs-12">
+    <label for="field-permissions">Permissions</label>
+    <select data-placeholder="Choose some Permissions..." id="field-permissions" class="chzn-select form-control" multiple style="width:475px;" name="permissions[]">
+{% for permission in permissions %}
+      <option value="{{ permission.id }}">{{ permission.name }}</option> 
+{% endfor %}
+    </select>
+  </div>
+  
+</div>
+{% endblock %}

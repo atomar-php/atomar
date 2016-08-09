@@ -1,0 +1,28 @@
+{% extends "_plain.html" %}
+
+{% block title %}Exception{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+    <h2>Exception: <small>{{ exception.getMessage }}</small></h2>
+    <p >
+      PHP version: {{ php_version }}
+      <a href="/user/login" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-arrow-left"></span> Login</a>
+      <a href="/" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-arrow-left"></span> Home Page</a>
+      <a href="/admin" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-arrow-left"></span> Admin</a>
+    </p>
+  </div>
+</div>
+<div class="row">
+  <p>
+    {{ print_debug(exception)|raw }}
+  </p>
+</div>
+
+<footer class="text-center">
+  &copy; {{ atomar.year }}, <a href="{{ atomar.site_url }}">{{ atomar.site_name }}</a>
+</footer>
+{% endblock %}
+
+

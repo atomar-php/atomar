@@ -1,0 +1,24 @@
+{% extends "_base.html" %}
+
+{% block body %}
+<p class="well">
+  You received a message from
+  {% if user.id %}
+  <a href="{{ sys.site_url }}user/{{ user.id }}">{{ user.first_name }} {{ user.last_name }}</a> on <a href="{{ sys.site_url }}">{{ sys.site_name }}</a>
+  {% else %}
+    {{ user.name }}
+  {% endif %}
+  <br>
+  <ul>
+    {% if user.email %}
+    <li><strong>Email:</strong> {{ user.email }}</li>
+    {% endif %}
+    {% if user.phone %}
+    <li><strong>Phone:</strong> {{user.phone }}</li>
+    {% endif %}
+  </ul>
+</p>
+<p>
+  {{ body }}
+</p>
+{% endblock %}

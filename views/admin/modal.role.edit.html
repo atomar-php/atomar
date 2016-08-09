@@ -1,0 +1,34 @@
+{% extends "_lightbox.html" %}
+
+{% block lightbox %}
+<div class="row">
+  <div class="col-xs-6">
+    <label for="field-name">Name:*</label>
+    <input type="text" class="form-control" data-validate="role-name" name="name" id="field-name" autocomplete="off" value="{{ role.name }}" required>
+  </div>
+  <div class="col-xs-6">
+    <div class="text-muted" id="field-slug">{{ role.slug }}</div>
+  </div>
+</div>
+<br>
+<div class="row">
+  <div class="col-xs-12">
+    <div class="form-group">
+      <label for="field-permissions">Permissions</label>
+      <select data-placeholder="Choose some Permissions..." id="field-permissions" class="col-xs-12 chzn-select form-control" multiple name="permissions[]">
+      {{ multi_select(permissions, role.permissions) }}
+      </select>
+    </div>
+  </div>
+  
+</div>
+{% endblock %}
+
+{% block lightbox_controls %}
+<div class="pull-left">
+  <a href="/!/delete_role?id={{ role.id }}&amp;r={{ lightbox.dismiss_url|url_encode }}" class="btn btn-danger btn-small" data-confirm="Are you sure you want to delete the role? This cannot be undone."><span class="glyphicon glyphicon-trash"></span> Delete Role</a>
+</div>
+
+<button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cancel</button>
+<button type="submit" class="btn btn-primary modal-submit" data-loading-text="Loading..." >Submit</button>
+{% endblock %}

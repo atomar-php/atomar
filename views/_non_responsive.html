@@ -1,0 +1,78 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <link rel="shortcut icon" href="{{ atomar.site_url }}{{ atomar.favicon }}" />
+    <title>{% block title %}New Page{% endblock %} - {{ atomar.site_name }}</title>
+    <meta charset="utf-8">
+    <meta name=viewport content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Neutrino Graphics LLC">
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+    </style>
+    {% for style in atomar.css %}
+    <link rel="stylesheet" type="text/css" href="{{ style }}?v={{ atomar.version }}">
+    {% endfor %}
+    <style>
+    {{ atomar.css_inline|raw }}
+    </style>
+  </head>
+  {% if atomar.debug %}
+    {% set debug_class = 'debug' %}
+  {% endif %}
+  <body class="{{ debug_class }}">
+    <!-- growl messages -->
+    <div class="growl">
+    <noscript>
+      <div class="alert alert-danger fade in">
+        <strong>Warning!</strong> This website requires javascript to run correctly. Please enable javascript in your browser before using this site.
+      </div>
+    </noscript>
+  {% for e in atomar.error %}
+      <div class="alert alert-danger fade in">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <strong>Error!</strong> {{ e }}
+      </div>
+  {% endfor %}
+  {% for n in atomar.notice %}
+      <div class="alert alert-info fade in">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <strong>Notice:</strong> {{ n }}
+      </div>
+  {% endfor %}
+  {% for s in atomar.success %}
+      <div class="alert alert-success fade in">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <strong>Success!</strong> {{ s }}
+      </div>
+  {% endfor %}
+    </div>
+
+    <!-- content -->
+    <div class="container">
+      <div class="row">
+        <!-- content -->
+        <div class="span12">
+          {% block content %}
+          {% endblock %}
+        </div>
+      </div>
+    </div>
+
+    <!-- scripts -->
+    <script type="text/javascript" src="/assets/js/head.js"></script>
+    <script>
+      head.js({{ atomar.js|raw }}, function() {
+        {% if atomar.jquery_no_conflict %}
+        jQuery.noConflict();
+        {% endif %}
+        $(document).ready(function() {
+          {{ atomar.js_onload|raw }}
+        });
+      });
+    </script>
+  </body>
+</html>

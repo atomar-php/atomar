@@ -1,0 +1,15 @@
+{% extends "_lightbox.html" %}
+
+{% block lightbox %}
+<p>This form allows you to quickly create a migration file.</p>
+<div class="row">
+  <div class="col-xs-6">
+    <label for="field-from">From Version: <span class="text-danger">*</span></label>
+    <input type="text" class="form-control" data-validate="migration" data-name="from" data-group="migration" name="from" id="field-from" value="{{ sys.version }}" placeholder="{{ sys.version }}" autocomplete="off" required>
+  </div>
+  <div class="col-xs-6">
+    <label for="field-to">To Version: <span class="text-danger">*</span></label>
+    <input type="text" class="form-control" data-validate="migration" data-name="to" data-submit-btn=".modal-submit" data-group="migration" name="to" id="field-to" autocomplete="off" required autofocus>
+  </div>
+</div>
+{% endblock %}

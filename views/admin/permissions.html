@@ -1,0 +1,40 @@
+{% extends "admin/_base.html" %}
+
+{% block title %}Permissions{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="page-header clearfix">
+    <h2 class="pull-left">Permissions</h2>
+  </div>
+
+  <div class="well hidden-phone">
+    <p>You don't have to create any permissions here in order to use them.</p>
+    <p>If you use a new permission in an authentication check ( <strong>A::authenticate("some_new_permission")</strong> ) it will automatically be added to the database and available here for editing.</p>
+    <p>
+      You can edit any of the permissions by double clicking on the field or clicking the edit button to the right. To submit a field just press enter.
+    </p>
+  </div>
+  <table class="table table-striped table-bordered table-hover">
+    <tr>
+      <th>Name</th>
+      <th>Slug</th>
+      <th></th>
+    </tr>
+  {% for permission in permissions %}
+    <tr>
+      <td>{{ permission.name }}</td>
+      <td>
+        <span id="permission-{{ permission.id }}" data-edit-id="{{ permission.id }}" data-edit-model="permission" data-edit-field="slug">{{ permission.slug }}</span>
+      </td>
+      <td>
+        <div class="pull-right">
+          <a href="#" data-edit="#permission-{{ permission.id}}"><span class="tip glyphicon glyphicon-edit" data-toggle="tooltip" title="edit"></span></a>
+          <a href="/!/delete_permission?id={{ permission.id }}&amp;r=/admin/permissions" data-confirm="Are you sure you want to delete this permission?"><span class="tip glyphicon glyphicon-trash" data-toggle="tooltip" title="delete"></span></a>
+        </div>
+      </td>
+    </tr>
+  {% endfor %}
+  </table>
+</div>
+{% endblock %}

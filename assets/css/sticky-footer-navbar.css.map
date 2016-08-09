@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": ";;AAEA,IAAK;EACH,QAAQ,EAAE,QAAQ;EAClB,UAAU,EAAE,IAAI;;AAElB,IAAK;;EAEH,aAAa,EAAE,IAAI;;AAErB,OAAQ;EACN,QAAQ,EAAE,QAAQ;EAClB,MAAM,EAAE,CAAC;EACT,KAAK,EAAE,IAAI;;EAEX,MAAM,EAAE,IAAI;EACZ,gBAAgB,EAAE,OAAO;;AAE3B,iBAAkB;EAChB,OAAO,EAAE,WAAW",
+"sources": ["sticky-footer-navbar.scss"],
+"names": [],
+"file": "sticky-footer-navbar.css"
+}

@@ -1,0 +1,114 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <link rel="shortcut icon" href="{{ atomar.site_url }}{{ atomar.favicon }}" />
+    <title>{% block title %}New Page{% endblock %} - {{ atomar.site_name }}</title>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name=viewport content="width=device-width, initial-scale=1">
+    <meta name="author" content="Neutrino Graphics LLC">
+    {% for style in atomar.css %}
+    <link rel="stylesheet" type="text/css" href="{{ style }}?v={{ atomar.version }}">
+    {% endfor %}
+    <style>
+    {{ atomar.css_inline|raw }}
+    </style>
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="/assets/js/html5shiv.js"></script>
+      <script src="/assets/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  {% if atomar.debug %}
+    {% set debug_class = 'debug' %}
+  {% endif %}
+  <body class="{{ debug_class }}">
+
+    <div class="container">
+      <!-- growl messages -->
+      <div class="growl">
+        <noscript>
+          <div class="alert alert-danger fade in">
+            <strong>Warning!</strong> This website requires javascript to run correctly. Please enable javascript in your browser before using this site.
+          </div>
+        </noscript>
+    {% for e in atomar.error %}
+        <div class="alert alert-danger fade in">
+          <button type="button" class="close" data-dismiss="alert">&times;</button>
+          <strong>Error!</strong> {{ e }}
+        </div>
+    {% endfor %}
+    {% for e in atomar.warning %}
+        <div class="alert alert-warning fade in">
+          <button type="button" class="close" data-dismiss="alert">&times;</button>
+          <strong>Warning!</strong> {{ e }}
+        </div>
+    {% endfor %}
+    {% for n in atomar.notice %}
+        <div class="alert alert-info fade in">
+          <button type="button" class="close" data-dismiss="alert">&times;</button>
+          <strong>Notice:</strong> {{ n }}
+        </div>
+    {% endfor %}
+    {% for s in atomar.success %}
+        <div class="alert alert-success fade in">
+          <button type="button" class="close" data-dismiss="alert">&times;</button>
+          <strong>Success!</strong> {{ s }}
+        </div>
+    {% endfor %}
+      </div>
+      
+      <!-- nav -->
+      <div class="navbar navbar-default">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        </div>
+        <div class="navbar-collapse collapse">
+          {{ atomar.menu.primary_menu|raw }}
+        </div><!--/.nav-collapse -->
+      </div>
+
+      <!-- content -->
+      <div class="row">
+        <div class="col-md-12">
+          {% block content %}
+          {% endblock %}
+        </div>
+        
+      </div>
+
+      <!-- footer -->
+      <div class="footer">
+        <p>&copy; {{ atomar.year }}, <a href="{{ atomar.site_url }}" tabindex="-1">{{ atomar.site_name }}</a></p>
+      </div>
+
+    </div> <!-- /container -->
+
+
+    <!-- scripts -->
+    <script type="text/javascript" src="/assets/js/head.js"></script>
+    <script>
+      {% if atomar.js %}
+        head.js({{ atomar.js|raw }}, function() {
+        jQuery(document).ready(function() {
+          {% if atomar.jquery_no_conflict %}
+            var $ = jQuery.noConflict();
+            {% endif %}
+            {{ atomar.js_onload|raw }}
+          });
+        });
+      {% elseif atomar.js_onload %}
+        jQuery(document).ready(function() {
+        {% if atomar.jquery_no_conflict %}
+          var $ = jQuery.noConflict();
+          {% endif %}
+          {{ atomar.js_onload|raw }}
+        });
+      {% endif %}
+    </script>
+  </body>
+</html>

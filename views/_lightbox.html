@@ -1,0 +1,34 @@
+{% extends "_plain.html" %}
+
+{% block title %}{{ lightbox.title }}{% endblock %}
+
+{% block content %}
+<div lightbox id="{{ lightbox.id }}" class="lightbox" data-height="{{ lightbox.height }}" data-width="{{ lightbox.width }}">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        {% block lightbox_close %}
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        {% endblock %}
+        <h4 class="modal-title">{{ lightbox.header|raw }}</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <form action="{{ lightbox.action }}" method="{{ lightbox.method }}" enctype="{{ lightbox.enctype }}">
+            <input type="hidden" name="_lightbox_id" value="{{ lightbox.lightbox_id }}">
+            <fieldset>
+              {% block lightbox %}{% endblock %}
+            </fieldset>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        {% block lightbox_controls %}
+        <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cancel</button>
+        <button type="submit" class="btn btn-primary modal-submit" data-loading-text="Loading..." >Submit</button>
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

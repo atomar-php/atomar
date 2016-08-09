@@ -1,0 +1,93 @@
+{% extends "user/_base.html" %}
+
+{% block title %}Edit User{% endblock %}
+
+{% block content %}
+<div class="page-header clearfix">
+  <h2 class="pull-left">Edit User <small>{{ user.username }}</small></h2>
+  <div class="btn-group pull-right">
+    <a href="/user/{{ user.id }}" class="btn">View Profile</a>
+    {% if return %}
+    <a href="{{ return }}" class="btn">Back</a>
+    {% endif %}
+  </div>
+</div>
+<form action="edit" method="POST">
+  <input type="hidden" value="{{ return }}" name="r">
+  <fieldset>
+    <div class="row">
+{% if roles|length > 0 %}
+      <div class="col-md-6">
+        <label for="field-role">Account Type:</label>
+        <select name="role" class="chzn-select col-md-12" data-placeholder="Choose some Permissions..." id="field-role">
+  {% for role in roles %}
+          <option value="{{ role.id }}" {{ role.selected }}>{{ role.name }}</option>
+  {% endfor %}
+        </select>
+      </div>
+{% else %}
+      <div class="col-md-6">
+        <label for="field-role">Account Type:</label>
+        <input id="field-role" class="col-md-12" type="text" disabled value="{{ user.role.name }}">
+      </div>
+{% endif %}
+      <div class="col-md-6">
+        <label for="field-username">Username:</label>
+        <input id="field-username" class="col-md-12" type="text" disabled value="{{ user.username }}">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <label for="field-first-name">First:</label>
+        <input type="text" name="first_name" id="field-first-name" class="col-md-12" value="{{ user.first_name }}">
+      </div>
+      <div class="col-md-6">
+        <label for="field-last-name">Last:</label>
+        <input type="text" name="last_name" id="field-last-name" class="col-md-12" value="{{ user.last_name }}">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="row">
+          <div class="col-md-12">
+            <label for="field-email">Email:*</label>
+            <input type="email" class="col-md-12" name="email" id="field-email" value="{{ user.email }}" data-validate="email" data-strict="false" required>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <label for="field-phone">Phone:</label>
+            <input type="text" class="col-md-12" name="phone" id="field-phone" value="{{ user.phone }}">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="pull-right">
+          <a href="{{ return }}" >Cancel</a>
+          <button type="submit" class="btn">Update</button>
+        </div>
+      </div>
+    </div>
+    <hr>
+    <div class="row clearfix">
+      <div class="col-md-12">
+        <div class="pull-left">
+{% if is_admin %}
+          <a href="/!/delete_user?id={{ user.id }}&amp;r=/admin/users" class="btn btn-danger btn-small" data-confirm="Are you sure you want to delete the user? This cannot be undone."><i class="icon-trash icon-white"></i> Delete Account</a>
+  {% if user.is_enabled %}
+          <a href="/!/enable_user?enable=0&amp;id={{ user.id }}&amp;r=/admin/user/{{ user.id }}/edit" class="btn btn-warning btn-small"><i class="icon-thumbs-down icon-white"></i> Disable Account</a>
+  {% else %}
+          <a href="/!/enable_user?enable=1&amp;id={{ user.id }}&amp;r=/admin/user/{{ user.id }}/edit" class="btn btn-success btn-small"><i class="icon-thumbs-up icon-white"></i> Enable Account</a>
+  {% endif %}
+          <a href="/user/recover/{{ user.id }}?return=/admin/user/{{ user.id }}/edit" class="btn btn-info btn-small"><i class="icon-share icon-white"></i> Send Password Reset</a>
+{% else %}
+          <a href="/!/enable_user?enable=0&amp;id={{ user.id }}&amp;r=/admin/user/{{ user.id }}/edit" class="btn btn-warning btn-small" data-confirm="Are you sure you want to delete your account?"><i class="icon-thumbs-down icon-white"></i> Delete Account</a>
+{% endif %}
+        </div>
+      </div>
+    </div>
+  </fieldset>
+</form>
+{% endblock %}

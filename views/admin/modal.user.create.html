@@ -1,0 +1,89 @@
+{% extends "_lightbox.html" %}
+
+{% block lightbox %}
+<div class="row">
+  <div class="col-xs-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Account Details</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-xs-12">
+            {% if roles|length > 0 %}
+              <label for="field-role">Account Type: <span class="text-danger">*</span></label>
+              <div class="form-group">
+                <select name="role" class="form-control" data-placeholder="Choose a role..." id="field-role" required>
+            {% for role in roles %}
+                  <option value="{{ role.id }}" {{ role.selected }}>{{ role.name }}</option>
+            {% endfor %}
+                </select>
+              </div>
+            {% else %}
+              <label for="field-role">Account Type: <span class="text-danger">*</span></label>
+              <input id="field-role" class="form-control" type="text" disabled value="{{ user.role.name }}">
+            {% endif %}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-6">
+            <label for="field-username">User name: <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" data-validate="username" name="username" id="field-username" autocomplete="off" value="{{username}}" autofocus required>
+          </div>
+          <div class="col-xs-6">
+            <label for="field-password">Password: <span class="text-danger">*</span></label>
+            <input type="password" class="form-control" name="password" id="field-password" required>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-12">
+            <label for="field-email">Email: <span class="text-danger">*</span></label>
+            <input type="email" class="form-control" data-validate="email" name="email" id="field-email" required>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xs-6">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">
+          Personal Information
+        </h3>
+      </div>
+      <div class="panel-body">
+        <div class="row">
+          <div class="col-xs-6">
+            <label for="field-first-name">First Name:</label>
+            <input type="text" name="first_name" id="field-first-name" class="form-control" autocomplete="off">
+          </div>
+          <div class="col-xs-6">
+            <label for="field-last-name">Last Name:</label>
+            <input type="text" name="last_name" id="field-last-name" class="form-control" autocomplete="off">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-6">
+            <label for="field-phone">Phone:</label>
+            <input type="text" class="form-control" name="phone" id="field-phone" value="{{user.phone}}" autocomplete="off" >
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12">
+        <p></p>
+        <label><input type="checkbox" name="enabled" id="field-enabled"  {{enabled}}> Make account active</label>
+        <br>
+        <label><input type="checkbox" name="notify" id="field-notify" {{notify}}> Send a welcome email</label>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-xs-12">
+    <label for="field-notes">Notes <small class="text-muted">(not visible to user)</small>:</label>
+    <textarea id="field-notes" rows="3" name="notes" class="form-control"></textarea>
+  </div>
+</div>
+{% endblock %}

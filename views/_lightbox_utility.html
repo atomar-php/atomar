@@ -1,0 +1,17 @@
+<!DOCTYPE HTML>
+<html>
+  <head></head>
+  <body>
+    <script type="text/javascript" src="/assets/js/head.js"></script>
+    <script>
+      head.js({{ atomar.js|raw }}, function() {
+        {% if atomar.jquery_no_conflict %}
+        jQuery.noConflict();
+        {% endif %}
+        $(document).ready(function() {
+          {{ atomar.js_onload|raw }}
+        });
+      });
+    </script>
+  </body>
+</html>

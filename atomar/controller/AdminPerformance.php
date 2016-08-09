@@ -1,0 +1,22 @@
+<?php
+
+namespace atomar\controller;
+
+use atomar\core\Auth;
+use atomar\core\Controller;
+
+class AdminPerformance extends Controller {
+    function GET($matches = array()) {
+        Auth::authenticate('administer_performance');
+
+        // render page
+        echo $this->render_view('admin/performance.html', array(
+            'toggle_css' => system_get('cache_css', false) ? '0' : '1',
+            'toggle_js' => system_get('cache_js', false) ? '0' : '1'
+        ));
+    }
+
+    function POST($matches = array()) {
+        $this->go('/admin/performance');
+    }
+}

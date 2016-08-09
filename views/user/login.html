@@ -1,0 +1,25 @@
+{% extends "_plain.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="text-center">
+  <h2>{{ sys.site_name }}<br><small>Please Sign In</small></h2>
+</div>
+
+<form class="form-signin" action="/user/login/" method="post">
+  <input type="text" class="form-control" placeholder="User name" autofocus="" id="field-username" class="form-control" name="username" required>
+  <input type="password" class="form-control" id="field-password" placeholder="Password" name="password" required>
+  <button class="btn btn-lg btn-primary btn-block" type="submit"><span class="glyphicon glyphicon-lock"></span> Sign In</button>
+</form>
+
+<div class="text-center">
+  <p>
+    <a href="/user/recover">I lost my password</a>
+  </p>
+</div>
+
+<footer class="text-center">
+  &copy; 2013, <a href="{{ sys.site_url }}">{{ sys.site_name }}</a>
+</footer>
+{% endblock %}

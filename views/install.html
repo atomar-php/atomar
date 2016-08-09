@@ -1,0 +1,18 @@
+{% extends "_plain.html" %}
+
+{% block title %}Installation{% endblock %}
+
+{% block content %}
+<form class="form-install" action="/install" method="POST">
+  <h2 class="form-install-heading">Installation</h2>
+  <p>We need to create the super user and set up some optional settings in the database.
+  </p>
+
+  <input type="text" class="form-control" placeholder="Email address" autofocus="" id="field-email"   name="email" required>
+  <input type="password" class="form-control" id="field-password" placeholder="Password" name="password" required>
+  <label class="checkbox">
+    <input type="checkbox" name="full" checked> Perform complete install
+  </label>
+  <button class="btn btn-lg btn-primary btn-block" type="submit">Install</button>
+</form>
+{% endblock %}

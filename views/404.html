@@ -1,0 +1,15 @@
+{% extends "_base.html" %}
+
+{% block title %}404 Error{% endblock %}
+
+{% block content %}
+<div class="hero-unit">
+	<h1>404 <small>Your broke it!</small></h1>
+	{% if path %}
+		<p>Looks like the page at <a href="{{path}}">{{path}}</a> does not exists. Better luck next time.</p>
+	{% else %}
+		<p>Looks like this page does not exist. Better luck next time.</p>
+	{% endif %}
+	<p><a href="/" class="btn btn-primary">Go to the home page</a></p>
+</div>
+{% endblock %}
