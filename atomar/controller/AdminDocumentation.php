@@ -8,7 +8,7 @@ use atomar\Atomar;
 use atomar\core\Logger;
 use Michelf\Markdown;
 
-require_once(Atomar::atomic_dir() . '/vendor/Markdown/Michelf/Markdown.inc.php');
+require_once(Atomar::atomar_dir() . '/vendor/Markdown/Michelf/Markdown.inc.php');
 
 
 class AdminDocumentation extends Controller {
@@ -30,14 +30,14 @@ MD;
                 }
             } elseif ($matches['type'] == 'core') {
                 // get core documentation
-                $markdown = file_get_contents(Atomar::atomic_dir() . '/doc/' . $matches['name'] . '.md');
+                $markdown = file_get_contents(Atomar::atomar_dir() . '/doc/' . $matches['name'] . '.md');
                 if ($markdown === false) {
                     $markdown = $missing;
                 }
             }
         } else {
             // get system documentation
-            $markdown = file_get_contents(Atomar::atomic_dir() . '/README.md');
+            $markdown = file_get_contents(Atomar::atomar_dir() . '/README.md');
             if ($markdown === false) {
                 $markdown = $missing;
                 Logger::log_warning('Could not read the system documentation file');
@@ -69,7 +69,7 @@ MD;
             'access' => 'view_system_documentation',
             'menu' => array()
         );
-        $docs = glob(Atomar::atomic_dir() . '/doc/*.md');
+        $docs = glob(Atomar::atomar_dir() . '/doc/*.md');
         $docs = array_flip($docs);
         ksort($docs);
         $weight = 0;

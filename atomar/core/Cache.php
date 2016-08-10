@@ -33,8 +33,8 @@ class Cache {
         $img_link = realpath($cache_dir) . DIRECTORY_SEPARATOR . 'img';
         $fonts_link = realpath($cache_dir) . DIRECTORY_SEPARATOR . 'fonts';
         // link the other assets like fonts and images
-        if (!is_dir($img_link)) safe_symlink(realpath(Atomar::atomic_dir() . '/assets/img'), $img_link);
-        if (!is_dir($fonts_link)) safe_symlink(realpath(Atomar::atomic_dir() . '/assets/fonts'), $fonts_link);
+        if (!is_dir($img_link)) safe_symlink(realpath(Atomar::atomar_dir() . '/assets/img'), $img_link);
+        if (!is_dir($fonts_link)) safe_symlink(realpath(Atomar::atomar_dir() . '/assets/fonts'), $fonts_link);
 
         // rebuild the cache
         if ($cache_life === false || (time() - $cache_life > $ttl && $ttl > 0)) {

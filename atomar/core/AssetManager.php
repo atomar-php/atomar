@@ -42,7 +42,7 @@ class AssetManager {
     public static function realpath($path) {
         // route core assets
         if (substr($path, 0, 8) == '/assets/') {
-            $file = Atomar::atomic_dir() . $path;
+            $file = Atomar::atomar_dir() . $path;
             if (file_exists($file)) {
                 return $file;
             }

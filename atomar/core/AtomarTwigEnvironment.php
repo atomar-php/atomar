@@ -3,7 +3,7 @@
 namespace atomar\core;
 
 
-class AtomicTwigEnvironment extends \Twig_Environment {
+class AtomarTwigEnvironment extends \Twig_Environment {
     /**
      * This exists so template cache files use the same
      * group between apache and cli

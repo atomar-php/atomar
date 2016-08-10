@@ -646,7 +646,7 @@ HTTP;
 
     // render the message
     $loader = new Twig_Loader_Filesystem(array(
-        \atomar\Atomar::atomic_dir() . '/views/email',
+        \atomar\Atomar::atomar_dir() . '/views/email',
         \atomar\Atomar::site_dir(),
         \atomar\Atomar::extension_dir()
     ));

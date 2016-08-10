@@ -47,7 +47,7 @@ JS;
         $from = trim($_POST['from']);
         $to = trim($_POST['to']);
 
-        $migration_dir = Atomar::atomic_dir() . '/atomar/migration/';
+        $migration_dir = Atomar::atomar_dir() . '/atomar/migration/';
         $class = 'migration_' . md5($from . '_' . $to);
         $file = $migration_dir . $from . '_' . $to . '.php';
 
