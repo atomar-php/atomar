@@ -108,7 +108,7 @@ class Atomar {
         }
 
         // load manifest
-        self::$manifest = new ReadOnlyArray(json_decode(file_get_contents(__DIR__ . '/manifest.json'), true));
+        self::$manifest = new ReadOnlyArray(json_decode(file_get_contents(__DIR__ . '/package.json'), true));
 
         if(!is_dir(self::$config['ext_dir'])) {
             mkdir(self::$config['ext_dir'], 0775);
@@ -450,7 +450,7 @@ HTML;
      */
     public static function load_extension($path, $slug) {
         if (is_dir($path)) {
-            $manifest_file = $path . '/manifest.json';
+            $manifest_file = $path . '/package.json';
             if (file_exists($manifest_file)) {
                 $manifest = json_decode(file_get_contents($manifest_file), true);
 
