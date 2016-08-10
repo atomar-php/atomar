@@ -95,7 +95,7 @@ class AdminExtensions extends Controller {
             \R::wipe('extension');
         }
         // render view
-        echo $this->render_view('admin/extensions.html', array(
+        echo $this->renderView('admin/extensions.html', array(
             'extensions' => $rendered_extensions,
             'ext_dir' => Atomar::extension_dir(),
             'app' => Atomar::getAppInfo()

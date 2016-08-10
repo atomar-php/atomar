@@ -9,7 +9,7 @@ class Admin extends Controller {
     function GET($matches = array()) {
         Auth::authenticate('administer_site');
 
-        echo $this->render_view('admin/index.html');
+        echo $this->renderView('admin/index.html');
     }
 
     /**

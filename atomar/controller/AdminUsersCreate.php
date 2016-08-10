@@ -38,7 +38,7 @@ class AdminUsersCreate extends Lightbox {
         $args = array_merge($values, array(
             'roles' => $user_roles
         ));
-        echo $this->render_view('admin/modal.user.create.html', $args);
+        echo $this->renderView('admin/modal.user.create.html', $args);
     }
 
     function POST($matches = array()) {

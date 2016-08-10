@@ -24,7 +24,7 @@ ORDER BY
 SQL;
         $users = \R::getAll($sql_users);
 
-        echo $this->render_view('admin/users.html', array(
+        echo $this->renderView('admin/users.html', array(
             'users' => $users
         ));
     }

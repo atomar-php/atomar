@@ -44,7 +44,7 @@ MD;
             }
         }
         $html = Markdown::defaultTransform($markdown);
-        echo $this->render_view('admin/documentation.html', array(
+        echo $this->renderView('admin/documentation.html', array(
             'documentation' => $html
         ));
     }

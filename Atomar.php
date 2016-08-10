@@ -110,7 +110,9 @@ class Atomar {
         // load manifest
         self::$manifest = new ReadOnlyArray(json_decode(file_get_contents(__DIR__ . '/manifest.json'), true));
 
-        mkdir(self::$config['ext_dir'], 0775);
+        if(!is_dir(self::$config['ext_dir'])) {
+            mkdir(self::$config['ext_dir'], 0775);
+        }
 
         self::$is_initialized = true;
     }

@@ -14,7 +14,7 @@ class AdminSettings extends Controller {
             self::go('/');
         }
         $settings = \R::findAll('setting', ' ORDER BY name ASC ');
-        echo $this->render_view('admin/settings.html', array(
+        echo $this->renderView('admin/settings.html', array(
             'settings' => $settings
         ));
     }

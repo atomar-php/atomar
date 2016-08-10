@@ -58,7 +58,7 @@ CSS;
         $this->width(600);
         $this->header('New Extension');
 
-        echo $this->render_view('admin/modal.extension.create.html', array(
+        echo $this->renderView('admin/modal.extension.create.html', array(
             'extensions' => $extensions
         ));
     }

@@ -102,7 +102,7 @@ parent.$(parent.window.document).trigger('lightbox.redirect', {
   url:'$url'
 });
 JAVASCRIPT;
-        echo parent::render_view('_lightbox_utility.html', array(), array(
+        echo parent::renderView('_lightbox_utility.html', array(), array(
             'render_messages' => false,
             'render_menus' => false
         ));
@@ -158,7 +158,7 @@ parent.$(parent.window.document).trigger('lightbox.dismiss',  {
   }
 });
 JAVASCRIPT;
-        echo parent::render_view('_lightbox_utility.html', array(), array(
+        echo parent::renderView('_lightbox_utility.html', array(), array(
             'render_messages' => false,
             'render_menus' => false
         ));
@@ -246,7 +246,7 @@ JAVASCRIPT;
      * @param array $options optional rules regarding how the template will be rendered.
      * @return string the rendered html
      */
-    protected function render_view($view, $args = array(), $options = array()) {
+    protected function renderView($view, $args = array(), $options = array()) {
         $id = $this->id;
         $auto_height = $this->auto_height;
         $auto_width = $this->auto_width;
@@ -398,7 +398,7 @@ JAVASCRIPT;
         $args['body_class'] = 'body-as-lightbox';
         $args['_controller'] = 'lightbox';
         if (!isset($options['_controller'])) $options['_controller']['type'] = 'lightbox';
-        return parent::render_view($view, $args, $options);
+        return parent::renderView($view, $args, $options);
     }
 
     /**

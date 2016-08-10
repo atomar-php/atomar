@@ -47,7 +47,7 @@ body {
 }
 CSS;
 
-        echo $this->render_view('user/login.html');
+        echo $this->renderView('user/login.html');
     }
 
     function POST($matches = array()) {

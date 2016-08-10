@@ -13,7 +13,7 @@ class Index extends Controller {
     function GET($matches = array()) {
         Auth::authenticate();
         // render page
-        echo $this->render_view('index.html');
+        echo $this->renderView('index.html');
     }
 
     /**

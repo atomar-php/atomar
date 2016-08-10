@@ -25,12 +25,12 @@ class User extends Controller {
             } else {
                 $user['last_login'] = 'never';
             }
-            echo $this->render_view('user/index.html', array(
+            echo $this->renderView('user/index.html', array(
                 'user' => $user
             ));
         } else {
             set_error('Unknown user');
-            echo $this->render_view('404.html');
+            echo $this->renderView('404.html');
         }
     }
 

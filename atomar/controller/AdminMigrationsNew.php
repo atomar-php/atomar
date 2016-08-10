@@ -29,7 +29,7 @@ JS;
         // configure lightbox
         $this->header('New Migration');
 
-        echo $this->render_view('admin/modal.migration.create.html');
+        echo $this->renderView('admin/modal.migration.create.html');
     }
 
     function POST($matches = array()) {

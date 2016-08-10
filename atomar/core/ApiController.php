@@ -287,9 +287,9 @@ abstract class ApiController extends Controller {
    * @param array $options optional rules regarding how the template will be rendered.
    * @return string the rendered html
    */
-  protected function render_view($view, $args = array(), $options = array()) {
+  protected function renderView($view, $args = array(), $options = array()) {
     if (!isset($options['_controller'])) $options['_controller']['type'] = 'api';
-    return parent::render_view($view, $args, $options);
+    return parent::renderView($view, $args, $options);
   }
 
   /**

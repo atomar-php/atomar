@@ -73,7 +73,7 @@ CSS;
             $this->go_back();
         } else {
             // Form for users
-            echo $this->render_view('user/password.forgot.html', array(
+            echo $this->renderView('user/password.forgot.html', array(
                 'classes' => 'narrow'
             ));
         }

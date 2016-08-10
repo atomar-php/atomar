@@ -58,11 +58,11 @@ CSS;
     function GET($matches = array()) {
         if (Atomar::$config['debug']) {
             Templator::$css_inline[] = self::$css;
-            echo $this->render_view('install.html');
+            echo $this->renderView('install.html');
         } else {
             $message = 'Installation could not be performed because the system is not in debug mode.';
             Logger::log_error($message);
-            echo $this->render_view('error.html', array(
+            echo $this->renderView('error.html', array(
                 'message' => $message
             ));
         }
@@ -72,7 +72,7 @@ CSS;
         if (!Atomar::$config['debug']) {
             $message = 'Installation could not be performed because the system is not in debug mode.';
             Logger::log_error($message);
-            echo $this->render_view('error.html', array(
+            echo $this->renderView('error.html', array(
                 'message' => $message
             ));
             exit;
@@ -305,7 +305,7 @@ SQL;
         } else {
             set_error('An error was encountered while setting up your account.');
             Templator::$css_inline[] = self::$css;
-            echo $this->render_view('install.html');
+            echo $this->renderView('install.html');
         }
     }
 }

@@ -56,7 +56,7 @@ CSS;
             $this->go('/');
         } else {
             // Display new password form.
-            echo $this->render_view('user/password.reset.html', array(
+            echo $this->renderView('user/password.reset.html', array(
                 'classes' => 'narrow',
                 'token' => $token
             ));
@@ -109,7 +109,7 @@ CSS;
         } else if ($password != $password2) {
             // Passwords do not match
             set_error('Passwords do not match.');
-            echo $this->render_view('user/password.reset.html', array(
+            echo $this->renderView('user/password.reset.html', array(
                 'token' => $token
             ));
         } else {
@@ -118,7 +118,7 @@ CSS;
             if (!Auth::set_password($user, $password)) {
                 // Error updating password
                 set_error('Your password could not be changed at this time. Please try again later.');
-                echo $this->render_view('user/password.reset.html', array(
+                echo $this->renderView('user/password.reset.html', array(
                     'token' => $token,
                     'id' => $id
                 ));
