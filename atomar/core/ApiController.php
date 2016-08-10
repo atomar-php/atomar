@@ -46,7 +46,7 @@ abstract class ApiController extends Controller {
    * @param array $matches the matched parameters from the url route
    */
   private final function api_handler($prefix, $matches) {
-    $api = $matches['api'];
+    $api = strtolower($matches['api']);
     $method_signature = $prefix . '_' . $api;
     $backwards_compatible_method_signature = strtoupper('_' . $prefix);
     if (method_exists($this, $method_signature)) {
@@ -57,7 +57,7 @@ abstract class ApiController extends Controller {
         $this->respond($response);
       } catch (ParameterException $e) {
         // send any parameter parsing exceptions as an error response
-        $this->respond(new MalformedParameters($e->getMessage()));
+        $this->respond(new MalformedParameters($e->getMessage(), 400));
       }
     } elseif (method_exists($this, $backwards_compatible_method_signature)) {
       // run backwards compatible methods e.g. _POST and _GET if they exist.
@@ -65,7 +65,7 @@ abstract class ApiController extends Controller {
       $this->$backwards_compatible_method_signature($matches);
     } else {
       // send error response
-      $this->respond(new UnknownAPIError('The method signature "' . $method_signature . '" could not be found for the api call "' . $api . '"'));
+      $this->respond(new UnknownAPIError('The method signature "' . $method_signature . '" could not be found for the api call "' . $api . '"', 404));
     }
   }
 
@@ -162,21 +162,16 @@ abstract class ApiController extends Controller {
    * @param mixed $data an array of data or an error object.
    */
   protected function respond($data) {
-    $response = array('v' => $this->api_version, // api version
-      't' => microtime(true)// time stamp
-    );
-
+    $response = array();
     if (is_a($data, 'atomar\core\APIError')) {
-      $response['error'] = array('type' => $data->getType(), 'message' => $data->getMessage());
-      if ($data->getCode() != 0) {
-        http_response_code($data->getCode());
-      }
+      http_response_code($data->getCode());
+      $response = array('exception' => $data->getType(), 'message' => $data->getMessage());
     } else {
+      // put string responses into the message
       if (!is_array($data)) {
-        // put string responses into the message
-        $data = array('message' => $data);
+        $data = array('data' => $data);
       }
-      $response['ok'] = $data;
+      $response = $data;
     }
     render_json($response);
   }
@@ -302,7 +297,7 @@ class ParameterException extends \Exception {
  */
 class APIError {
   protected $message = 'An unknown error has occurred';
-  protected $code = 0;
+  protected $code = 500;
 
   /**
    * Creates a new api error
@@ -329,11 +324,12 @@ class APIError {
    * @return string
    */
   public function getType() {
-    return get_class($this);
+    $cls = new \ReflectionClass($this);
+    return $cls->getShortName();
   }
 
   /**
-   * get the hreader response code
+   * get the header response code
    *
    * @return mixed
    */
