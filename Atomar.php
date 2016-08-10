@@ -11,7 +11,7 @@ use atomar\core\Router;
 use atomar\core\Templator;
 use atomar\hook\Hook;
 use atomar\hook\Libraries;
-use atomar\hook\PreprocessBoot;
+use atomar\hook\PreProcessBoot;
 
 require_once(__DIR__ . '/atomar/core/AutoLoader.php');
 
@@ -147,7 +147,7 @@ class Atomar {
      * @return array
      */
     public static function getAppInfo() {
-        return self::$app->export();
+        return self::$app ? self::$app->export() : null;
     }
 
     /**
@@ -282,7 +282,7 @@ HTML;
          *
          */
         AutoLoader::register(self::application_dir());
-        self::$app = self::load_extension(self::application_dir(), 'app');
+        self::$app = self::loadModule(self::application_dir(), 'app');
         if (self::$app === null) {
             Logger::log_error('Could not load the application from  ' . self::application_dir());
         }
@@ -290,12 +290,12 @@ HTML;
         if (vercmp(self::$app->version, self::$app->installed_version) > 0) {
             self::$app->is_update_pending = '1';
         }
-        if (vercmp(self::$app->core, self::version()) < 0) {
+        if (vercmp(self::$app->atomar_version, self::version()) < 0) {
             self::$app = null;
             Logger::log_error('The application does not support this version of Atomar. Found ' . self::$app->version . ' but expected at least ' . self::version());
         }
 
-        self::hook(new PreprocessBoot());
+        self::hook(new PreProcessBoot());
 
         /**
          * VIEW
@@ -439,7 +439,7 @@ HTML;
      * @return string
      */
     public static function application_dir() {
-        return self::$config['app_dir'].rtrim('/') . '/';
+        return rtrim(self::$config['app_dir'], '/') . '/';
     }
 
     /**
@@ -448,7 +448,7 @@ HTML;
      * @param string $slug The extension slug
      * @return null|\RedBeanPHP\OODBBean
      */
-    public static function load_extension($path, $slug) {
+    public static function loadModule($path, $slug) {
         if (is_dir($path)) {
             $manifest_file = $path . '/package.json';
             if (file_exists($manifest_file)) {
@@ -466,7 +466,7 @@ HTML;
                 }
 
                 // load updated info
-                $ext->import($manifest, 'name,description,version,core');
+                $ext->import($manifest, 'name,description,version,atomarVersion');
                 if (isset($manifest['dependencies'])) {
                     $ext->set_dependencies($manifest['dependencies']);
                 }

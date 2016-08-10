@@ -53,7 +53,7 @@ abstract class ApiController extends Controller {
       // execute the api method
       error_reporting(0); // make sure errors do not corrupt the response.
       try {
-        $response = $this->call_user_func_args(get_class($this) . '::' . $method_signature, $_REQUEST, true);
+        $response = $this->call_user_func_args($method_signature, $_REQUEST, true);
         $this->respond($response);
       } catch (ParameterException $e) {
         // send any parameter parsing exceptions as an error response
@@ -76,57 +76,42 @@ abstract class ApiController extends Controller {
    * If true, $ValidateInput tries to warn you of issues with your Arguments, bad types, nulls where they should not be.
    *
    * @copyright Claudrian
-   * @param callable $callable
+   * @param string $method
    * @param array $arguments
    * @param bool $validate_input
    * @return mixed
    * @throws ParameterException
    * @throws \Exception
    */
-  private final function call_user_func_args($callable, array $arguments, $validate_input = false) {
-    // this the callable a class method or an ordinary function
-    $is_method = false;
-    // Make sure the $callable is callable
-    if (!is_callable($callable)) {
-      throw new ParameterException($callable . ' is not a callable.');
+  private final function call_user_func_args($method, array $arguments, $validate_input = false) {
+    // Make sure the $method actually exists
+    if (!method_exists($this, $method)) {
+      throw new ParameterException($method . ' is not defined.');
     }
 
-    // Validate the input $Arguments
+    // validate arguments
     array_change_key_case($arguments, CASE_LOWER);
     foreach ($arguments as $argument_name => $argument_value) {
       if (empty($argument_name) or is_numeric($argument_name)) {
         throw new ParameterException('$Arguments cannot have numeric offsets.');
       }
-      // TODO: we probably shouldn't allow uppercase parameters, but we have it here for backwards compatibility for the infinite scroll.
-      if (!preg_match('~^[a-z_][a-zA-Z0-9_]*$~', $argument_name)) {
+      if (!preg_match('~^[a-z_][a-z0-9_]*$~', $argument_name)) {
         throw new ParameterException('$Arguments contains illegal character offsets. Was given "' . $argument_name . '"');
       }
     }
 
-    // Get access to the function
-    try {
-      $pieces = explode('::', $callable);
-      if (count($pieces) == 2) {
-        $reflector = new \ReflectionMethod($pieces[0], $pieces[1]);
-        $is_method = true;
-      } else {
-        $reflector = new \ReflectionFunction($callable);
-      }
-    } catch (\Exception $e) {
-      throw $e;
-    }
-
-    // If function has not arguments, just call it but it's stupid
-    $required_parameter_count = $reflector->getNumberOfRequiredParameters();
+    $reflector = new \ReflectionMethod(get_class($this), $method);
 
     // No arguments, and no required arguments
+    $required_parameter_count = $reflector->getNumberOfRequiredParameters();
     if (empty($arguments) && $required_parameter_count == 0) {
-      return call_user_func($callable);
+      return $this->$method();
     }
 
+    // Arguments, but no method arguments
     $parameter_count = $reflector->getNumberOfParameters();
     if (!$parameter_count) {
-      return call_user_func($callable);
+      return $this->$method();
     }
 
     // Prepare the $Parameters
@@ -168,11 +153,7 @@ abstract class ApiController extends Controller {
       $arguments[] = $param['Provided'];
     }
     // Invoke the actual function
-    if ($is_method) {
-      return $reflector->invokeArgs($this, $arguments);
-    } else {
-      return $reflector->invokeArgs($arguments);
-    }
+    return $reflector->invokeArgs($this, $arguments);
   }
 
   /**

@@ -4,8 +4,8 @@ namespace atomar\core;
 
 use atomar\Atomar;
 use atomar\exception\UnknownController;
-use atomar\hook\PostprocessBoot;
-use atomar\hook\PreprocessBoot;
+use atomar\hook\PostProcessBoot;
+use atomar\hook\PreProcessBoot;
 use atomar\hook\Url;
 
 /**
@@ -188,7 +188,7 @@ JAVASCRIPT;
             }
             unset($public_urls, $system_urls, $unauthenticated_urls, $authenticated_urls);
 
-            Atomar::hook(new PostprocessBoot());
+            Atomar::hook(new PostProcessBoot());
         }
 
         // begin routing

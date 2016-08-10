@@ -3,7 +3,7 @@
 namespace atomar\hook;
 
 
-class PreprocessPage implements Hook {
+class PreProcessPage implements Hook {
 
     /**
      * Hooks may receive optional params

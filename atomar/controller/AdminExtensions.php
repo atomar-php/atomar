@@ -27,7 +27,7 @@ class AdminExtensions extends Controller {
         foreach ($files as $f) {
             if ($f != '.' && $f != '..' && is_dir($ext_path . $f)) {
                 // load extension
-                $ext = Atomar::load_extension($ext_path . $f, $f);
+                $ext = Atomar::loadModule($ext_path . $f, $f);
 
                 if ($ext !== null) {
                     // load information

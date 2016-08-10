@@ -4,7 +4,7 @@ namespace atomar\core;
 
 use atomar\Atomar;
 use atomar\hook\Menu;
-use atomar\hook\PreprocessPage;
+use atomar\hook\PreProcessPage;
 use atomar\hook\TwigFunction;
 
 /**
@@ -201,7 +201,7 @@ CSS;
             'trigger_menu' => true
         );
         $options = array_merge($default_options, $options);
-        if ($options['trigger_preprocess_page']) Atomar::hook(new PreprocessPage());
+        if ($options['trigger_preprocess_page']) Atomar::hook(new PreProcessPage());
         try {
             // initialize twig template engine
             $loader = new \Twig_Loader_Filesystem(array(
