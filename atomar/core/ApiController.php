@@ -90,12 +90,11 @@ abstract class ApiController extends Controller {
     }
 
     // validate arguments
-    array_change_key_case($arguments, CASE_LOWER);
     foreach ($arguments as $argument_name => $argument_value) {
       if (empty($argument_name) or is_numeric($argument_name)) {
         throw new ParameterException('$Arguments cannot have numeric offsets.');
       }
-      if (!preg_match('~^[a-z_][a-z0-9_]*$~', $argument_name)) {
+      if (!preg_match('~^[a-z\_][a-zA-Z0-9\_]*$~', $argument_name)) {
         throw new ParameterException('$Arguments contains illegal character offsets. Was given "' . $argument_name . '"');
       }
     }
