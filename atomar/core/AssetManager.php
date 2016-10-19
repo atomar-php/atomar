@@ -40,21 +40,30 @@ class AssetManager {
     public static function realpath($path) {
         $atomar_asset_url = '/atomar/assets/';
         $app_asset_url = '/assets/';
+        $well_known_url = '/.well-known';
         if (substr($path, 0, strlen($atomar_asset_url)) == $atomar_asset_url) {
             // route atomar assets
             $file = Atomar::atomar_dir() . '/assets/' . substr($path, strlen($atomar_asset_url));
             if (file_exists($file)) {
                 return $file;
             }
+            self::throw404();
         } else if(substr($path, 0, strlen($app_asset_url)) == $app_asset_url) {
             // route application assets
             $file = Atomar::application_dir() . $path;
             if (file_exists($file)) {
                 return $file;
             }
+            self::throw404();
+        } else if(substr($path, 0, strlen($well_known_url)) == $well_known_url) {
+            // route .well-known assets (for ACME challenge)
+            $file = Atomar::site_dir() . $path;
+            if (file_exists($file)) {
+                return $file;
+            }
+            self::throw404();
         } else {
-            // route extension assets
-            // route app assets to application dir
+            // route extension assets if possible
             $content_type = self::getContentType($path);
             if($content_type != 'application/octet-stream') {
                 $ext_path_len = strlen(Atomar::extension_dir());
@@ -67,6 +76,11 @@ class AssetManager {
             }
         }
         return null;
+    }
+
+    private static function throw404() {
+        http_response_code(404);
+        exit;
     }
 
     /**
