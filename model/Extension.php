@@ -11,6 +11,7 @@ class Extension extends CoreBeanModel {
         $this->register_property('is_update_pending');
         $this->register_property('slug');
         $this->register_property('name');
+        $this->register_property('author');
         $this->register_property('description');
         $this->register_property('version');
         $this->register_property('installed_version');

@@ -282,17 +282,25 @@ HTML;
          *
          */
         AutoLoader::register(self::application_dir());
-        self::$app = self::loadModule(self::application_dir(), 'app');
-        if (self::$app === null) {
-            Logger::log_error('Could not load the application from  ' . self::application_dir());
-        }
-        self::$app->installed_version = system_get('app_installed_version', 0);
-        if (vercmp(self::$app->version, self::$app->installed_version) > 0) {
-            self::$app->is_update_pending = '1';
-        }
-        if (vercmp(self::$app->atomar_version, self::version()) < 0) {
-            self::$app = null;
-            Logger::log_error('The application does not support this version of Atomar. Found ' . self::$app->version . ' but expected at least ' . self::version());
+        self::$app = self::loadModule(self::application_dir(), self::application_namespace());
+        if (!isset(self::$app)) {
+            Logger::log_error('Could not load the application from ' . self::application_dir());
+            if (self::$config['debug']) {
+                set_error('Failed to load the application');
+            }
+        } else {
+            self::$app->installed_version = system_get('app_installed_version', 0);
+            if (vercmp(self::$app->version, self::$app->installed_version) > 0) {
+                self::$app->is_update_pending = '1';
+            }
+            // restrict usage of application if it specifies a supported version of atomar
+            if (isset(self::$app->atomar_version) && vercmp(self::$app->atomar_version, self::version()) < 0) {
+                self::$app = null;
+                Logger::log_error('The application does not support this version of Atomar. Found ' . self::$app->version . ' but expected at least ' . self::version());
+                if (self::$config['debug']) {
+                    set_error('The application does not support this version of Atomar.');
+                }
+            }
         }
 
         self::hook(new PreProcessBoot());
@@ -450,7 +458,7 @@ HTML;
      */
     public static function loadModule($path, $slug) {
         if (is_dir($path)) {
-            $manifest_file = $path . '/package.json';
+            $manifest_file = rtrim($path, '/') . '/atomar.json';
             if (file_exists($manifest_file)) {
                 $manifest = json_decode(file_get_contents($manifest_file), true);
 
@@ -466,11 +474,20 @@ HTML;
                 }
 
                 // load updated info
-                $ext->import($manifest, 'name,description,version,atomarVersion');
+                $ext->import($manifest, 'name,description,version,atomar_version,author');
+                if(!isset($manifest['atomar_version'])) {
+                    $ext->atomar_version = null;
+                }
                 if (isset($manifest['dependencies'])) {
                     $ext->set_dependencies($manifest['dependencies']);
                 }
-                \R::store($ext);
+                try {
+                    \R::store($ext);
+                } catch(\Exception $e) {
+                    Logger::log_error("Failed to load the module " + $slug, $e);
+                    return null;
+                }
+
                 return $ext;
             }
         }
