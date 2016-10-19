@@ -70,29 +70,29 @@ class Templator {
     public static function init() {
         // set up scripts. Order does matter.
         self::$js = array(
-            '/assets/js/jquery.min.js',
-            '/assets/js/bootstrap.min.js',
-            '/assets/js/bootstrap.file-input.js',
-            '/assets/js/bootstrap-datetimepicker.js',
-            '/assets/js/chosen.jquery.min.js',
-            '/assets/js/Validate.js',
-            '/assets/js/Process.js',
-            '/assets/js/Confirmation.js',
-            '/assets/js/InlineEdit.js',
-            '/assets/js/Lightbox.js',
-            '/assets/js/sonic.js',
-            '/assets/js/js_loader_animation.js',
-            '/assets/js/functions.js',
-            '/assets/js/main.js',
+            '/atomar/assets/js/jquery.min.js',
+            '/atomar/assets/js/bootstrap.min.js',
+            '/atomar/assets/js/bootstrap.file-input.js',
+            '/atomar/assets/js/bootstrap-datetimepicker.js',
+            '/atomar/assets/js/chosen.jquery.min.js',
+            '/atomar/assets/js/Validate.js',
+            '/atomar/assets/js/Process.js',
+            '/atomar/assets/js/Confirmation.js',
+            '/atomar/assets/js/InlineEdit.js',
+            '/atomar/assets/js/Lightbox.js',
+            '/atomar/assets/js/sonic.js',
+            '/atomar/assets/js/js_loader_animation.js',
+            '/atomar/assets/js/functions.js',
+            '/atomar/assets/js/main.js',
         );
 
         // set up css. Order does matter
         self::$css = array(
-            '/assets/css/bootstrap.min.css',
-            '/assets/css/chosen.min.css',
-            '/assets/css/chosen-bootstrap.css',
-            '/assets/css/bootstrap-datetimepicker.min.css',
-            '/assets/css/main.css',
+            '/atomar/assets/css/bootstrap.min.css',
+            '/atomar/assets/css/chosen.min.css',
+            '/atomar/assets/css/chosen-bootstrap.css',
+            '/atomar/assets/css/bootstrap-datetimepicker.min.css',
+            '/atomar/assets/css/main.css',
         );
 
         self::$is_initialized = true;
@@ -111,8 +111,8 @@ class Templator {
             'debug' => true
         ));
         $twig->addExtension(new \Twig_Extension_Debug());
-        $atomar['css'][] = '/assets/css/bootstrap.min.css';
-        $atomar['css'][] = '/assets/css/main.css';
+        $atomar['css'][] = '/atomar/assets/css/bootstrap.min.css';
+        $atomar['css'][] = '/atomar/assets/css/main.css';
         $atomar['version'] = Atomar::version();
 
         $atomar['css_inline'] = <<<CSS

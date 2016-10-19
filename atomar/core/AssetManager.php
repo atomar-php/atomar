@@ -14,9 +14,7 @@ class AssetManager {
      * Runs the asset manager
      */
     public static function run() {
-        // TODO: atomar assets should be mapped to urls /atomar/[css|fonts|img|js]/[relative asset path]
-        // TODO: extension assets should be mapped to urls /ext/[extension_slug]/[relative asset path]
-        // TODO: this class needs to support caching
+        // TODO: this class should operate on hooks to define the static paths. Then we'll map urls to static paths
         $file = self::realpath(Router::request_path());
         if($file !== null) {
             $args = array(
@@ -35,32 +33,35 @@ class AssetManager {
     }
 
     /**
-     * Returns the absolute path to a resource
+     * Returns the absolute path to an asset
      * @param $path
      * @return string
      */
     public static function realpath($path) {
-        // route core assets
-        if (substr($path, 0, 8) == '/assets/') {
-            $file = Atomar::atomar_dir() . $path;
+        $atomar_asset_url = '/atomar/assets/';
+        $app_asset_url = '/assets/';
+        if (substr($path, 0, strlen($atomar_asset_url)) == $atomar_asset_url) {
+            // route atomar assets
+            $file = Atomar::atomar_dir() . '/assets/' . substr($path, strlen($atomar_asset_url));
+            if (file_exists($file)) {
+                return $file;
+            }
+        } else if(substr($path, 0, strlen($app_asset_url)) == $app_asset_url) {
+            // route application assets
+            $file = Atomar::application_dir() . $path;
             if (file_exists($file)) {
                 return $file;
             }
         } else {
+            // route extension assets
             // route app assets to application dir
             $content_type = self::getContentType($path);
             if($content_type != 'application/octet-stream') {
-                $file = Atomar::application_dir() . $path;
-                if (file_exists($file)) {
-                    return $file;
-                } else {
-                    // try to serve the file as is if it matches the extensions path
-                    $ext_path_len = strlen(Atomar::extension_dir());
-                    if(strlen($path) >= $ext_path_len) {
-                        $request_root_path = substr($path, 0, $ext_path_len);
-                        if($request_root_path === Atomar::extension_dir() && file_exists($path)) {
-                            return $path;
-                        }
+                $ext_path_len = strlen(Atomar::extension_dir());
+                if(strlen($path) >= $ext_path_len) {
+                    $request_root_path = substr($path, 0, $ext_path_len);
+                    if($request_root_path === Atomar::extension_dir() && file_exists($path)) {
+                        return $path;
                     }
                 }
             }

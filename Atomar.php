@@ -180,6 +180,7 @@ class Atomar {
         /**
          * Server static assets
          */
+        // TODO: make this configurable so modules can define static directories
         AssetManager::run();
 
         /**
