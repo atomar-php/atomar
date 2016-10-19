@@ -193,6 +193,14 @@ CSS;
      * @return string
      */
     public static function render_view($template, $args = array(), $options = array()) {
+        $template = ltrim($template, '/');
+
+        // TRICKY: app templates are prefixed with the app namespace, but templates are loaded relative to
+        // the app dir. We trim them here so they match.
+        if(substr($template, 0, strlen(Atomar::application_namespace())) == Atomar::application_namespace()) {
+            $template = substr($template, strlen(Atomar::application_namespace()));
+        }
+
         $default_options = array(
             'render_messages' => true,
             'render_menus' => true,
@@ -214,7 +222,7 @@ CSS;
                     'debug' => Atomar::$config['debug'],
                 ));
                 require_once(Atomar::atomar_dir() . '/vendor/Twig/Extension/Debug.php');
-                $twig->addExtension(new \Twig_Extension_debug());
+                $twig->addExtension(new \Twig_Extension_Debug());
                 // delete the cache if it exists
                 if (is_dir(Atomar::$config['cache'] . 'twig')) {
                     deleteDir(Atomar::$config['cache'] . 'twig');
@@ -530,7 +538,7 @@ CSS;
             $args['atomar']['css'] = self::$css;
             $args['atomar']['css_inline'] = implode(' ', self::$css_inline);
 
-            // TRICKY: backwards compatability
+            // TRICKY: backwards compatibility
             $args['sys'] = $args['atomar'];
 
             return $twig->render($template, $args);
