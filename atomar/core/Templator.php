@@ -161,7 +161,7 @@ CSS;
             'title' => $title,
             'message' => $message,
             'atomar' => $atomar,
-            'sys' => $atomar // TRICKY: backwards compatability
+            'sys' => $atomar // TRICKY: backwards compatibility
         ));
     }
 
@@ -205,9 +205,9 @@ CSS;
         try {
             // initialize twig template engine
             $loader = new \Twig_Loader_Filesystem(array(
-                Atomar::atomar_dir() . DIRECTORY_SEPARATOR . 'views',
+                Atomar::application_dir(),
                 Atomar::extension_dir(),
-                Atomar::application_dir() . '../'
+                Atomar::atomar_dir() . DIRECTORY_SEPARATOR . 'views'
             ));
             if (Atomar::$config['debug']) {
                 $twig = new AtomarTwigEnvironment($loader, array(
