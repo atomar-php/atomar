@@ -17,6 +17,6 @@ class AdminPerformance extends Controller {
     }
 
     function POST($matches = array()) {
-        $this->go('/admin/performance');
+        $this->go('/atomar/performance');
     }
 }

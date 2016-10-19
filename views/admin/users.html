@@ -6,7 +6,7 @@
 <div class="row">
   <div class="page-header clearfix">
     <h2 class="pull-left">Users</h2>
-    <a data-lightbox="/admin/users/create" class="btn btn-primary pull-right hidden-phone"><span class="glyphicon glyphicon-plus-sign"></span> New User</a>
+    <a data-lightbox="/atomar/users/create" class="btn btn-primary pull-right hidden-phone"><span class="glyphicon glyphicon-plus-sign"></span> New User</a>
   </div>
   <p class="well hidden-phone">
     Here is a list of all the users on the site. You may edit, email, or disable any account with the shortcut buttons to the right of them. Additional capabilities are available when editing the user directly.
@@ -27,7 +27,7 @@
     <tr class="warning tip" title="This user is disabled">
       {% endif %}
       <td>
-        <a href="/user/{{ user.id }}?r=/admin/users">{{ user.first_name }} {{ user.last_name }} ({{ user.role }})</a>
+        <a href="/user/{{ user.id }}?r=/atomar/users">{{ user.first_name }} {{ user.last_name }} ({{ user.role }})</a>
         {% if user.notes %}
         <span class="glyphicon glyphicon-comment tip" title="{{ user.notes }}"></span>
         {% endif %}
@@ -38,7 +38,7 @@
           <form action="/!/send_personal_message" method="POST" class="short">
             <input type="hidden" name="template" value="personal_message.html">
             <fieldset>
-              <input type="hidden" name="return" value="/admin/users">
+              <input type="hidden" name="return" value="/atomar/users">
               <input type="hidden" name="recipient" value="{{ user.id }}">
               <div class="row">
                 <div class="col-xs-12 col-sm-12">
@@ -54,11 +54,11 @@
       </td>
       <td>{{ fancy_date(user.last_login, 1) }}</td>
       <td class="center">
-        <a data-lightbox="/admin/user/{{ user.id }}/edit?r=/admin/users"><span class="glyphicon glyphicon-edit tip" data-toggle="tooltip" title="edit"></span></a>
+        <a data-lightbox="/atomar/user/{{ user.id }}/edit?r=/atomar/users"><span class="glyphicon glyphicon-edit tip" data-toggle="tooltip" title="edit"></span></a>
         {% if user.is_enabled %}
-        <a href="/!/enable_user?id={{ user.id }}&amp;enabled=0&amp;r=/admin/users"><span class="glyphicon glyphicon-thumbs-down tip" data-toggle="tooltip" title="disable"></span></a>
+        <a href="/!/enable_user?id={{ user.id }}&amp;enabled=0&amp;r=/atomar/users"><span class="glyphicon glyphicon-thumbs-down tip" data-toggle="tooltip" title="disable"></span></a>
         {% else %}
-        <a href="/!/enable_user?id={{ user.id }}&amp;enabled=1&amp;r=/admin/users"><span class="glyphicon glyphicon-thumbs-up tip" data-toggle="tooltip" title="enable"></span></a>
+        <a href="/!/enable_user?id={{ user.id }}&amp;enabled=1&amp;r=/atomar/users"><span class="glyphicon glyphicon-thumbs-up tip" data-toggle="tooltip" title="enable"></span></a>
         {% endif %}
       </td>
     </tr>
@@ -67,7 +67,7 @@
     <tr>
       <td>
         <div class="well">
-          There are no users. <a href="/admin/users/create">Create a new user</a>.
+          There are no users. <a href="/atomar/users/create">Create a new user</a>.
         </div>
       </td>
     </tr>

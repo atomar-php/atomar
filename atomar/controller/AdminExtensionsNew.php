@@ -360,7 +360,7 @@ PHP;
         } else {
             set_error('An extension by that name already exists!');
         }
-        $this->redirect('/admin/extensions');
+        $this->redirect('/atomar/extensions');
     }
 
     /**

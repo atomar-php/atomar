@@ -136,7 +136,7 @@ class AdminExtensions extends Controller {
         if ($not_supported) {
             set_error('Some extensions could not be enabled because they are not supported.');
         }
-        $this->go('/admin/extensions');
+        $this->go('/atomar/extensions');
     }
 
     // stores an extension in the db and saves it in the cache

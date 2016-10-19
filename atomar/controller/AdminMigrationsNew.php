@@ -94,7 +94,7 @@ PHP;
         } else {
             set_error('That migration already exists.');
         }
-        $this->redirect('/admin/extensions');
+        $this->redirect('/atomar/extensions');
     }
 
     /**

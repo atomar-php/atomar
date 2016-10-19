@@ -30,6 +30,6 @@ SQL;
     }
 
     function POST($matches = array()) {
-        $this->go('/admin/users/');
+        $this->go('/atomar/users/');
     }
 }

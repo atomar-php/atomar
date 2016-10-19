@@ -22,7 +22,7 @@ Atomar implements the Model View Controller ([MVC](http://en.wikipedia.org/wiki/
 [Glue] is a simple PHP class that maps URLs to classes
 
 ##Want to learn more?
-The rest of the documentation is broken up by class. You can find the documentation on disk in `doc/` or, if you have already installed Atomar, in your browser to [/admin/documentation](/admin/documentation).
+The rest of the documentation is broken up by class. You can find the documentation on disk in `doc/` or, if you have already installed Atomar, in your browser to [/atomar/documentation](/atomar/documentation).
 
 ##Sample Site Layout
 Below is a sample directory structure for a site built with Atomar.
@@ -37,7 +37,7 @@ Below is a sample directory structure for a site built with Atomar.
 ###ext/
 This directory contains all the Atomar extensions. Extensions add extra functionality for your site or other extensions. 
 
-* [Extensions](/admin/documentation/core/Extensions)
+* [Extensions](/atomar/documentation/core/Extensions)
 
 
 ##Atomar Folder Structure
@@ -63,26 +63,26 @@ Below is an overview of the Atomar directory structure followed by descriptions 
 ###assets/
 Contains the core assets. These files are loaded in the core by default. See also
 
-* [JavaScript](/admin/documentation/core/Javascript)
+* [JavaScript](/atomar/documentation/core/Javascript)
 
 ###controller/
 Contains the core controllers.
 
-* [Controllers](/admin/documentation/core/Controllers)
+* [Controllers](/atomar/documentation/core/Controllers)
 
 ###atomar/
 Contains classes that make up the atomar core.
 
-* [Authentication](/admin/documentation/core/Authentication)
-* [Configuration](/admin/documentation/core/Configuration)
-* [Cron](/admin/documentation/core/Cron)
-* [Functions](/admin/documentation/core/Functions)
-* [Hooks](/admin/documentation/core/Hooks)
-* [Lightboxes](/admin/documentation/core/Lightboxes)
-* [Migration](/admin/documentation/core/Migration)
-* [Users](/admin/documentation/core/Users)
-* [APIs](/admin/documentation/core/APIs)
-* [Menus](/admin/documentation/core/Menus)
+* [Authentication](/atomar/documentation/core/Authentication)
+* [Configuration](/atomar/documentation/core/Configuration)
+* [Cron](/atomar/documentation/core/Cron)
+* [Functions](/atomar/documentation/core/Functions)
+* [Hooks](/atomar/documentation/core/Hooks)
+* [Lightboxes](/atomar/documentation/core/Lightboxes)
+* [Migration](/atomar/documentation/core/Migration)
+* [Users](/atomar/documentation/core/Users)
+* [APIs](/atomar/documentation/core/APIs)
+* [Menus](/atomar/documentation/core/Menus)
 
 ###vendor/
 Contains third party code used in the core. Included in this directory is the source for [ReadBeanPHP], [Twig], and [Glue].

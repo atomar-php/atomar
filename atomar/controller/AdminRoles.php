@@ -61,6 +61,6 @@ SQL;
         }
         \R::storeAll($roles);
         set_success('Updated role permissions.');
-        $this->go('/admin/roles');
+        $this->go('/atomar/roles');
     }
 }

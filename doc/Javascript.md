@@ -25,7 +25,7 @@ This class allows you to quickly create a confirmation dialog on any element. Th
 ###Lightbox
 The lightbox class is a powerful tool that allows developers to create functional and aesthetically pleasing lightboxes. Implimenting a lightbox is very easy. In place of the `href` include a `data-lightbox` attribute the value of which contains the appropriate url. This url will need to be routed to a Lightbox controller.
 
-    <a data-lightbox="/admin/users/create">Create User</a>
+    <a data-lightbox="/atomar/users/create">Create User</a>
 
 See [Lightboxes](/admin/documentation/core/Lightboxes) for details about Lightbox controllers and [Extensions](/admin/documentation/core/Extensions) for details about setting up routes.
 

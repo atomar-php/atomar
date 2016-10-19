@@ -75,15 +75,15 @@
       <div class="col-md-12">
         <div class="pull-left">
 {% if is_admin %}
-          <a href="/!/delete_user?id={{ user.id }}&amp;r=/admin/users" class="btn btn-danger btn-small" data-confirm="Are you sure you want to delete the user? This cannot be undone."><i class="icon-trash icon-white"></i> Delete Account</a>
+          <a href="/!/delete_user?id={{ user.id }}&amp;r=/atomar/users" class="btn btn-danger btn-small" data-confirm="Are you sure you want to delete the user? This cannot be undone."><i class="icon-trash icon-white"></i> Delete Account</a>
   {% if user.is_enabled %}
-          <a href="/!/enable_user?enable=0&amp;id={{ user.id }}&amp;r=/admin/user/{{ user.id }}/edit" class="btn btn-warning btn-small"><i class="icon-thumbs-down icon-white"></i> Disable Account</a>
+          <a href="/!/enable_user?enable=0&amp;id={{ user.id }}&amp;r=/atomar/user/{{ user.id }}/edit" class="btn btn-warning btn-small"><i class="icon-thumbs-down icon-white"></i> Disable Account</a>
   {% else %}
-          <a href="/!/enable_user?enable=1&amp;id={{ user.id }}&amp;r=/admin/user/{{ user.id }}/edit" class="btn btn-success btn-small"><i class="icon-thumbs-up icon-white"></i> Enable Account</a>
+          <a href="/!/enable_user?enable=1&amp;id={{ user.id }}&amp;r=/atomar/user/{{ user.id }}/edit" class="btn btn-success btn-small"><i class="icon-thumbs-up icon-white"></i> Enable Account</a>
   {% endif %}
-          <a href="/user/recover/{{ user.id }}?return=/admin/user/{{ user.id }}/edit" class="btn btn-info btn-small"><i class="icon-share icon-white"></i> Send Password Reset</a>
+          <a href="/user/recover/{{ user.id }}?return=/atomar/user/{{ user.id }}/edit" class="btn btn-info btn-small"><i class="icon-share icon-white"></i> Send Password Reset</a>
 {% else %}
-          <a href="/!/enable_user?enable=0&amp;id={{ user.id }}&amp;r=/admin/user/{{ user.id }}/edit" class="btn btn-warning btn-small" data-confirm="Are you sure you want to delete your account?"><i class="icon-thumbs-down icon-white"></i> Delete Account</a>
+          <a href="/!/enable_user?enable=0&amp;id={{ user.id }}&amp;r=/atomar/user/{{ user.id }}/edit" class="btn btn-warning btn-small" data-confirm="Are you sure you want to delete your account?"><i class="icon-thumbs-down icon-white"></i> Delete Account</a>
 {% endif %}
         </div>
       </div>

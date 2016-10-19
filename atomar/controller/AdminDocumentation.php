@@ -62,7 +62,7 @@ MD;
      */
     private function generate_menu() {
         // add core docs
-        Atomar::$menu['secondary_menu']['/admin/documentation']['menu']['/core'] = array(
+        Atomar::$menu['secondary_menu']['/atomar/documentation']['menu']['/core'] = array(
             'title' => 'Atomar',
             'class' => array(),
             'weight' => 0,
@@ -74,8 +74,8 @@ MD;
         ksort($docs);
         $weight = 0;
         foreach ($docs as $doc => $index) {
-            Atomar::$menu['secondary_menu']['/admin/documentation']['menu']['/core']['menu'][basename($doc)] = array(
-                'link' => l(basename($doc, '.md'), '/admin/documentation/core/' . basename($doc, '.md')),
+            Atomar::$menu['secondary_menu']['/atomar/documentation']['menu']['/core']['menu'][basename($doc)] = array(
+                'link' => l(basename($doc, '.md'), '/atomar/documentation/core/' . basename($doc, '.md')),
                 'class' => array(),
                 'weight' => $weight,
                 'access' => 'view_system_documentation',
@@ -85,7 +85,7 @@ MD;
         }
 
         // add extension docs
-        Atomar::$menu['secondary_menu']['/admin/documentation']['menu']['/ext'] = array(
+        Atomar::$menu['secondary_menu']['/atomar/documentation']['menu']['/ext'] = array(
             'title' => 'Extensions',
             'class' => array(),
             'weight' => 0,
@@ -98,8 +98,8 @@ MD;
             // Call hook_libraries()
             $class = $ext->is_enabled == '1' ? '' : 'text-muted';
             // add documentation link
-            Atomar::$menu['secondary_menu']['/admin/documentation']['menu']['/ext']['menu'][$ext->slug] = array(
-                'link' => l($ext->name, '/admin/documentation/extension/' . $ext->slug, array($class)),
+            Atomar::$menu['secondary_menu']['/atomar/documentation']['menu']['/ext']['menu'][$ext->slug] = array(
+                'link' => l($ext->name, '/atomar/documentation/extension/' . $ext->slug, array($class)),
                 'class' => array(),
                 'weight' => $weight,
                 'access' => 'view_system_documentation',

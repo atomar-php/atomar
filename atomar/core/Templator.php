@@ -368,8 +368,8 @@ CSS;
                 );
                 // admin users
                 if (Auth::has_authentication('administer_site')) {
-                    Atomar::$menu['primary_menu']['/admin'] = array(
-                        'link' => l('<span class="glyphicon glyphicon-cog"></span>', '/admin'),
+                    Atomar::$menu['primary_menu']['/atomar'] = array(
+                        'link' => l('<span class="glyphicon glyphicon-cog"></span>', '/atomar'),
                         'class' => array(),
                         'weight' => 9999,
                         'access' => 'administer_site',
@@ -435,8 +435,8 @@ CSS;
                     'access' => array(),
                     'menu' => array()
                 );
-                Atomar::$menu['secondary_menu']['/admin'] = array(
-                    'link' => l('Admin home', '/admin'),
+                Atomar::$menu['secondary_menu']['/atomar'] = array(
+                    'link' => l('Admin home', '/atomar'),
                     'options' => array(
                         'active' => 'exact'
                     ),
@@ -445,43 +445,43 @@ CSS;
                     'access' => 'administer_site',
                     'menu' => array()
                 );
-                Atomar::$menu['secondary_menu']['/admin/users'] = array(
-                    'link' => l('Users', '/admin/users/'),
+                Atomar::$menu['secondary_menu']['/atomar/users'] = array(
+                    'link' => l('Users', '/atomar/users/'),
                     'class' => array(),
                     'weight' => 500,
                     'access' => 'administer_users',
                     'menu' => array(),
                 );
-                Atomar::$menu['secondary_menu']['/admin/roles'] = array(
-                    'link' => l('Roles', '/admin/roles/'),
+                Atomar::$menu['secondary_menu']['/atomar/roles'] = array(
+                    'link' => l('Roles', '/atomar/roles/'),
                     'class' => array(),
                     'weight' => 600,
                     'access' => 'administer_roles',
                     'menu' => array()
                 );
-                Atomar::$menu['secondary_menu']['/admin/permissions'] = array(
-                    'link' => l('Permissions', '/admin/permissions/'),
+                Atomar::$menu['secondary_menu']['/atomar/permissions'] = array(
+                    'link' => l('Permissions', '/atomar/permissions/'),
                     'class' => array(),
                     'weight' => 700,
                     'access' => 'administer_permissions',
                     'menu' => array()
                 );
-                Atomar::$menu['secondary_menu']['/admin/settings'] = array(
-                    'link' => l('Settings', '/admin/settings/'),
+                Atomar::$menu['secondary_menu']['/atomar/settings'] = array(
+                    'link' => l('Settings', '/atomar/settings/'),
                     'class' => array(),
                     'weight' => 800,
                     'access' => 'administer_settings',
                     'menu' => array()
                 );
-                Atomar::$menu['secondary_menu']['/admin/performance'] = array(
-                    'link' => l('Performance', '/admin/performance/'),
+                Atomar::$menu['secondary_menu']['/atomar/performance'] = array(
+                    'link' => l('Performance', '/atomar/performance/'),
                     'class' => array(),
                     'weight' => 850,
                     'access' => 'administer_performance',
                     'menu' => array()
                 );
-                Atomar::$menu['secondary_menu']['/admin/extensions'] = array(
-                    'link' => l('Extensions', '/admin/extensions/'),
+                Atomar::$menu['secondary_menu']['/atomar/extensions'] = array(
+                    'link' => l('Extensions', '/atomar/extensions/'),
                     'class' => array(),
                     'weight' => 900,
                     'access' => 'administer_extensions',
@@ -489,9 +489,9 @@ CSS;
                 );
 
                 // TRICKY: allows \atomar\controllers\CAdminDocumentation.php to override the docs menu so we don't generate the menu unnecessarily
-                $docs_menu = Atomar::$menu['secondary_menu']['/admin/documentation']['menu'];
-                Atomar::$menu['secondary_menu']['/admin/documentation'] = array(
-                    'link' => l('Documentation', '/admin/documentation/'),
+                $docs_menu = Atomar::$menu['secondary_menu']['/atomar/documentation']['menu'];
+                Atomar::$menu['secondary_menu']['/atomar/documentation'] = array(
+                    'link' => l('Documentation', '/atomar/documentation/'),
                     'class' => array(),
                     'weight' => 9999,
                     'access' => 'view_system_documentation',
@@ -500,7 +500,7 @@ CSS;
                     )
                 );
                 if (is_array($docs_menu)) {
-                    Atomar::$menu['secondary_menu']['/admin/documentation']['menu'] = array_merge(Atomar::$menu['secondary_menu']['/admin/documentation']['menu'], $docs_menu);
+                    Atomar::$menu['secondary_menu']['/atomar/documentation']['menu'] = array_merge(Atomar::$menu['secondary_menu']['/atomar/documentation']['menu'], $docs_menu);
                 }
 
                 if ($options['trigger_menu']) Atomar::hook(new Menu());

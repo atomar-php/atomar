@@ -1,9 +1,9 @@
 Authentication
 ----
 
-All the authentication in Atomar is handled by the Auth class (Synonym `A`) located in `includes/auth.php`. The authentication system is implimented using role based permission where a user may have a single role with many permissions.
+All the authentication in Atomar is handled by the Auth class (Synonym `A`) located in `includes/auth.php`. The authentication system is implemented using role based permission where a user may have a single role with many permissions.
 
-Authentication starts just early in the boostrap just after the database has been set up and the [Site Configuration](/admin/documentation/core/Configuration) initialized. During startup the authentication module hijacks the standard PHP Session handling and routes all of the session handling to the database table `session` after which all the standard session variables may be used like nomral but now with a database backend.
+Authentication starts just early in the boostrap just after the database has been set up and the [Site Configuration](/atomar/documentation/core/Configuration) initialized. During startup the authentication module hijacks the standard PHP Session handling and routes all of the session handling to the database table `session` after which all the standard session variables may be used like nomral but now with a database backend.
 
 ###Methods
 Below are a list of available methods. These methods are accessible by using the `A` synonym e.g. `A::authenticate('administer_site')`. You can find complete documentation on methods and their parameters by viewing the source code directly.
@@ -33,7 +33,7 @@ Below are a list of available methods. These methods are accessible by using the
 * `make_pw_reset_token($user) -> boolean` - creates a new password reset token and stores it in the user object
 
 ###Users
-See [Users](/admin/documentation/core/users)
+See [Users](/atomar/documentation/core/users)
 
 ###Permissions
 Permissions are a large part of the Authentication module. When `A::authenticate()` or `A::has_authentication()` are used the user permissions are validated against the required permissions and approved or rejected depending on whether or not the user has the appropriate permissions. If the site is in debug mode permissions will be automatically added to the database as they are used in the code. This allows developers to develop with permissions quickly without having to stop to set up new values in the database.

@@ -23,5 +23,5 @@ When you create an extension using the extension wizard (see [Extensions]) a hoo
 ###TODO:
 * Create a cron scheduling system so that extensions can independently schedule their cron jobs.
 
-[Extensions]:/admin/documentation/core/Extensions
-[Hooks]:/admin/documentation/core/Hooks
+[Extensions]:/atomar/documentation/core/Extensions
+[Hooks]:/atomar/documentation/core/Hooks

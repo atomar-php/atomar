@@ -10,8 +10,8 @@
         to keep the main core updated and to easily add new functionality.</p>
 
     <p>
-        <a data-lightbox="/admin/extensions/new" class="btn btn-primary">New Extension</a>
-        <a data-lightbox="/admin/migrations/new" class="btn btn-primary">New Migration</a>
+        <a data-lightbox="/atomar/extensions/new" class="btn btn-primary">New Extension</a>
+        <a data-lightbox="/atomar/migrations/new" class="btn btn-primary">New Migration</a>
     </p>
 
     <p>Atomar version: {{ sys.version }}</p>
@@ -31,7 +31,7 @@
     {% endif %}
 </div>
 {% if extensions%}
-<form action="/admin/extensions" method="POST">
+<form action="/atomar/extensions" method="POST">
     <table class="table table-striped table-bordered table-hover">
         <tr>
             <th>Name</th>

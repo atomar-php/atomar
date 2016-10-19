@@ -1,6 +1,6 @@
 Atomar REST APIs
 ---
-> Looking for extension API's? go [here](/admin/documentation/core/Extensions)
+> Looking for extension API's? go [here](/atomar/documentation/core/Extensions)
 
 The Atomar core relies heavly on the use of API's.  An api is call by querying a url of the form `example.com/!/[process_name]` with url parameters as nessesary. Urls in this form are mapped to the API controller in `controllers/CAPI.php`.
 

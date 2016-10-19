@@ -1,6 +1,6 @@
 Controllers
 ----
->Looking for Lightboxes? Go [here](/admin/documentation/core/Lightboxes)
+>Looking for Lightboxes? Go [here](/atomar/documentation/core/Lightboxes)
 
 Controllers handle all of the page logic and are activated when their route is visited by a user. Every controller extends the `Controller` class and containe two primary methods
 
@@ -47,6 +47,6 @@ Other templates available are
 For details on how the templating system works please refer to [Twig].
 
 ###Exception Handling
-Exceptions that occure within a controller of any of it's subclasses (e.g. [Lightboxes](/admin/documentation/core/Lightboxes) and [ApiControllers](/admin/documentation/core/ApiControllers)) can be handled by defining an `exception_handler` method in the class instance. This method will be called and passed the exception object.
+Exceptions that occure within a controller of any of it's subclasses (e.g. [Lightboxes](/atomar/documentation/core/Lightboxes) and [ApiControllers](/atomar/documentation/core/ApiControllers)) can be handled by defining an `exception_handler` method in the class instance. This method will be called and passed the exception object.
 
 [Twig]:http://twig.sensiolabs.org/

@@ -6,7 +6,7 @@ Atomar runs off a single configuration file located at `includes/core/config.php
 The site configuration can be accessed during runtime through the Site class `S` for example `S::$config['site_name']` will return the name of the website. The configuration array is instantiated from a custom read only array class to prevent changes to the configuration during run time.
 
 ##Debug
-The debug configuration is added to the site configuration at run time when the system boots up. You can check to see if the site is in debug mode by evaluating the value of `S::$config['debug'];`. The site can be put in/out-of debug mode from the [admin page](/admin)
+The debug configuration is added to the site configuration at run time when the system boots up. You can check to see if the site is in debug mode by evaluating the value of `S::$config['debug'];`. The site can be put in/out-of debug mode from the [admin page](/atomar)
 
 ##Suggestions
 

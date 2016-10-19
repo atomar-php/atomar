@@ -67,7 +67,7 @@ SQL;
                 'permissions' => $permissions
             ));
         } else {
-            $this->redirect('/admin/roles');
+            $this->redirect('/atomar/roles');
         }
     }
 
@@ -92,7 +92,7 @@ SQL;
         } else {
             set_error('Unknown role');
         }
-        $this->redirect('/admin/roles');
+        $this->redirect('/atomar/roles');
     }
 
     /**

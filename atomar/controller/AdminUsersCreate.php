@@ -73,14 +73,14 @@ class AdminUsersCreate extends Lightbox {
             if (!$user) {
                 // Creation failed
                 set_error('Failed to create user');
-                $this->redirect('/admin/users');
+                $this->redirect('/atomar/users');
             } else {
                 if ($notify) {
                     if (!Auth::make_pw_reset_token($user)) {
                         // Reset key could not be created
                         set_error('Failed to create password reset token. Email not sent.');
                         set_success('User created!');
-                        $this->redirect('/admin/users');
+                        $this->redirect('/atomar/users');
                     } else {
                         // Success
                         $expires = time_until_date(strtotime($user->pass_reset_expires_at));
@@ -91,11 +91,11 @@ class AdminUsersCreate extends Lightbox {
                             'template' => 'new_account_by_admin.html'
                         ));
                         set_success('User created! A notification email has been sent to the user.');
-                        $this->redirect('/admin/users');
+                        $this->redirect('/atomar/users');
                     }
                 } else {
                     set_success('User created!');
-                    $this->redirect('/admin/users');
+                    $this->redirect('/atomar/users');
                 }
             }
         } else {
@@ -106,7 +106,7 @@ class AdminUsersCreate extends Lightbox {
             if ($existing_user->email == $user->email) {
                 set_error('That email is not available.');
             }
-            $this->redirect('/admin/users');
+            $this->redirect('/atomar/users');
         }
     }
 

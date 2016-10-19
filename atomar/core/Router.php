@@ -64,7 +64,7 @@ class Router {
         if (substr(self::$_request_path, 0, 3) == '/!/') {
             self::$is_process = true;
         }
-        if (substr(self::$_request_path, 0, 6) == '/admin') {
+        if (substr(self::$_request_path, 0, 6) == '/atomar') {
             self::$is_backend = true;
         }
 
@@ -92,22 +92,22 @@ class Router {
             $authenticated_urls = array(
                 '/user/logout/?(\?.*)?' => 'atomar\controller\UserLogout',
                 '/user/(?P<id>\d+)/?(\?.*)?' => 'atomar\controller\User',
-                '/admin/user/(?P<id>\d+)/edit/?(\?.*)?' => 'atomar\controller\AdminUserEdit',
-                '/admin/?(\?.*)?' => 'atomar\controller\Admin',
-                '/admin/users/?(\?.*)?' => 'atomar\controller\AdminUsers',
-                '/admin/users/create/?(\?.*)?' => 'atomar\controller\AdminUsersCreate',
-                '/admin/permissions/?(\?.*)?' => 'atomar\controller\AdminPermissions',
-                '/admin/roles/?(\?.*)?' => 'atomar\controller\AdminRoles',
-                '/admin/roles/create/?(\?.*)?' => 'atomar\controller\AdminRolesCreate',
-                '/admin/roles/(?P<id>\d+)/edit/?(\?.*)?' => 'atomar\controller\AdminRolesEdit',
-                '/admin/configuration/?(\?.*)?' => 'atomar\controller\AdminConfiguration',
-                '/admin/documentation/?(\?.*)?' => 'atomar\controller\AdminDocumentation',
-                '/admin/documentation/(?P<type>[a-z]+)/(?P<name>[a-zA-Z\.\_\-]+)/?(\?.*)?' => 'atomar\controller\AdminDocumentation',
-                '/admin/extensions/?(\?.*)?' => 'atomar\controller\AdminExtensions',
-                '/admin/settings/?(\?.*)?' => 'atomar\controller\AdminSettings',
-                '/admin/extensions/new/?(\?.*)?' => 'atomar\controller\AdminExtensionsNew',
-                '/admin/migrations/new/?(\?.*)?' => 'atomar\controller\AdminMigrationsNew',
-                '/admin/performance/?(\?.*)?' => 'atomar\controller\AdminPerformance',
+                '/atomar/user/(?P<id>\d+)/edit/?(\?.*)?' => 'atomar\controller\AdminUserEdit',
+                '/atomar/?(\?.*)?' => 'atomar\controller\Admin',
+                '/atomar/users/?(\?.*)?' => 'atomar\controller\AdminUsers',
+                '/atomar/users/create/?(\?.*)?' => 'atomar\controller\AdminUsersCreate',
+                '/atomar/permissions/?(\?.*)?' => 'atomar\controller\AdminPermissions',
+                '/atomar/roles/?(\?.*)?' => 'atomar\controller\AdminRoles',
+                '/atomar/roles/create/?(\?.*)?' => 'atomar\controller\AdminRolesCreate',
+                '/atomar/roles/(?P<id>\d+)/edit/?(\?.*)?' => 'atomar\controller\AdminRolesEdit',
+                '/atomar/configuration/?(\?.*)?' => 'atomar\controller\AdminConfiguration',
+                '/atomar/documentation/?(\?.*)?' => 'atomar\controller\AdminDocumentation',
+                '/atomar/documentation/(?P<type>[a-z]+)/(?P<name>[a-zA-Z\.\_\-]+)/?(\?.*)?' => 'atomar\controller\AdminDocumentation',
+                '/atomar/extensions/?(\?.*)?' => 'atomar\controller\AdminExtensions',
+                '/atomar/settings/?(\?.*)?' => 'atomar\controller\AdminSettings',
+                '/atomar/extensions/new/?(\?.*)?' => 'atomar\controller\AdminExtensionsNew',
+                '/atomar/migrations/new/?(\?.*)?' => 'atomar\controller\AdminMigrationsNew',
+                '/atomar/performance/?(\?.*)?' => 'atomar\controller\AdminPerformance',
             );
             $unauthenticated_urls = array(
                 '/user/login/?(\?.*)?' => 'atomar\controller\UserLogin',
@@ -392,7 +392,7 @@ JAVASCRIPT;
     }
 
     /**
-     * Check if the current url is a backend url a.k.a /admin
+     * Check if the current url is a backend url a.k.a /atomar
      * @return boolean true if the url is a backend url.
      */
     public static function is_url_backend() {

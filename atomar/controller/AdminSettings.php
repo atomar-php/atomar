@@ -20,6 +20,6 @@ class AdminSettings extends Controller {
     }
 
     function POST($matches = array()) {
-        self::go('/admin/settings/');
+        self::go('/atomar/settings/');
     }
 }

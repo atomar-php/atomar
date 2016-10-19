@@ -6,7 +6,7 @@
 <div class="page-header section-header clearfix">
   <h2 class="pull-left">{{ user.first_name }} {{ user.last_name }} <small>{{ user.role.name }}</small></h2>
   <div class="btn-group pull-right">
-    <a data-lightbox="/admin/user/{{ user.id }}/edit" class="btn btn-primary"><span class="glyphicon glyphicon-edit"></span> Edit Profile</a>
+    <a data-lightbox="/atomar/user/{{ user.id }}/edit" class="btn btn-primary"><span class="glyphicon glyphicon-edit"></span> Edit Profile</a>
     {% if return %}
     <a href="{{ return }}" class="btn">Back</a>
     {% endif %}

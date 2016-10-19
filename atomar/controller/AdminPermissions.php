@@ -44,6 +44,6 @@ class AdminPermissions extends Controller {
         }
         \R::storeAll($roles);
         set_success('Updated role permissions.');
-        $this->go('/admin/permissions');
+        $this->go('/atomar/permissions');
     }
 }

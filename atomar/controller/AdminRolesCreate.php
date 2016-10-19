@@ -70,7 +70,7 @@ CSS;
         } else {
             set_error('The role "' . $slug . '" already exists!');
         }
-        $this->redirect('/admin/roles/');
+        $this->redirect('/atomar/roles/');
     }
 
     /**
