@@ -6,7 +6,7 @@ use atomar\core\Auth;
 use atomar\core\Lightbox;
 use atomar\core\Templator;
 
-class CAdminRolesCreate extends Lightbox {
+class AdminRolesCreate extends Lightbox {
     function GET($matches = array()) {
         // require authentication
         if (!Auth::has_authentication('administer_roles')) {

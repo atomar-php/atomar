@@ -745,7 +745,7 @@ HTML;
             try {
                 include_once($ext_path);
             } catch (\Exception $e) {
-                Logger::log_warning('Could not load the uninstallation file for extension ' . $ext->slug, $e->getMessage());
+                Logger::log_warning('Could not load the un-installation file for extension ' . $ext->slug, $e->getMessage());
                 continue;
             }
             if (function_exists($fun)) {
@@ -765,13 +765,13 @@ HTML;
      * @param $default
      */
     public static function get_variable($key, $default) {
-        $var = \R::findOne('variable', 'key=?', array($key));
+        $var = \R::findOne('setting', ' name=? ', array($key));
         if ($var) {
             return $var->value;
         } elseif ($default !== null) {
             // create setting with default value
-            $var = \R::dispense('variable');
-            $var->key = $key;
+            $var = \R::dispense('setting');
+            $var->name = $key;
             $var->value = $default;
             store($var);
             return $default;
@@ -786,7 +786,7 @@ HTML;
      * @param $value string if null the variable will be deleted
      */
     public static function set_variable($key, $value) {
-        $var = \R::findOne('variable', 'key=? LIMIT 1', array($key));
+        $var = \R::findOne('setting', ' name=? LIMIT 1', array($key));
         if ($value == null) {
             // delete existing setting
             if ($var->id) {
@@ -802,9 +802,9 @@ HTML;
         } else {
             // store new setting
             if (!$var->id) {
-                $var = \R::dispense('variable');
+                $var = \R::dispense('setting');
             }
-            $var->key = $key;
+            $var->name = $key;
             $var->value = $value;
             return store($var);
         }
@@ -818,7 +818,7 @@ HTML;
      * @return string the value of the variable or the default value if specified otherwise null.
      */
     public static function get_system($name, $default = null) {
-        $s = \R::findOne('system', 'name=?', array($name));
+        $s = \R::findOne('system', ' name=?', array($name));
         if ($s) {
             return $s->value;
         } elseif ($default !== null) {
@@ -840,7 +840,7 @@ HTML;
      * @return boolean will return true or false if the variable was successfully created or deleted.
      */
     public static function set_system($name, $value = null) {
-        $s = \R::findOne('system', 'name=? LIMIT 1', array($name));
+        $s = \R::findOne('system', ' name=? LIMIT 1', array($name));
         if ($value == null) {
             // delete existing setting
             if ($s->id) {

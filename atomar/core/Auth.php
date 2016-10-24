@@ -632,9 +632,9 @@ class Auth {
      * @return boolean true if successful otherwise false
      */
     public static function destroy_pw_reset_token($user) {
-        if ($user->id) {
-            $user->pass_reset_token = '';
-            $user->pass_reset_expires_at = '';
+        if ($user && $user->id) {
+            $user->pass_reset_token = null;
+            $user->pass_reset_expires_at = null;
             \R::store($user);
             return true;
         } else {
