@@ -39,7 +39,7 @@ class AdminUserEdit extends Lightbox {
             }
 
             // configure lightbox
-            $this->width(750);
+            $this->width(400);
             $this->header('Edit User <small>' . $user['username'] . '</small>');
 
             // render page
@@ -70,12 +70,7 @@ class AdminUserEdit extends Lightbox {
             set_error('You are not authorized to edit the super user.');
             $this->redirect('/');
         }
-
-        $first_name = $_POST['first_name'];
-        $last_name = $_POST['last_name'];
         $email = $_POST['email'];
-        $phone = $_POST['phone'];
-        $notes = $_POST['notes'];
         $role_id = isset($_POST['role']) ? $_POST['role'] : false;
 
         if ($user->id) {
@@ -85,11 +80,7 @@ class AdminUserEdit extends Lightbox {
                 $this->redirect();
             } else {
                 // update user fields
-                $user->first_name = $first_name;
-                $user->last_name = $last_name;
                 $user->email = $email;
-                $user->phone = $phone;
-                $user->notes = $notes;
                 if (!store($user)) {
                     set_error($user->errors());
                 } else {

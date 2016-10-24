@@ -14,7 +14,7 @@ class Maintenance extends Controller {
 
     public function GET($matches = array()) {
         // Run Maintenance Mode
-        if (system_get('maintenance_mode') == '1') {
+        if (Atomar::get_system('maintenance_mode') == '1') {
             error_reporting(0);
             Atomar::run_maintenance();
         } else {

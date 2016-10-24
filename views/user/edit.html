@@ -81,6 +81,7 @@
   {% else %}
           <a href="/!/enable_user?enable=1&amp;id={{ user.id }}&amp;r=/atomar/user/{{ user.id }}/edit" class="btn btn-success btn-small"><i class="icon-thumbs-up icon-white"></i> Enable Account</a>
   {% endif %}
+            <!-- todo create new way to reset password without emailing -->
           <a href="/user/recover/{{ user.id }}?return=/atomar/user/{{ user.id }}/edit" class="btn btn-info btn-small"><i class="icon-share icon-white"></i> Send Password Reset</a>
 {% else %}
           <a href="/!/enable_user?enable=0&amp;id={{ user.id }}&amp;r=/atomar/user/{{ user.id }}/edit" class="btn btn-warning btn-small" data-confirm="Are you sure you want to delete your account?"><i class="icon-thumbs-down icon-white"></i> Delete Account</a>

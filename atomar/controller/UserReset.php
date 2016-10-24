@@ -8,6 +8,7 @@ use atomar\core\Templator;
 
 /**
  * This controller handles resetting a user's password
+ * TODO: this should be an admin function
  * Class UserReset
  * @package atomar\controller
  */

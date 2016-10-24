@@ -18,9 +18,7 @@ FROM
 LEFT JOIN
   `role` AS `r` ON `r`.`id`=`u`.`role_id`
 ORDER BY
-  `u`.`first_name`,
-  `u`.`last_name`,
-  `u`.`username`
+  `u`.`email`
 SQL;
         $users = \R::getAll($sql_users);
 

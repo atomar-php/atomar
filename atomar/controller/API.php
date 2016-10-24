@@ -37,7 +37,7 @@ class API extends ApiController {
      */
     public function get_maintenance($enabled) {
         if (Auth::has_authentication('change_maintenance_mode') || Auth::is_super() || Auth::is_admin()) {
-            system_set('maintenance_mode', $enabled == true);
+            Atomar::set_system('maintenance_mode', $enabled == true);
         } else {
             set_error('You are not authorized to change the maintenance mode of this site.');
         }
@@ -50,7 +50,7 @@ class API extends ApiController {
      */
     public function get_cache_css($enable) {
         if (Auth::has_authentication('manage_cache') || Auth::is_super() || Auth::is_admin()) {
-            system_set('cache_css', $enable == true);
+            Atomar::set_system('cache_css', $enable == true);
             if ($enable) {
                 set_success('CSS caching has been enabled');
             } else {
@@ -68,7 +68,7 @@ class API extends ApiController {
      */
     public function get_cache_js($enable) {
         if (Auth::has_authentication('manage_cache') || Auth::is_super() || Auth::is_admin()) {
-            system_set('cache_js', $enable == true);
+            Atomar::set_system('cache_js', $enable == true);
             if ($enable) {
                 set_success('JS caching has been enabled');
             } else {
@@ -430,7 +430,7 @@ class API extends ApiController {
      */
     public function get_debug_mode($enable) {
         if (Auth::has_authentication('administer_site')) {
-            system_set('debug', $enable ? '1' : '0');
+            Atomar::set_system('debug', $enable ? '1' : '0');
             set_success('The site has ' . ($enable == '1' ? 'entered' : 'left') . ' debug mode.');
         } else {
             set_error('you are not authorized to change debug mode.');
@@ -473,31 +473,32 @@ class API extends ApiController {
      * @param $message
      */
     public function post_send_personal_message($recipient, $message) {
-        if (Auth::has_authentication('send_personal_messages')) {
-            $title = $_POST['title'] == '' ? word_trim($_POST['message'], 20) : $_POST['title'];
-
-            // validate message
-            if ($message == '') {
-                set_error('The message cannot be blank.');
-                $this->go_back();
-            }
-
-            $user = \R::load('user', $recipient);
-            $user->role; // preload
-
-            if ($user->id) {
-                email($user->email, 'PM: ' . $title, $message, array(
-                    'recipient' => $user,
-                    'sender' => Auth::$user,
-                    'template' => 'personal_message.html'
-                ));
-                set_success('Message sent to ' . $user->first_name . ' ' . $user->last_name);
-            } else {
-                set_error('Unknown user');
-            }
-        } else {
-            set_error('You are not authorized to send personal messages');
-        }
+        set_error('sending emails is deprecated');
+//        if (Auth::has_authentication('send_personal_messages')) {
+//            $title = $_POST['title'] == '' ? word_trim($_POST['message'], 20) : $_POST['title'];
+//
+//            // validate message
+//            if ($message == '') {
+//                set_error('The message cannot be blank.');
+//                $this->go_back();
+//            }
+//
+//            $user = \R::load('user', $recipient);
+//            $user->role; // preload
+//
+//            if ($user->id) {
+//                email($user->email, 'PM: ' . $title, $message, array(
+//                    'recipient' => $user,
+//                    'sender' => Auth::$user,
+//                    'template' => 'personal_message.html'
+//                ));
+//                set_success('Message sent to ' . $user->first_name . ' ' . $user->last_name);
+//            } else {
+//                set_error('Unknown user');
+//            }
+//        } else {
+//            set_error('You are not authorized to send personal messages');
+//        }
         $this->go_back();
     }
 
@@ -506,22 +507,23 @@ class API extends ApiController {
      * @param $recipient
      */
     public function post_send_new_account_by_admin_email($recipient) {
-        if (Auth::has_authentication('administer_users')) {
-            $user = \R::load('user', $recipient);
-            $user->role; // preload
-
-            if ($user->id) {
-                email($user->email, Atomar::$config['site_name'] . ': ' . '', '', array(
-                    'recipient' => $user,
-                    'template' => 'new_account_by_admin.html'
-                ));
-                set_success('New account notification sent to ' . $user->first_name . ' ' . $user->last_name);
-            } else {
-                set_error('Unknown user');
-            }
-        } else {
-            set_error('You are not authorized to send account notices.');
-        }
+        set_error('sending emails is deprecated');
+//        if (Auth::has_authentication('administer_users')) {
+//            $user = \R::load('user', $recipient);
+//            $user->role; // preload
+//
+//            if ($user->id) {
+//                email($user->email, Atomar::$config['site_name'] . ': ' . '', '', array(
+//                    'recipient' => $user,
+//                    'template' => 'new_account_by_admin.html'
+//                ));
+//                set_success('New account notification sent to ' . $user->first_name . ' ' . $user->last_name);
+//            } else {
+//                set_error('Unknown user');
+//            }
+//        } else {
+//            set_error('You are not authorized to send account notices.');
+//        }
         $this->go_back();
     }
 }

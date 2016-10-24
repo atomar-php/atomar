@@ -87,11 +87,6 @@ class Atomar {
         require_once(__DIR__ . '/vendor/Twig/Autoloader.php');
         require_once(__DIR__ . '/vendor/Twig/SimpleFunction.php');
 
-        // Supporting classes
-        require_once(__DIR__ . '/vendor/phpmailer/class.phpmailer.php');
-        require_once(__DIR__ . '/vendor/phpmailer/class.pop3.php');
-        require_once(__DIR__ . '/vendor/phpmailer/class.smtp.php');
-
         require_once(__DIR__ . '/atomar/core/functions.php');
 
         // load the configuration
@@ -208,7 +203,7 @@ HTML;
          *
          */
         // enable debug by default
-        self::$config['debug'] = boolval(system_get('debug', true));
+        self::$config['debug'] = boolval(self::get_system('debug', true));
         self::$config->lock();
 
         if (!self::$config['debug']) {
@@ -290,7 +285,7 @@ HTML;
                 set_error('Failed to load the application');
             }
         } else {
-            self::$app->installed_version = system_get('app_installed_version', 0);
+            self::$app->installed_version = self::get_system('app_installed_version', 0);
             if (vercmp(self::$app->version, self::$app->installed_version) > 0) {
                 self::$app->is_update_pending = '1';
             }
@@ -322,7 +317,7 @@ HTML;
      */
     public static function version_check() {
         // check atomar version.
-        $version = system_get('version', self::version());
+        $version = self::get_system('version', self::version());
         if ($version != self::version()) {
             // check for new version.
             if (vercmp($version, self::version()) == -1) {
@@ -333,7 +328,7 @@ HTML;
                 $msg = 'Atomar has been downgraded to version ' . self::version();
                 set_notice($msg);
                 Logger::log_notice($msg);
-                system_set('version', self::version());
+                Atomar::set_system('version', self::version());
             }
         }
     }
@@ -385,7 +380,7 @@ HTML;
                             $msg = 'Atomar has been updated to version ' . self::version();
                             set_notice($msg);
                             Logger::log_notice($msg);
-                            system_set('version', self::version());
+                            Atomar::set_system('version', self::version());
                             break;
                         }
                     }
@@ -393,7 +388,7 @@ HTML;
                     $msg = 'Atomar has been updated to version ' . self::version();
                     set_notice($msg);
                     Logger::log_notice($msg);
-                    system_set('version', self::version());
+                    Atomar::set_system('version', self::version());
                     break;
                 }
                 $file = $files[0];
@@ -411,7 +406,7 @@ HTML;
                             // Update version
                             $msg = 'Atomar has been updated to version ' . $migration_target;
                             Logger::log_notice($msg);
-                            system_set('version', $migration_target);
+                            Atomar::set_system('version', $migration_target);
                         } else {
                             set_error('The migration from ' . $migration_source . ' to ' . $migration_target . ' failed.');
                             break;
@@ -678,7 +673,7 @@ HTML;
                                         set_success('Updated application to version ' . self::$app->version);
                                     }
                                     self::$app->installed_version = $version;
-                                    system_set('app_installed_version', $version);
+                                    Atomar::set_system('app_installed_version', $version);
                                 } else {
                                     // stop running updates for this extension.
                                     set_error('Failed to process update ' . $version . ' for application');
@@ -694,7 +689,7 @@ HTML;
                 if (!$errors) {
                     set_success('Updated application to version ' . self::$app->version);
                     self::$app->installed_version = self::$app->version;
-                    system_set('app_installed_version', self::$app->installed_version);
+                    Atomar::set_system('app_installed_version', self::$app->installed_version);
                 }
             }
         }
@@ -761,6 +756,111 @@ HTML;
                     Logger::log_error('Failed to uninstall extension ' . $ext->slug);
                 }
             }
+        }
+    }
+
+    /**
+     * Returns a variable stored in the database or the default value.
+     * @param $key
+     * @param $default
+     */
+    public static function get_variable($key, $default) {
+        $var = \R::findOne('variable', 'key=?', array($key));
+        if ($var) {
+            return $var->value;
+        } elseif ($default !== null) {
+            // create setting with default value
+            $var = \R::dispense('variable');
+            $var->key = $key;
+            $var->value = $default;
+            store($var);
+            return $default;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Sets a variable to be stored in the database
+     * @param $key string
+     * @param $value string if null the variable will be deleted
+     */
+    public static function set_variable($key, $value) {
+        $var = \R::findOne('variable', 'key=? LIMIT 1', array($key));
+        if ($value == null) {
+            // delete existing setting
+            if ($var->id) {
+                try {
+                    \R::trash($var);
+                    return true;
+                } catch (\Exception $err) {
+                    return false;
+                }
+            } else {
+                return true;
+            }
+        } else {
+            // store new setting
+            if (!$var->id) {
+                $var = \R::dispense('variable');
+            }
+            $var->key = $key;
+            $var->value = $value;
+            return store($var);
+        }
+    }
+
+    /**
+     * Get the value of a stored system setting. If no setting is found, but a default value is provided
+     * the variable will be created and the default value returned.
+     * @param string $name the name of the variable
+     * @param string $default the default value of the variable.
+     * @return string the value of the variable or the default value if specified otherwise null.
+     */
+    public static function get_system($name, $default = null) {
+        $s = \R::findOne('system', 'name=?', array($name));
+        if ($s) {
+            return $s->value;
+        } elseif ($default !== null) {
+            // create setting with default value
+            $s = \R::dispense('system');
+            $s->name = $name;
+            $s->value = $default;
+            store($s);
+            return $default;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Set the value of a stored system setting. Setting the setting to null  or leaving the value field blank will delete the variable.
+     * @param string $name the name of the variable to store.
+     * @param string $value the value to be stored in the variable. If no value or null is given the variable will be deleted.
+     * @return boolean will return true or false if the variable was successfully created or deleted.
+     */
+    public static function set_system($name, $value = null) {
+        $s = \R::findOne('system', 'name=? LIMIT 1', array($name));
+        if ($value == null) {
+            // delete existing setting
+            if ($s->id) {
+                try {
+                    \R::trash($s);
+                    return true;
+                } catch (\Exception $err) {
+                    return false;
+                }
+            } else {
+                return true; // setting is already deleted
+            }
+        } else {
+            // store new setting
+            if (!$s->id) {
+                $s = \R::dispense('system');
+            }
+            $s->name = $name;
+            $s->value = $value;
+            return store($s);
         }
     }
 }

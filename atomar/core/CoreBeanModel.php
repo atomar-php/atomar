@@ -60,7 +60,9 @@ class CoreBeanModel extends BeanModel {
                     foreach ($this->_registered_properties as $k) {
                         if (preg_match('/' . $k . '/', $p)) $preg_match = true;
                     }
-                    if (!$preg_match) throw new \Exception('Invalid property "' . $p . '". The ' . $this->bean->getMeta('type') . ' model is part of the core and cannot be modified.');
+                    if (!$preg_match) {
+                        throw new ModelException('Invalid property "' . $p . '". The ' . $this->bean->getMeta('type') . ' model is part of the core and cannot be modified.');
+                    }
                 }
             }
         }

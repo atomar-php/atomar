@@ -278,7 +278,7 @@ SQL;
                 set_notice('Trashed old tables.');
 
                 // set installed version so we don't run old migrations
-                system_set('version', '3.0.6');
+                Atomar::set_system('version', '3.0.6');
 
             } catch (\Exception $e) {
                 set_error('We were unable to empty the database.');

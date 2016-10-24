@@ -48,12 +48,13 @@ class PreProcessBoot implements Hook {
     public function post_process($state) {
         // perform caching if enabled and not in debug mode.
         if (!Atomar::$config['debug'] && !Router::is_url_backend()) {
-            if (system_get('cache_css', false)) {
+            if (Atomar::get_system('cache_css', false)) {
                 Cache::cache_css();
             }
-            if (system_get('cache_js', false)) {
+            if (Atomar::get_system('cache_js', false)) {
                 Cache::cache_js();
             }
         }
+        return;
     }
 }

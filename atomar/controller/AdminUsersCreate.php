@@ -13,7 +13,7 @@ class AdminUsersCreate extends Lightbox {
         }
 
         // configure lightbox
-        $this->width(750);
+        $this->width(400);
         $this->header('New User');
 
         $this->render_form(array(
@@ -38,7 +38,7 @@ class AdminUsersCreate extends Lightbox {
         $args = array_merge($values, array(
             'roles' => $user_roles
         ));
-        echo $this->renderView('admin/modal.user.create.html', $args);
+        echo $this->renderView('admin/modal.user.edit.html', $args);
     }
 
     function POST($matches = array()) {
@@ -48,18 +48,10 @@ class AdminUsersCreate extends Lightbox {
         }
 
         $user = \R::dispense('user');
-        $user->username = $_POST['username'];
-        $user->first_name = $_POST['first_name'];
-        $user->last_name = $_POST['last_name'];
         $user->email = $_POST['email'];
-        $user->phone = $_POST['phone'];
-        $user->notes = $_POST['notes'];
-        $user->is_enabled = $_POST['enabled'] == 'on' ? '1' : '0';
+        $user->is_enabled = '1';
         $password = $_POST['password'];
         $role_id = $_POST['role'];
-
-        $notify = $_POST['notify'] == 'on' ? 1 : 0;
-
         $role = \R::load('role', $role_id);
 
         // check for unique username and email
@@ -75,28 +67,8 @@ class AdminUsersCreate extends Lightbox {
                 set_error('Failed to create user');
                 $this->redirect('/atomar/users');
             } else {
-                if ($notify) {
-                    if (!Auth::make_pw_reset_token($user)) {
-                        // Reset key could not be created
-                        set_error('Failed to create password reset token. Email not sent.');
-                        set_success('User created!');
-                        $this->redirect('/atomar/users');
-                    } else {
-                        // Success
-                        $expires = time_until_date(strtotime($user->pass_reset_expires_at));
-                        email($user->email, 'Account Created', '', array(
-                            'recipient' => $user,
-                            'token' => $user->pass_reset_token,
-                            'expires' => $expires,
-                            'template' => 'new_account_by_admin.html'
-                        ));
-                        set_success('User created! A notification email has been sent to the user.');
-                        $this->redirect('/atomar/users');
-                    }
-                } else {
-                    set_success('User created!');
-                    $this->redirect('/atomar/users');
-                }
+                set_success('User created!');
+                $this->redirect('/atomar/users');
             }
         } else {
             // user exists

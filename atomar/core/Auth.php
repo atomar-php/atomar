@@ -102,7 +102,7 @@ class Auth {
         $_SESSION['access_id'] = self::$_access->id;
 
         // Check if all session variables are set
-        if (isset($_SESSION['user_id'], $_SESSION['username'], $_SESSION['auth'], $_SESSION['last_activity'])) {
+        if (isset($_SESSION['user_id'], $_SESSION['email'], $_SESSION['auth'], $_SESSION['last_activity'])) {
             $user_id = $_SESSION['user_id'];
             $auth = $_SESSION['auth'];
             $last_activity = $_SESSION['last_activity'];
@@ -380,7 +380,6 @@ class Auth {
      * @return mixed the user id if registration suceeded otherwise false.
      */
     public static function register($user, $password, $role) {
-        // TODO: validate username is defined.
         if (!$role->id) {
             Logger::log_warning('A::register: invalid role', $role);
             return false;
@@ -438,16 +437,15 @@ class Auth {
      * Log in the user
      * If log in is successful you can access the user via A::$user
      * TODO: check if logins are enabled by the system
-     * @param string $username the username or email of the user
+     * @param string $email the email of the user
      * @param string $password the human readable password of the user account
      * @param bool $remember_me if set to true the user will be logged in indefinitely
      * @return boolean true if login was successful otherwise false.
      */
-    public static function login($username, $password, $remember_me = false) {
-        $field = is_email($username) ? 'email' : 'username';
-        $user = \R::findOne('user', ' ' . $field . '=? AND is_enabled=\'1\' AND role_id IS NOT NULL AND role_id<>\'\'', array($username));
+    public static function login($email, $password, $remember_me = false) {
+        $user = \R::findOne('user', ' email=? AND is_enabled=\'1\' AND role_id IS NOT NULL AND role_id<>\'\'', array($email));
         if (!$user || !$user->id) {
-            // invalid username or email
+            // invalid email
             return false;
         } else {
             // Gard Against Brute Force Attacks
@@ -485,7 +483,7 @@ class Auth {
             } else {
                 // Success
                 $_SESSION['user_id'] = $user->id;
-                $_SESSION['username'] = $user->username;
+                $_SESSION['email'] = $user->email;
                 $_SESSION['auth'] = self::_generate_auth_token($user);
                 $_SESSION['last_activity'] = self::$_now;
                 $_SESSION['remember_me'] = $remember_me == true; // force to be boolean
@@ -506,7 +504,7 @@ class Auth {
     }
 
     /**
-     * Logs in a user without a username or password.
+     * Logs in a user without an email and password.
      * This is handy if using a third party service for authentication e.g. social media
      * @param int $user_id the id of the user who will be logged in
      * @param bool $remember_me if set to true the user will be logged in indefinitely
@@ -522,7 +520,7 @@ class Auth {
             self::$_access->user = $user;
 
             $_SESSION['user_id'] = $user->id;
-            $_SESSION['username'] = $user->username;
+            $_SESSION['email'] = $user->email;
             $_SESSION['auth'] = self::_generate_auth_token($user);
             $_SESSION['last_activity'] = self::$_now;
             $_SESSION['remember_me'] = $remember_me == true; // force to be boolean
