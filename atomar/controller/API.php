@@ -440,6 +440,7 @@ class API extends ApiController {
 
     /**
      * Saves the inline edit form
+     *
      * @param $data
      * @param $model
      */
@@ -465,65 +466,5 @@ class API extends ApiController {
             $response['message'] = 'you are not authorized to edit ' . $model;
         }
         render_json($response);
-    }
-
-    /**
-     * Sends a personal message
-     * @param $recipient
-     * @param $message
-     */
-    public function post_send_personal_message($recipient, $message) {
-        set_error('sending emails is deprecated');
-//        if (Auth::has_authentication('send_personal_messages')) {
-//            $title = $_POST['title'] == '' ? word_trim($_POST['message'], 20) : $_POST['title'];
-//
-//            // validate message
-//            if ($message == '') {
-//                set_error('The message cannot be blank.');
-//                $this->go_back();
-//            }
-//
-//            $user = \R::load('user', $recipient);
-//            $user->role; // preload
-//
-//            if ($user->id) {
-//                email($user->email, 'PM: ' . $title, $message, array(
-//                    'recipient' => $user,
-//                    'sender' => Auth::$user,
-//                    'template' => 'personal_message.html'
-//                ));
-//                set_success('Message sent to ' . $user->first_name . ' ' . $user->last_name);
-//            } else {
-//                set_error('Unknown user');
-//            }
-//        } else {
-//            set_error('You are not authorized to send personal messages');
-//        }
-        $this->go_back();
-    }
-
-    /**
-     * Sends a welcome email to new users
-     * @param $recipient
-     */
-    public function post_send_new_account_by_admin_email($recipient) {
-        set_error('sending emails is deprecated');
-//        if (Auth::has_authentication('administer_users')) {
-//            $user = \R::load('user', $recipient);
-//            $user->role; // preload
-//
-//            if ($user->id) {
-//                email($user->email, Atomar::$config['site_name'] . ': ' . '', '', array(
-//                    'recipient' => $user,
-//                    'template' => 'new_account_by_admin.html'
-//                ));
-//                set_success('New account notification sent to ' . $user->first_name . ' ' . $user->last_name);
-//            } else {
-//                set_error('Unknown user');
-//            }
-//        } else {
-//            set_error('You are not authorized to send account notices.');
-//        }
-        $this->go_back();
     }
 }

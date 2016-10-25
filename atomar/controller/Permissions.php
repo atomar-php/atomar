@@ -5,7 +5,7 @@ namespace atomar\controller;
 use atomar\core\Auth;
 use atomar\core\Controller;
 
-class AdminPermissions extends Controller {
+class Permissions extends Controller {
     function GET($matches = array()) {
         Auth::authenticate('administer_permissions');
 

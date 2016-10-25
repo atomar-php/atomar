@@ -10,8 +10,12 @@ use Michelf\Markdown;
 
 require_once(Atomar::atomar_dir() . '/vendor/Markdown/Michelf/Markdown.inc.php');
 
-
-class AdminDocumentation extends Controller {
+/**
+ * TODO: move all of the documentation out and onto a public site.
+ * Class Documentation
+ * @package atomar\controller
+ */
+class Documentation extends Controller {
     function GET($matches = array()) {
         Auth::authenticate('view_system_documentation');
         $this->generate_menu();

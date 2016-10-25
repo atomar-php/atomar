@@ -5,7 +5,12 @@ namespace atomar\controller;
 use atomar\core\Auth;
 use atomar\core\Controller;
 
-class UserLogout extends Controller {
+/**
+ * Logs the user out of the system
+ * Class Logout
+ * @package atomar\controller
+ */
+class Logout extends Controller {
     function GET($matches = array()) {
         Auth::logout();
         $this->go('/');

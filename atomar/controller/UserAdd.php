@@ -5,7 +5,7 @@ namespace atomar\controller;
 use atomar\core\Auth;
 use atomar\core\Lightbox;
 
-class AdminUsersCreate extends Lightbox {
+class UserAdd extends Lightbox {
     function GET($matches = array()) {
         if (!Auth::has_authentication('administer_users')) {
             set_error('You are not authorized to edit users');

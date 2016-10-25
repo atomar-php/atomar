@@ -6,7 +6,7 @@ use atomar\Atomar;
 use atomar\core\Auth;
 use atomar\core\Controller;
 
-class AdminPerformance extends Controller {
+class Performance extends Controller {
     function GET($matches = array()) {
         Auth::authenticate('administer_performance');
 

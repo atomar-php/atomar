@@ -13,7 +13,7 @@ use atomar\hook\Permission;
  * Class AdminExtensions
  * @package atomar\controller
  */
-class AdminExtensions extends Controller {
+class Extensions extends Controller {
 
     function GET($matches = array()) {
         Auth::authenticate('administer_extensions');

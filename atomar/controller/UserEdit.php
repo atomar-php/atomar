@@ -5,7 +5,7 @@ namespace atomar\controller;
 use atomar\core\Auth;
 use atomar\core\Lightbox;
 
-class AdminUserEdit extends Lightbox {
+class UserEdit extends Lightbox {
 
     function GET($matches = array()) {
         // require authentication

@@ -85,34 +85,44 @@ class Router {
              */
             // map urls to controllers
             $system_urls = array(
-                '/404/?(\?.*)?' => 'atomar\controller\ExceptionHandler',
-                '/user/reset/?(\?.*)?' => 'atomar\controller\UserReset',
+                '/404/?(\?.*)?' => 'atomar\controller\ExceptionHandler'
             );
             $authenticated_urls = array(
-                '/user/logout/?(\?.*)?' => 'atomar\controller\UserLogout',
-                '/user/(?P<id>\d+)/?(\?.*)?' => 'atomar\controller\User',
-                '/atomar/user/(?P<id>\d+)/edit/?(\?.*)?' => 'atomar\controller\AdminUserEdit',
+                // TODO: make api /atomar/api
+                '/!/(?P<api>[a-zA-Z\_-]+)/?(\?.*)?' => 'atomar\controller\API',
+
+                '/atomar/logout/?(\?.*)?' => 'atomar\controller\Logout',
+                '/atomar/user/(?P<id>\d+)/edit/?(\?.*)?' => 'atomar\controller\UserEdit',
                 '/atomar/?(\?.*)?' => 'atomar\controller\Admin',
-                '/atomar/users/?(\?.*)?' => 'atomar\controller\AdminUsers',
-                '/atomar/users/create/?(\?.*)?' => 'atomar\controller\AdminUsersCreate',
-                '/atomar/permissions/?(\?.*)?' => 'atomar\controller\AdminPermissions',
-                '/atomar/roles/?(\?.*)?' => 'atomar\controller\AdminRoles',
-                '/atomar/roles/create/?(\?.*)?' => 'atomar\controller\AdminRolesCreate',
-                '/atomar/roles/(?P<id>\d+)/edit/?(\?.*)?' => 'atomar\controller\AdminRolesEdit',
+                '/atomar/users/?(\?.*)?' => 'atomar\controller\Users',
+                '/atomar/users/create/?(\?.*)?' => 'atomar\controller\UserAdd',
+
+                '/atomar/permissions/?(\?.*)?' => 'atomar\controller\Permissions',
+
+                '/atomar/roles/?(\?.*)?' => 'atomar\controller\Roles',
+                '/atomar/roles/create/?(\?.*)?' => 'atomar\controller\RolesAdd',
+                '/atomar/roles/(?P<id>\d+)/edit/?(\?.*)?' => 'atomar\controller\RolesEdit',
+
                 '/atomar/configuration/?(\?.*)?' => 'atomar\controller\AdminConfiguration',
-                '/atomar/documentation/?(\?.*)?' => 'atomar\controller\AdminDocumentation',
-                '/atomar/documentation/(?P<type>[a-z]+)/(?P<name>[a-zA-Z\.\_\-]+)/?(\?.*)?' => 'atomar\controller\AdminDocumentation',
-                '/atomar/extensions/?(\?.*)?' => 'atomar\controller\AdminExtensions',
-                '/atomar/settings/?(\?.*)?' => 'atomar\controller\AdminSettings',
-                '/atomar/extensions/new/?(\?.*)?' => 'atomar\controller\AdminExtensionsNew',
+
+                '/atomar/documentation/?(\?.*)?' => 'atomar\controller\Documentation',
+                '/atomar/documentation/(?P<type>[a-z]+)/(?P<name>[a-zA-Z\.\_\-]+)/?(\?.*)?' => 'atomar\controller\Documentation',
+
+                '/atomar/settings/?(\?.*)?' => 'atomar\controller\Settings',
+
+                '/atomar/extensions/?(\?.*)?' => 'atomar\controller\Extensions',
+
+                // TODO: add migration support to the cli.
                 '/atomar/migrations/new/?(\?.*)?' => 'atomar\controller\AdminMigrationsNew',
-                '/atomar/performance/?(\?.*)?' => 'atomar\controller\AdminPerformance',
+
+                '/atomar/performance/?(\?.*)?' => 'atomar\controller\Performance',
             );
             $unauthenticated_urls = array(
-                '/user/login/?(\?.*)?' => 'atomar\controller\UserLogin',
+                '/atomar/login/?(\?.*)?' => 'atomar\controller\UserLogin',
             );
             $public_urls = array(
-                '/!/(?P<api>[a-zA-Z\_-]+)/?(\?.*)?' => 'atomar\controller\API',
+                // TODO: make api /atomar/api
+                '/!/(?P<api>cron)/?(\?.*)?' => 'atomar\controller\API',
                 '/(\?.*)?' => 'atomar\controller\Index'
             );
             $maintenance_urls = array(

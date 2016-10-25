@@ -5,7 +5,7 @@ namespace atomar\controller;
 use atomar\core\Auth;
 use atomar\core\Controller;
 
-class AdminSettings extends Controller {
+class Settings extends Controller {
 
     function GET($matches = array()) {
         // require authentication
