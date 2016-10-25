@@ -22,7 +22,6 @@ Below are a list of available methods. These methods are accessible by using the
 * `authenticate($options = false)` - same as above except instead of returning a boolean it will call `revoke_access()`.
 * `revoke_access()` -> calls the authentication failure handler or throws an exception.
 * `is_super($user=false) -> boolean` - checks if the specified user or the current user is the super user.
-* `is_admin($user=false)- > boolean` - checks if the specified user or the current user is an administrator.
 * `has_role($role, $user=null) -> boolean` - checks if the specified user or current user has the given role
 * `register($user, $password, $role_id) -> boolean` - registers a brand new user account.
 * `logout($user=null)` - logs out the specified user or the current user if null.

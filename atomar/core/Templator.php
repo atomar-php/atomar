@@ -337,7 +337,7 @@ CSS;
             } else {
                 $user['last_login'] = '';
             }
-            $user['is_admin'] = Auth::is_admin();
+            $user['is_admin'] = Auth::has_authentication('administer_site');
             $user['is_super'] = Auth::is_super();
             $args['atomar']['user'] = $user;
             unset($user);

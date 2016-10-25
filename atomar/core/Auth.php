@@ -324,7 +324,7 @@ class Auth {
      * Check if a given user has a given role
      * The currently logged in user will be checked if the $user parameter is left null.
      * @param string $role the name of the role
-     * @param RedBean or null the user to check against.
+     * @param $user RedBean or null the user to check against.
      * @return boolean true if the user has the role.
      */
     public static function has_role($role, $user = null) {
@@ -340,7 +340,7 @@ class Auth {
     /**
      * Revoke access to the user.
      * It will either throw an Exception or execute a callback.
-     * @throws Unauthorized access exception
+     * @throws \Exception Unauthorized access exception
      */
     public static function revoke_access() {
         if (is_callable(self::$_auth_failure_callback)) {
@@ -351,15 +351,6 @@ class Auth {
         } else {
             throw new \Exception('Unauthorized access on ' . $_SERVER['REQUEST_URI'], 1);
         }
-    }
-
-    /**
-     * Check if a user is an admin
-     * @param mixed $user the user that will be checked or false
-     * @return boolean true if the use is an administrator
-     */
-    public static function is_admin($user = false) {
-        return self::has_role('administrator', $user);
     }
 
     /**

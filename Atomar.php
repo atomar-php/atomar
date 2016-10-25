@@ -212,6 +212,7 @@ HTML;
             \R::freeze(true);
             error_reporting(0);
         } else {
+            ini_set('display_errors', 1);
             error_reporting(E_ALL ^ E_NOTICE);
         }
 
@@ -224,7 +225,7 @@ HTML;
         /**
          * PHP Info
          */
-        if (self::$config['debug'] && isset($_REQUEST['phpinfo']) && $_REQUEST['phpinfo'] && (Auth::is_admin() || Auth::is_super())) {
+        if (self::$config['debug'] && isset($_REQUEST['phpinfo']) && $_REQUEST['phpinfo'] && Auth::has_authentication('administer_site')) {
             phpinfo();
             exit;
         }
@@ -232,7 +233,7 @@ HTML;
         /**
          * Check for pending updates for this version if the currently logged in user is the super user.
          */
-        if (Auth::is_super()) {
+        if (Auth::has_authentication('administer_site')) {
             self::version_check();
         }
 

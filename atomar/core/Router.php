@@ -163,7 +163,7 @@ JAVASCRIPT;
             /**
              * Enable appropriate urls
              */
-            if (Atomar::get_system('maintenance_mode', '0') == '1' && !Auth::is_super() && !Auth::has_authentication('administer_site')) {
+            if (Atomar::get_system('maintenance_mode', '0') == '1' && !Auth::has_authentication('administer_site')) {
                 $extension_urls = Atomar::hook(new Url());
                 // extensions may only override system and unauthenticated urls while in maintenance mode
                 $overidable_system_urls = array_intersect_key($extension_urls, $system_urls);
@@ -206,7 +206,7 @@ JAVASCRIPT;
             /**
              * Display debugging info
              */
-            if ((Auth::is_super() || Auth::is_admin()) && Atomar::$config['debug'] && isset($_GET['debug']) && $_GET['debug'] == 1) {
+            if (Auth::has_authentication('administer_site') && Atomar::$config['debug'] && isset($_GET['debug']) && $_GET['debug'] == 1) {
                 if (Auth::$user) {
                     $user = Auth::$user->export();
                 } else {
@@ -225,14 +225,14 @@ JAVASCRIPT;
                 Logger::log_warning('Routing exception', $e->getMessage());
             }
             $path = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-            if (Atomar::get_system('maintenance_mode', '0') == '1' && !Auth::is_super() && !Auth::has_authentication('administer_site')) {
+            if (Atomar::get_system('maintenance_mode', '0') == '1' && !Auth::has_authentication('administer_site')) {
                 // prevent redirect loops.
                 if (!self::is_active_url('/', true)) {
                     self::go('/');
                 } else {
                     self::redirect_loop_catcher($path);
                 }
-            } else if (Atomar::$config['debug'] || Auth::is_super() || Auth::is_admin()) {
+            } else if (Atomar::$config['debug'] || Auth::has_authentication('administer_site')) {
                 // print the error
                 $version = phpversion();
                 echo Templator::render_view('debug.html', array(

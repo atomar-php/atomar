@@ -36,7 +36,7 @@ class API extends ApiController {
      * @param $enabled
      */
     public function get_maintenance($enabled) {
-        if (Auth::has_authentication('administer_site') || Auth::is_super()) {
+        if (Auth::has_authentication('administer_site')) {
             Atomar::set_system('maintenance_mode', $enabled == true);
         } else {
             set_error('You are not authorized to change the maintenance mode of this site.');
@@ -49,7 +49,7 @@ class API extends ApiController {
      * @param $enable
      */
     public function get_cache_css($enable) {
-        if (Auth::has_authentication('manage_cache') || Auth::is_super()) {
+        if (Auth::has_authentication('administer_site')) {
             Atomar::set_system('cache_css', $enable == true);
             if ($enable) {
                 set_success('CSS caching has been enabled');
@@ -67,7 +67,7 @@ class API extends ApiController {
      * @param $enable
      */
     public function get_cache_js($enable) {
-        if (Auth::has_authentication('manage_cache') || Auth::is_super() || Auth::is_admin()) {
+        if (Auth::has_authentication('administer_site')) {
             Atomar::set_system('cache_js', $enable == true);
             if ($enable) {
                 set_success('JS caching has been enabled');
@@ -84,7 +84,7 @@ class API extends ApiController {
      * Clears the asset cache
      */
     public function get_clear_cache() {
-        if (Auth::has_authentication('manage_cache') || Auth::is_super() || Auth::is_admin()) {
+        if (Auth::has_authentication('administer_site')) {
             if (is_dir(Atomar::$config['cache'])) {
                 if (deleteDir(Atomar::$config['cache'])) {
                     set_success('The cache was successfully emptied');
@@ -105,7 +105,7 @@ class API extends ApiController {
      * Installs the application
      */
     public function get_install_app() {
-        if(Auth::is_super() || Auth::is_admin()) {
+        if(Auth::has_authentication('administer_site')) {
             Atomar::install_application();
         } else {
             set_error('You are not authorized to install the application');

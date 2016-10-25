@@ -46,7 +46,7 @@ class UserEdit extends Lightbox {
             echo $this->renderView('admin/modal.user.edit.html', array(
                 'user' => $user,
                 'roles' => $user_roles,
-                'is_admin' => Auth::is_admin() || Auth::is_super()
+                'is_admin' => Auth::has_authentication('administer_users')
             ));
         } else {
             // close the lightbox
