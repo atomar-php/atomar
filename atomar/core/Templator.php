@@ -358,18 +358,10 @@ CSS;
             $args['atomar']['year'] = date('Y');
 
             if ($options['render_menus']) {
-                // prepare menu
-                Atomar::$menu['primary_menu']['/'] = array(
-                    'link' => l('Home', '/'),
-                    'class' => array(),
-                    'weight' => -9999,
-                    'access' => array(),
-                    'menu' => array()
-                );
                 // admin users
                 if (Auth::has_authentication('administer_site')) {
                     Atomar::$menu['primary_menu']['/atomar'] = array(
-                        'link' => l('<span class="glyphicon glyphicon-cog"></span>', '/atomar'),
+                        'link' => l('administer', '/atomar'),
                         'class' => array(),
                         'weight' => 9999,
                         'access' => 'administer_site',
@@ -377,49 +369,16 @@ CSS;
                     );
                 }
                 if (Auth::$user) {
-                    // authenticated users
-                    Atomar::$menu['primary_menu']['/user/submenu'] = array(
-                        'link' => l('<span class="glyphicon glyphicon-user"></span> <b class="caret"></b>', '#', array(
-                            'dropdown-toggle'
-                        ), array(
-                            'data-toggle' => 'dropdown'
-                        )),
-                        'class' => array(
-                            'dropdown'
-                        ),
-                        'weight' => 8888,
+                    Atomar::$menu['primary_menu']['/atomar/logout'] = array(
+                        'link' => l('logout', '/atomar/logout'),
+                        'class' => array(),
+                        'weight' => 0,
                         'access' => array(),
-                        'menu' => array(
-                            'class' => array(
-                                'dropdown-menu',
-                                'pull-right'
-                            ),
-                            '/user/#' => array(
-                                'value' => Auth::$user->first_name . ' ' . Auth::$user->last_name . ' (' . Auth::$user->role->slug . ')',
-                                'class' => array('section-header'),
-                                'weight' => -9999,
-                                'access' => array(),
-                                'menu' => array()
-                            ),
-                            '/user/' . Auth::$user->id => array(
-                                'link' => l('Manage Account', '/user/' . Auth::$user->id),
-                                'class' => array(),
-                                'weight' => 0,
-                                'access' => array(),
-                                'menu' => array()
-                            ),
-                            '/user/logout' => array(
-                                'link' => l('Logout', '/user/logout'),
-                                'class' => array(),
-                                'weight' => 9999,
-                                'access' => array(),
-                                'menu' => array()
-                            ),
-                        )
+                        'menu' => array()
                     );
                 } else {
-                    Atomar::$menu['primary_menu']['/user/login'] = array(
-                        'link' => l('login', '/user/login'),
+                    Atomar::$menu['primary_menu']['/atomar/login'] = array(
+                        'link' => l('login', '/atomar/login'),
                         'class' => array(),
                         'weight' => 0,
                         'access' => array(),

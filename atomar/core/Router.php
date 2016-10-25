@@ -118,7 +118,7 @@ class Router {
                 '/atomar/performance/?(\?.*)?' => 'atomar\controller\Performance',
             );
             $unauthenticated_urls = array(
-                '/atomar/login/?(\?.*)?' => 'atomar\controller\UserLogin',
+                '/atomar/login/?(\?.*)?' => 'atomar\controller\Login',
             );
             $public_urls = array(
                 // TODO: make api /atomar/api

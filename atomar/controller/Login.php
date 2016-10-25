@@ -6,7 +6,7 @@ use atomar\core\Auth;
 use atomar\core\Controller;
 use atomar\core\Templator;
 
-class UserLogin extends Controller {
+class Login extends Controller {
     function GET($matches = array()) {
 
         Templator::$css_inline[] = <<<CSS
@@ -47,7 +47,7 @@ body {
 }
 CSS;
 
-        echo $this->renderView('user/login.html');
+        echo $this->renderView('admin/login.html');
     }
 
     function POST($matches = array()) {
