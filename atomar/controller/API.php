@@ -36,7 +36,7 @@ class API extends ApiController {
      * @param $enabled
      */
     public function get_maintenance($enabled) {
-        if (Auth::has_authentication('change_maintenance_mode') || Auth::is_super() || Auth::is_admin()) {
+        if (Auth::has_authentication('administer_site') || Auth::is_super()) {
             Atomar::set_system('maintenance_mode', $enabled == true);
         } else {
             set_error('You are not authorized to change the maintenance mode of this site.');
@@ -49,7 +49,7 @@ class API extends ApiController {
      * @param $enable
      */
     public function get_cache_css($enable) {
-        if (Auth::has_authentication('manage_cache') || Auth::is_super() || Auth::is_admin()) {
+        if (Auth::has_authentication('manage_cache') || Auth::is_super()) {
             Atomar::set_system('cache_css', $enable == true);
             if ($enable) {
                 set_success('CSS caching has been enabled');

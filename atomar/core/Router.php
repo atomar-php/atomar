@@ -163,7 +163,7 @@ JAVASCRIPT;
             /**
              * Enable appropriate urls
              */
-            if (Atomar::get_system('maintenance_mode', '0') == '1' && !Auth::is_super() && !Auth::is_admin() && !Auth::has_authentication('skip_maintenance_mode')) {
+            if (Atomar::get_system('maintenance_mode', '0') == '1' && !Auth::is_super() && !Auth::has_authentication('administer_site')) {
                 $extension_urls = Atomar::hook(new Url());
                 // extensions may only override system and unauthenticated urls while in maintenance mode
                 $overidable_system_urls = array_intersect_key($extension_urls, $system_urls);
@@ -225,7 +225,7 @@ JAVASCRIPT;
                 Logger::log_warning('Routing exception', $e->getMessage());
             }
             $path = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-            if (Atomar::get_system('maintenance_mode', '0') == '1' && !Auth::is_super() && !Auth::is_admin() && !Auth::has_authentication('skip_maintenance_mode')) {
+            if (Atomar::get_system('maintenance_mode', '0') == '1' && !Auth::is_super() && !Auth::has_authentication('administer_site')) {
                 // prevent redirect loops.
                 if (!self::is_active_url('/', true)) {
                     self::go('/');

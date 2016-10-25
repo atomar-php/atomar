@@ -8,7 +8,7 @@ use atomar\core\Controller;
 
 class Performance extends Controller {
     function GET($matches = array()) {
-        Auth::authenticate('administer_performance');
+        Auth::authenticate('administer_site');
 
         // render page
         echo $this->renderView('admin/performance.html', array(

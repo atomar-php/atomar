@@ -429,14 +429,14 @@ CSS;
                     'link' => l('Settings', '/atomar/settings/'),
                     'class' => array(),
                     'weight' => 800,
-                    'access' => 'administer_settings',
+                    'access' => 'administer_site',
                     'menu' => array()
                 );
                 Atomar::$menu['secondary_menu']['/atomar/performance'] = array(
                     'link' => l('Performance', '/atomar/performance/'),
                     'class' => array(),
                     'weight' => 850,
-                    'access' => 'administer_performance',
+                    'access' => 'administer_site',
                     'menu' => array()
                 );
                 Atomar::$menu['secondary_menu']['/atomar/extensions'] = array(
@@ -453,7 +453,7 @@ CSS;
                     'link' => l('Documentation', '/atomar/documentation/'),
                     'class' => array(),
                     'weight' => 9999,
-                    'access' => 'view_system_documentation',
+                    'access' => '',
                     'menu' => array(
                         'options' => array('visible' => 'when_active')
                     )

@@ -9,7 +9,7 @@ class Settings extends Controller {
 
     function GET($matches = array()) {
         // require authentication
-        if (!Auth::has_authentication('administer_settings')) {
+        if (!Auth::has_authentication('administer_site')) {
             set_error('You are not authorized to edit settings');
             self::go('/');
         }

@@ -17,7 +17,6 @@ require_once(Atomar::atomar_dir() . '/vendor/Markdown/Michelf/Markdown.inc.php')
  */
 class Documentation extends Controller {
     function GET($matches = array()) {
-        Auth::authenticate('view_system_documentation');
         $this->generate_menu();
         $missing = <<<MD
 Missing Documentation
@@ -70,7 +69,7 @@ MD;
             'title' => 'Atomar',
             'class' => array(),
             'weight' => 0,
-            'access' => 'view_system_documentation',
+            'access' => '',
             'menu' => array()
         );
         $docs = glob(Atomar::atomar_dir() . '/doc/*.md');
@@ -82,7 +81,7 @@ MD;
                 'link' => l(basename($doc, '.md'), '/atomar/documentation/core/' . basename($doc, '.md')),
                 'class' => array(),
                 'weight' => $weight,
-                'access' => 'view_system_documentation',
+                'access' => '',
                 'menu' => array()
             );
             $weight++;
@@ -93,7 +92,7 @@ MD;
             'title' => 'Extensions',
             'class' => array(),
             'weight' => 0,
-            'access' => 'view_system_documentation',
+            'access' => '',
             'menu' => array()
         );
         $extensions = \R::findAll('extension', ' ORDER BY `name` ASC ');
@@ -106,7 +105,7 @@ MD;
                 'link' => l($ext->name, '/atomar/documentation/extension/' . $ext->slug, array($class)),
                 'class' => array(),
                 'weight' => $weight,
-                'access' => 'view_system_documentation',
+                'access' => '',
                 'menu' => array()
             );
             $weight++;
