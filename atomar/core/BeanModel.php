@@ -52,7 +52,7 @@ MYSQL;
      */
     protected function kill($message) {
         $this->$_error_messages = $message;
-        throw new ModelException();
+        throw new ModelException($message);
     }
 
     /**
@@ -71,7 +71,7 @@ MYSQL;
  * This is a custom exception class for beans.
  */
 class ModelException extends \Exception {
-    function __construct() {
-        parent::__construct();
+    function __construct($message) {
+        parent::__construct($message);
     }
 }

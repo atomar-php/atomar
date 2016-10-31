@@ -447,9 +447,10 @@ function word_trim($string, $max_width) {
  * Prepares a human readable string giving the relative time since the given time.
  * e.g. less than a minute ago, 5 minutes ago, 1 hour ago.
  * @param mixed $time the unix time. This can be an integer value or a string.
+ * @param bool $round_to_date if true dates that occur further than 24 hours from now will be displayed as dates. If false then hours will continue to be used.
  * @return string the formatted time period.
  */
-function relative_date($time) {
+function relative_date($time, $round_to_date=true) {
     if(is_string($time)) $time = strtotime($time);
     $now = time();
     $time_is_past = $time < $now;
@@ -467,8 +468,12 @@ function relative_date($time) {
         $hours = floor($seconds / 60 / 60);
         $result = $hours . ' hour' . ($hours > 1 ? 's' : '');
         $result .= $time_is_past ? ' ago' : '';
-    } else {
+    } else if($round_to_date) {
         $result = compact_date($time);
+    } else {
+        $hours = floor($seconds / 60 / 60);
+        $result = $hours . ' hour' . ($hours > 1 ? 's' : '');
+        $result .= $time_is_past ? ' ago' : '';
     }
 
     return $result;
