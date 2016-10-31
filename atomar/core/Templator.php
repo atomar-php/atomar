@@ -311,6 +311,8 @@ CSS;
             $word_trim = new \Twig_simpleFunction('word_trim', 'word_trim');
             $letter_trim = new \Twig_simpleFunction('letter_trim', 'letter_trim');
             $print_debug = new \Twig_simpleFunction('print_debug', 'print_debug');
+            $relative_date = new \Twig_simpleFunction('relative_date', 'relative_date');
+            $twig->addFunction($relative_date);
             $twig->addFunction($multi_select);
             $twig->addFunction($single_select);
             $twig->addFunction($fancy_date);

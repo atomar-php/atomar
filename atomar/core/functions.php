@@ -444,60 +444,34 @@ function word_trim($string, $max_width) {
 }
 
 /**
- * Calculate how many hours it will-be/has-been until/since the given time.
- * @param int $time the unix time
- * @param boolean $precise specifies if minutes and seconds should be included in the result or just rounded to hours.
+ * Prepares a human readable string giving the relative time since the given time.
+ * e.g. less than a minute ago, 5 minutes ago, 1 hour ago.
+ * @param mixed $time the unix time. This can be an integer value or a string.
  * @return string the formatted time period.
  */
-function time_until_date($time, $precise = false) {
+function relative_date($time) {
+    if(is_string($time)) $time = strtotime($time);
     $now = time();
     $time_is_past = $time < $now;
     $time = abs($time - $now);
-    $string_time = '';
-    if ($precise) {
-        $h = floor(abs($time) / 60 / 60);
-        $time -= $h * 60 * 60;
-        $m = floor(abs($time) / 60);
-        $time -= $m * 60;
-        $s = floor(abs($time));
-        if ($h > 0) {
-            $string_time .= $h . ' hour';
-            if ($h > 1) {
-                $string_time .= 's';
-            }
-            if (($m > 0 || $s > 0) && !($m > 0 && $s > 0)) {
-                $string_time .= ' and ';
-            } else if ($m > 0 && $s > 0) {
-                $string_time .= ' ';
-            }
-        }
-        if ($m > 0) {
-            $string_time .= $m . ' minute';
-            if ($m > 1) {
-                $string_time .= 's';
-            }
-            if ($s > 0) {
-                $string_time .= ' and ';
-            }
-        }
-        if ($s > 0) {
-            $string_time .= $s . ' second';
-            if ($s > 1) {
-                $string_time .= 's';
-            }
-        }
+    $seconds = floor(abs($time));
+
+    if($seconds < 60) {
+        $result = 'less than a minute';
+        $result .= $time_is_past ? ' ago' : '';
+    } else if($seconds < 60 * 60) {
+        $minutes = floor($seconds / 60);
+        $result = $minutes . ' minute' . ($minutes > 1 ? 's' : '');
+        $result .= $time_is_past ? ' ago' : '';
+    } else if($seconds < 60 * 60 * 24) {
+        $hours = floor($seconds / 60 / 60);
+        $result = $hours . ' hour' . ($hours > 1 ? 's' : '');
+        $result .= $time_is_past ? ' ago' : '';
     } else {
-        $h = floor(abs($time) / 60 / 60);
-        $string_time = $h . ' hour';
-        if ($h > 1) {
-            $string_time .= 's';
-        }
+        $result = compact_date($time);
     }
-    if ($time_is_past) {
-        return $string_time . ' ago';
-    } else {
-        return $string_time;
-    }
+
+    return $result;
 }
 
 /**
