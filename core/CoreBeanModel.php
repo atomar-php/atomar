@@ -29,7 +29,7 @@ class CoreBeanModel extends BeanModel {
      * Any property not registered will fail the security check.
      * @param string @property the property to register.
      */
-    protected function register_property($property) {
+    protected function register_property(string $property) {
         if (!in_array($property, $this->_registered_properties)) {
             $this->_registered_properties[] = $property;
         }

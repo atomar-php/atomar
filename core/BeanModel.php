@@ -1,12 +1,14 @@
 <?php
 
 namespace atomar\core;
+use RedBeanPHP\SimpleModel;
 
 /**
  * This is a simple wrapper to the RedBean model that provides
  * some extra functionality.
  */
-class BeanModel extends \RedBean_SimpleModel {
+class BeanModel extends SimpleModel {
+
     private $_error_messages;
 
     /**
@@ -16,7 +18,7 @@ class BeanModel extends \RedBean_SimpleModel {
      * @return array an array of enum values available in the requested field.
      * @throws \Exception
      */
-    public function get_enum($field) {
+    public function get_enum(string $field) {
         throw new \Exception("I'm not sure if this enum method works correctly.");
         // TODO: I'm not sure if passing the table name in through RedBean works.
         $sql_enum = <<<MYSQL
@@ -42,26 +44,26 @@ MYSQL;
      * @return string returns the error message that has been stored in this bean.
      */
     public function errors() {
-        return $this->$_error_messages;
+        return $this->_error_messages;
     }
 
     /**
      * Call this function to stop the process and store the error message
-     * @param string @message a message explaining why the process was killed.
+     * @param string $message a message explaining why the process was killed.
      * @throws ModelException
      */
-    protected function kill($message) {
-        $this->$_error_messages = $message;
+    protected function kill(string $message) {
+        $this->_error_messages = $message;
         throw new ModelException($message);
     }
 
     /**
-     * Unescape single and double quotes in the string because RedBean automatically escapes them.
-     * @param string $value the string to unescape
+     * Un-escape single and double quotes in the string because RedBean automatically escapes them.
+     * @param string $value the string to un-escape
      * @return string the escaped string
      */
-    protected function unescape($value) {
-        $value = str_replace("\'", "'", $value);
+    protected function unescape(string $value) {
+        $value = str_replace("\\'", "'", $value);
         $value = str_replace('\"', '"', $value);
         return $value;
     }
@@ -71,7 +73,7 @@ MYSQL;
  * This is a custom exception class for beans.
  */
 class ModelException extends \Exception {
-    function __construct($message) {
+    function __construct(string $message) {
         parent::__construct($message);
     }
 }
