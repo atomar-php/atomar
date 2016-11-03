@@ -1,25 +1,17 @@
 Atomar
 ---
 
-Atomar is a modular Rapid Application Development framework built for developers that can be easily extended with reusable code.
-Minimum PHP version 5.3.4
+Atomar is an oppinionated web-app development framework that follows the Model View Controller design pattern using existing open source technologies.
 
->**Atomar is not a turnkey solution**, but attempts to provide easy-to-use tools while solving some of the basic everyday issues of web development.
+* **model**: [ReadBeanPHP] is an easy ORM for PHP and on-the-fly relational mapper
+* **view**: [Twig] is a flexible, fast, and secure template engine for PHP
+* **controller**: Atomar uses a currated set of custom controllers.
 
+###Requirements
+* PHP 7.0
 
-## Design Pattern
-Atomar implements the Model View Controller ([MVC](http://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller)) design pattern.
-
-
-
-###Model
-[ReadBeanPHP] is an easy ORM for PHP and on-the-fly relational mapper
-
-###View
-[Twig] is a flexible, fast, and secure template engine for PHP
-
-###Glue
-[Glue] is a simple PHP class that maps URLs to classes
+##Docs
+> We are slowly moving the documentation into the wiki. Please bear with us while transition from documentation every to just one place.
 
 ##Want to learn more?
 The rest of the documentation is broken up by class. You can find the documentation on disk in `doc/` or, if you have already installed Atomar, in your browser to [/atomar/documentation](/atomar/documentation).
