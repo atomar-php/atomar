@@ -16,7 +16,7 @@ use atomar\hook\PreProcessBoot;
 require_once(__DIR__ . '/atomar/core/AutoLoader.php');
 
 /**
- * Class Atomar is the center of the atomar framework.
+ * Class Atomar is the center of the Atomar framework.
  * @package atomar
  */
 class Atomar {
@@ -103,7 +103,7 @@ class Atomar {
         }
 
         // load manifest
-        self::$manifest = new ReadOnlyArray(json_decode(file_get_contents(__DIR__ . '/package.json'), true));
+        self::$manifest = new ReadOnlyArray(json_decode(file_get_contents(__DIR__ . '/atomar.json'), true));
 
         if(!is_dir(self::$config['ext_dir'])) {
             mkdir(self::$config['ext_dir'], 0775);
