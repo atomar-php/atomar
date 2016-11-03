@@ -36,7 +36,7 @@ class Libraries implements Hook {
     public function process($params, $ext_path, $ext_namespace, $ext, $state) {
         if (is_array($params)) {
             foreach ($params as $library) {
-                include_once($ext_path . $library);
+                include_once(realpath($ext_path . ltrim($library, '/')));
             }
         }
         return $state;

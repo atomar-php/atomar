@@ -266,15 +266,6 @@ HTML;
         }
 
         /**
-         * Autoload extensions
-         *
-         */
-        $extensions = \R::find('extension', 'is_enabled=\'1\'');
-        foreach ($extensions as $ext) {
-            AutoLoader::register(self::extension_dir() . $ext->slug);
-        }
-
-        /**
          * Autoload app
          *
          */
