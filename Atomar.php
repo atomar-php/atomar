@@ -13,7 +13,7 @@ use atomar\hook\Hook;
 use atomar\hook\Libraries;
 use atomar\hook\PreProcessBoot;
 
-require_once(__DIR__ . '/atomar/core/AutoLoader.php');
+require_once(__DIR__ . '/core/AutoLoader.php');
 
 /**
  * Class Atomar is the center of the Atomar framework.
@@ -79,7 +79,7 @@ class Atomar {
      * @throws \Exception
      */
     public static function init($config_path) {
-        AutoLoader::register(self::atomar_dir());
+        AutoLoader::register(self::atomar_dir(), 1);
         AutoLoader::register(__DIR__ . '/vendor');
 
         // MVC
@@ -87,7 +87,7 @@ class Atomar {
         require_once(__DIR__ . '/vendor/Twig/Autoloader.php');
         require_once(__DIR__ . '/vendor/Twig/SimpleFunction.php');
 
-        require_once(__DIR__ . '/atomar/core/functions.php');
+        require_once(__DIR__ . '/core/functions.php');
 
         // load the configuration
         if (is_string($config_path)) {
