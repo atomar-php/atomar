@@ -69,7 +69,7 @@ class Atomar {
 
     /**
      * The site application
-     * @var null|\RedBeanPHP\OODBBean
+     * @var null|Extension
      */
     private static $app;
 
@@ -452,7 +452,7 @@ HTML;
      * Loads an extension from a directory
      * @param string $path The path to the extension directory
      * @param string $slug The extension slug
-     * @return null|\RedBeanPHP\OODBBean
+     * @return null|Extension
      */
     public static function loadModule(string $path, string $slug) {
         if (is_dir($path)) {
@@ -486,7 +486,7 @@ HTML;
                     return null;
                 }
 
-                return $ext->box();
+                return $ext;
             }
         }
         return null;
