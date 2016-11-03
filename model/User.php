@@ -4,10 +4,13 @@ namespace model;
 
 use atomar\core\CoreBeanModel;
 
+/**
+ * Class User represents a user account
+ * @package model
+ */
 class User extends CoreBeanModel {
     function __construct() {
         parent::__construct();
-        // TODO: the deprecated fields should instead be stored in a separate profile object.
         $this->register_property('email');
         $this->register_property('is_enabled');
         $this->register_property('pass_hash');

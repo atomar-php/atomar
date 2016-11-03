@@ -12,6 +12,7 @@ use atomar\core\Templator;
 use atomar\hook\Hook;
 use atomar\hook\Libraries;
 use atomar\hook\PreProcessBoot;
+use model\Extension;
 
 require_once(__DIR__ . '/core/AutoLoader.php');
 
@@ -75,10 +76,10 @@ class Atomar {
     /**
      * Initializes the system.
      * Parameters may be passed directly as a map or you may specify a configuration file
-     * @param $config_path mixed the path to the site configuration or a map of values
+     * @param string $config_path mixed the path to the site configuration or a map of values
      * @throws \Exception
      */
-    public static function init($config_path) {
+    public static function init(string $config_path) {
         AutoLoader::register(self::atomar_dir(), 1);
         AutoLoader::register(__DIR__ . '/vendor');
 
@@ -152,7 +153,7 @@ class Atomar {
      * @param string $app_path An optional path to the application directory
      * @throws \Exception
      */
-    public static function run($app_path = null) {
+    public static function run(string $app_path = null) {
         if (self::$is_initialized) {
             if (is_string($app_path)) {
                 self::$config['app_dir'] = $app_path;
@@ -349,7 +350,7 @@ HTML;
      * @param string $to the new version we are updating to
      * @throws \Exception
      */
-    private static function hook_core_update($from, $to) {
+    private static function hook_core_update(string $from, string $to) {
         $from = trim($from);
         $to = trim($to);
         $migration_dir = __DIR__ . '/migration/';
@@ -453,7 +454,7 @@ HTML;
      * @param string $slug The extension slug
      * @return null|\RedBeanPHP\OODBBean
      */
-    public static function loadModule($path, $slug) {
+    public static function loadModule(string $path, string $slug) {
         if (is_dir($path)) {
             $manifest_file = rtrim($path, '/') . '/atomar.json';
             if (file_exists($manifest_file)) {
@@ -485,7 +486,7 @@ HTML;
                     return null;
                 }
 
-                return $ext;
+                return $ext->box();
             }
         }
         return null;
@@ -698,10 +699,10 @@ HTML;
 
     /**
      * Uninstalls a single extension
-     * @param $id
+     * @param int $id
      * @return bool
      */
-    public static function uninstall_extension($id) {
+    public static function uninstall_extension(int $id) {
         $ext = \R::load('extension', $id);
 
         // extensions must be disabled before uninstalling them.
@@ -762,10 +763,11 @@ HTML;
 
     /**
      * Returns a variable stored in the database or the default value.
-     * @param $key
-     * @param $default
+     * @param string $key
+     * @param string $default
+     * @return string
      */
-    public static function get_variable($key, $default) {
+    public static function get_variable(string $key, string $default) {
         $var = \R::findOne('setting', ' name=? ', array($key));
         if ($var) {
             return $var->value;
@@ -783,10 +785,11 @@ HTML;
 
     /**
      * Sets a variable to be stored in the database
-     * @param $key string
-     * @param $value string if null the variable will be deleted
+     * @param string $key string
+     * @param string $value string if null the variable will be deleted
+     * @return bool
      */
-    public static function set_variable($key, $value) {
+    public static function set_variable(string $key, string $value) {
         $var = \R::findOne('setting', ' name=? LIMIT 1', array($key));
         if ($value == null) {
             // delete existing setting
@@ -818,7 +821,7 @@ HTML;
      * @param string $default the default value of the variable.
      * @return string the value of the variable or the default value if specified otherwise null.
      */
-    public static function get_system($name, $default = null) {
+    public static function get_system(string $name, string $default = null) {
         $s = \R::findOne('system', ' name=?', array($name));
         if ($s) {
             return $s->value;
@@ -840,7 +843,7 @@ HTML;
      * @param string $value the value to be stored in the variable. If no value or null is given the variable will be deleted.
      * @return boolean will return true or false if the variable was successfully created or deleted.
      */
-    public static function set_system($name, $value = null) {
+    public static function set_system(string $name, string $value = null) {
         $s = \R::findOne('system', ' name=? LIMIT 1', array($name));
         if ($value == null) {
             // delete existing setting
