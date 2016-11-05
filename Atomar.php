@@ -80,6 +80,7 @@ class Atomar {
      * @throws \Exception
      */
     public static function init(string $config_path) {
+        AutoLoader::register(self::atomar_dir());
         AutoLoader::register(self::atomar_dir(), 1);
         AutoLoader::register(__DIR__ . '/vendor');
 
@@ -220,9 +221,10 @@ HTML;
         /**
          * Error and Exception handling
          */
-        set_exception_handler(function($e) {
-            Logger::log_error($e->getMessage(), $e);
-        });
+//        set_exception_handler(function($e) {
+//            Logger::log_error($e->getMessage(), $e);
+//            throw $e;
+//        });
 
         /**
          * AUTHENTICATION
