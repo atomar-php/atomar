@@ -4,6 +4,7 @@ namespace atomar\hook;
 
 
 use atomar\Atomar;
+use atomar\core\Logger;
 
 class Libraries implements Hook {
 
@@ -36,7 +37,11 @@ class Libraries implements Hook {
     public function process($params, $ext_path, $ext_namespace, $ext, $state) {
         if (is_array($params)) {
             foreach ($params as $library) {
-                include_once(realpath($ext_path . ltrim($library, '/')));
+                try {
+                    include_once(realpath($ext_path . ltrim($library, '/')));
+                } catch (\Exception $e) {
+                    Logger::log_error('Could not load library', $e->getMessage());
+                }
             }
         }
         return $state;

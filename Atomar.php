@@ -218,6 +218,13 @@ HTML;
         }
 
         /**
+         * Error and Exception handling
+         */
+        set_exception_handler(function($e) {
+            Logger::log_error($e->getMessage(), $e);
+        });
+
+        /**
          * AUTHENTICATION
          */
         Auth::setup(self::$config['auth']);
