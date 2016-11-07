@@ -1,3 +1,9 @@
+> **We are in BETA!**
+>
+> We are still *very* actively refining the code so it is easy to use and doesn't have any legacy stuff in it.
+>
+> Please don't ask for any help until we've reached version `0.2.0`. However, you are more than welcome to help out!
+
 Atomar
 ---
 
