@@ -19,7 +19,7 @@ Atomar is an oppinionated web-app development framework that follows the Model V
 ##Docs
 > We are slowly moving the documentation into the wiki. Please bear with us while we transition from documentation everywhere to just one place.
 
-You can learn move about the system at https://github.com/neutrinog/atomar/wiki.
+You can learn more about the system at https://github.com/neutrinog/atomar/wiki.
 
 ##CLI
 You ask if we have a command line client? Why yes we do.
