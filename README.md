@@ -7,7 +7,7 @@
 Atomar
 ---
 
-Atomar is an oppinionated web-app development framework that follows the Model View Controller design pattern using existing open source technologies.
+Atomar is an opinionated web-app development framework that follows the Model View Controller design pattern using existing open source technologies.
 
 * **model**: [ReadBeanPHP](http://redbeanphp.com/) is an easy ORM for PHP and on-the-fly relational mapper
 * **view**: [Twig](http://twig.sensiolabs.org/) is a flexible, fast, and secure template engine for PHP
