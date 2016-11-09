@@ -66,19 +66,6 @@ class API extends ApiController {
     }
 
     /**
-     * Installs the application
-     * @deprecated this is handled in the hooks now.
-     */
-    public function get_install_app() {
-        if(Auth::has_authentication('administer_site')) {
-            Atomar::install_application();
-        } else {
-            set_error('You are not authorized to install the application');
-        }
-        $this->go_back();
-    }
-
-    /**
      * Uninstalls an extension
      * @param $id
      */

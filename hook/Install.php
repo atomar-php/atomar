@@ -22,7 +22,7 @@ class Install implements Hook
      */
     public function preProcess($extension)
     {
-        return $extension->version != $extension->installed_version;
+        return $extension->version != $extension->installed_version && $extension->is_enabled == '1';
     }
 
     /**

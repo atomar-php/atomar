@@ -476,104 +476,14 @@ HTML;
     }
 
     /**
-     * Performs install/update procedures on the application
-     * @deprecated this is performed in the hooks now.
-     */
-    public static function install_application() {
-        set_error('deprecated install method');
-//        if (self::$app != null) {
-//            $app_install_path = self::application_dir() . 'install.php';
-//            try {
-//                if (file_exists($app_install_path)) {
-//                    include_once($app_install_path);
-//                } else {
-//                    Logger::log_error('Missing application install file: ' . $app_install_path);
-//                }
-//            } catch (\Exception $e) {
-//                Logger::log_error('Could not include file: ' . $app_install_path, $e->getMessage());
-//            }
-//
-//            $file = file_get_contents($app_install_path);
-//            $matches = array();
-//            if (preg_match_all('(update_[\d\_]+)', $file, $matches)) {
-//                $methods = array_flip($matches[0]);
-//                ksort($methods);
-//                if (!self::$app->installed_version) {
-//                    self::$app->installed_version = 0;
-//                }
-//
-//                $errors = false;
-//                foreach ($methods as $fun => $value) {
-//                    $matches = array();
-//                    if (preg_match('/^update_([\d\_]+)$/', $fun, $matches)) {
-//                        $version = str_replace('_', '.', $matches[1]);
-//                        $max_version_compare = vercmp($version, self::$app->version);
-//                        if (vercmp($version, self::$app->installed_version) == 1 && ($max_version_compare == 0 || $max_version_compare == -1)) {
-//                            // double check in case we accidentally picked up commented code.
-//                            if (function_exists(self::application_namespace() . '\\' . $fun)) {
-//                                if (call_user_func(self::application_namespace() . '\\' . $fun)) {
-//                                    if ($version == self::$app->version) {
-//                                        // we are done so display success notice.
-//                                        set_success('Updated application to version ' . self::$app->version);
-//                                    }
-//                                    self::$app->installed_version = $version;
-//                                    Atomar::set_system('app_installed_version', $version);
-//                                } else {
-//                                    // stop running updates for this extension.
-//                                    set_error('Failed to process update ' . $version . ' for application');
-//                                    $errors = true;
-//                                    break;
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                // display success notice
-//                if (!$errors) {
-//                    set_success('Updated application to version ' . self::$app->version);
-//                    self::$app->installed_version = self::$app->version;
-//                    Atomar::set_system('app_installed_version', self::$app->installed_version);
-//                }
-//            }
-//        }
-    }
-
-    /**
      * Uninstalls a single extension
      * @param int $id
      * @return bool
      */
     public static function uninstall_extension(int $id) {
-        $ext = \R::load('extension', $id);
-
-        // extensions must be disabled before uninstalling them.
-        if ($ext->is_enabled) {
-            return false;
-        }
-
-        // uninstall function
-        $fun = $ext->slug . '\uninstall';
-        $ext_path = self::$config['ext_dir'] . $ext->slug . '/install.php';
-        try {
-            include_once($ext_path);
-        } catch (\Exception $e) {
-            Logger::log_warning('Could not load the un-installation file for extension ' . $ext->slug, $e->getMessage());
-            return false;
-        }
-        if (function_exists($fun)) {
-            if (call_user_func($fun)) {
-                $ext->installed_version = '';
-                if (!store($ext)) {
-                    Logger::log_error('Failed to update extension after uninstalling: ' . $ext->slug);
-                    return false;
-                }
-            } else {
-                Logger::log_error('Failed to uninstall extension ' . $ext->slug);
-                return false;
-            }
-        }
-        return true;
+        set_warning('This method is deprecated');
+        // TODO: use the uninstall hook but only on this extension
+        return false;
     }
 
     /**
