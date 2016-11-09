@@ -103,14 +103,10 @@ class Router {
                 '/atomar/roles/create/?(\?.*)?' => 'atomar\controller\RolesAdd',
                 '/atomar/roles/(?P<id>\d+)/edit/?(\?.*)?' => 'atomar\controller\RolesEdit',
 
-                '/atomar/configuration/?(\?.*)?' => 'atomar\controller\AdminConfiguration',
-
                 '/atomar/settings/?(\?.*)?' => 'atomar\controller\Settings',
 
+                // TODO: change extensions to modules
                 '/atomar/extensions/?(\?.*)?' => 'atomar\controller\Extensions',
-
-                // TODO: add migration support to the cli.
-                '/atomar/migrations/new/?(\?.*)?' => 'atomar\controller\AdminMigrationsNew',
 
                 '/atomar/performance/?(\?.*)?' => 'atomar\controller\Performance',
             );
@@ -126,7 +122,7 @@ class Router {
                 '/(\?.*)?' => 'atomar\controller\Maintenance'
             );
 
-            // validate cache and files path path
+            // validate cache and files path
             if (Auth::has_authentication('administer_site')) {
                 if (!file_exists(Atomar::$config['cache'])) {
                     mkdir(Atomar::$config['cache'], 0775, true);
@@ -135,10 +131,10 @@ class Router {
                     mkdir(Atomar::$config['files'], 0770, true);
                 }
                 if (!is_writable(Atomar::$config['cache'])) {
-                    set_error('The cache directory (' . Atomar::$config['cache'] . ') is not writeable');
+                    set_error('The cache directory (' . Atomar::$config['cache'] . ') is not write-able');
                 }
                 if (!is_writable(Atomar::$config['files'])) {
-                    set_error('The files directory (' . Atomar::$config['files'] . ') is not writeable');
+                    set_error('The files directory (' . Atomar::$config['files'] . ') is not write-able');
                 }
             }
 
