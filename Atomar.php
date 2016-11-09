@@ -434,7 +434,9 @@ HTML;
         }
 
         // execute hook on application
-        if (self::$app != null && $hook->preProcess(self::$app) !== false) {
+        // TRICKY: we re-load the application during hooks in case its settings were changed
+        self::$app = self::loadModule(self::application_dir(), self::application_namespace());
+        if (self::$app != null && self::$app->is_enabled && $hook->preProcess(self::$app) !== false) {
             $receiver = self::application_namespace().'\\Hooks';
             require_once(self::application_dir().DIRECTORY_SEPARATOR.'Hooks.php');
             $instance = new $receiver();

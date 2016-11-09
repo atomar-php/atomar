@@ -84,6 +84,8 @@ class Extensions extends Controller {
                     // TODO: change these to 'has_update'
                     $module->is_update_pending = '1';
                 }
+            } else {
+                $module->is_enabled = '0';
             }
 
             // check supported core versions
