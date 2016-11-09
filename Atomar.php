@@ -242,13 +242,6 @@ HTML;
         }
 
         /**
-         * Check for pending updates for this version if the currently logged in user is the super user.
-         */
-        if (Auth::has_authentication('administer_site')) {
-            self::version_check();
-        }
-
-        /**
          * Default Maintenance handler
          *
          */
@@ -312,37 +305,9 @@ HTML;
         }
 
         self::hook(new PreProcessBoot());
-
-        /**
-         * VIEW
-         */
-        \Twig_Autoloader::register();
-
         self::hook(new Libraries());
 
         Router::run();
-    }
-
-    /**
-     * Checks if the code has been updated.
-     *
-     */
-    public static function version_check() {
-        // check atomar version.
-        $version = self::get_system('version', self::version());
-        if ($version != self::version()) {
-            // check for new version.
-            if (vercmp($version, self::version()) == -1) {
-                // Upgrade
-                self::hook_core_update($version, self::version());
-            } elseif (vercmp($version, self::version()) == 1) {
-                // Downgrade
-                $msg = 'Atomar has been downgraded to version ' . self::version();
-                set_notice($msg);
-                Logger::log_notice($msg);
-                Atomar::set_system('version', self::version());
-            }
-        }
     }
 
     /**
@@ -352,86 +317,6 @@ HTML;
      */
     public static function version() {
         return self::$manifest['version'];
-    }
-
-    /**
-     * This is a special private hook that performs operations to migrate an older version of the core to a newer version.
-     * @param string $from the old version we are updating from
-     * @param string $to the new version we are updating to
-     * @throws \Exception
-     */
-    private static function hook_core_update(string $from, string $to) {
-        $from = trim($from);
-        $to = trim($to);
-        $migration_dir = __DIR__ . '/migration/';
-
-        // Perform all the migrations between $from and $to.
-        $migration_source = $from;
-        $migration_target = $to;
-        do {
-            // locate exact migration match
-            $migration_file = $migration_source . '_*.php';
-            $files = glob($migration_dir . $migration_file, GLOB_MARK | GLOB_NOSORT);
-            if (count($files) > 1) {
-                throw new \LengthException('Multiple migration paths found. There may only be one migration path. Expression: ' . $migration_file);
-            } else {
-                if (count($files) == 0) {
-                    // locate next available migration
-                    $files = glob($migration_dir . '*.php', GLOB_MARK);
-                    foreach ($files as $file) {
-                        preg_match('/(?P<source>[\.\d]+)\_(?P<target>[\.\d]+)+/', rtrim(basename($file), '.php'), $matches);
-                        // if file_source >= migration_source && file_target <= $to
-                        $target_to_compare = vercmp($matches['target'], $to);
-                        if (vercmp($matches['source'], $migration_source) != -1 && $target_to_compare < 1) {
-                            // skip to the next available migration
-                            self::hook_core_update($matches['source'], $to);
-                            break;
-                        } elseif ($target_to_compare == 1) {
-                            // no migrations within this upgrade
-                            // TODO: not sure if I need this here
-                            $msg = 'Atomar has been updated to version ' . self::version();
-                            set_notice($msg);
-                            Logger::log_notice($msg);
-                            Atomar::set_system('version', self::version());
-                            break;
-                        }
-                    }
-                    // there are no migration files
-                    $msg = 'Atomar has been updated to version ' . self::version();
-                    set_notice($msg);
-                    Logger::log_notice($msg);
-                    Atomar::set_system('version', self::version());
-                    break;
-                }
-                $file = $files[0];
-                // execute the migration file
-                $class = 'migration_' . md5(rtrim(basename($file), '.php'));
-                preg_match('/[\.\d]+\_(?P<target>[\.\d]+)/', rtrim(basename($file), '.php'), $matches);
-                $migration_target = $matches['target'];
-                require_once($file);
-                if (class_exists($class)) {
-                    $obj = new $class();
-                    if (method_exists($obj, 'run')) {
-                        if ($obj->run()) {
-                            set_success('The migration from ' . $migration_source . ' to ' . $migration_target . ' is complete');
-                            $migration_source = $migration_target;
-                            // Update version
-                            $msg = 'Atomar has been updated to version ' . $migration_target;
-                            Logger::log_notice($msg);
-                            Atomar::set_system('version', $migration_target);
-                        } else {
-                            set_error('The migration from ' . $migration_source . ' to ' . $migration_target . ' failed.');
-                            break;
-                        }
-                    } else {
-                        throw new \BadMethodCallException('Method, run, not supported.');
-                    }
-                } else {
-                    Logger::log_error('The migration failed from ' . $from . ' to ' . $to, 'Misconfigured migration file in ' . $file . '. Missing migration class "' . $class . '". ');
-                    throw new \Exception('Misconfigured migration file in ' . $file . '. Missing migration class "' . $class . '"');
-                }
-            }
-        } while ($migration_target !== $to);
     }
 
     /**
@@ -508,10 +393,18 @@ HTML;
      * @return mixed
      */
     public static function hook(Hook $hook) {
+        $state = array();
+        $hook_name = strtolower(preg_replace('/(?<!^)([A-Z])/', '_$1', ltrim(strrchr(get_class($hook), '\\'), '\\')));
+
+        // execute hook on atomar
+        $fun = 'atomar\\' . $hook_name;
+        $atomar_hooks_path = self::atomar_dir() . DIRECTORY_SEPARATOR . 'hooks.php';
+        require_once($atomar_hooks_path);
+        $hook->pre_process($fun, null);
+        $state = $hook->process(call_user_func($fun), self::atomar_dir(), 'atomar', null, $state);
+
         // execute hooks on extensions
         $extensions = \R::find('extension', 'is_enabled=\'1\'');
-        $hook_name = strtolower(preg_replace('/(?<!^)([A-Z])/', '_$1', ltrim(strrchr(get_class($hook), '\\'), '\\')));
-        $state = array();
         foreach ($extensions as $ext) {
             $fun = $ext->slug . '\\' . $hook_name;
             $ext_dir = self::extension_dir() . $ext->slug;
@@ -536,15 +429,15 @@ HTML;
         // execute hook on application
         if (self::$app != null) {
             $fun = self::application_namespace() . '\\' . $hook_name;
-            $app_hooks_path = self::application_dir() . 'hooks.php';
+            $atomar_hooks_path = self::application_dir() . 'hooks.php';
             try {
-                if (file_exists($app_hooks_path)) {
-                    include_once($app_hooks_path);
+                if (file_exists($atomar_hooks_path)) {
+                    include_once($atomar_hooks_path);
                 } else {
-                    Logger::log_error('Missing application hooks file: ' . $app_hooks_path);
+                    Logger::log_error('Missing application hooks file: ' . $atomar_hooks_path);
                 }
             } catch (\Exception $e) {
-                Logger::log_error('Could not include file: ' . $app_hooks_path, $e->getMessage());
+                Logger::log_error('Could not include file: ' . $atomar_hooks_path, $e->getMessage());
             }
             if (function_exists($fun)) {
                 $hook->pre_process($fun, self::$app);
