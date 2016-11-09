@@ -67,6 +67,7 @@ class API extends ApiController {
 
     /**
      * Installs the application
+     * @deprecated this is handled in the hooks now.
      */
     public function get_install_app() {
         if(Auth::has_authentication('administer_site')) {

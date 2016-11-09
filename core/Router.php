@@ -64,7 +64,7 @@ class Router {
         if (substr(self::$_request_path, 0, 3) == '/!/') {
             self::$is_process = true;
         }
-        if (substr(self::$_request_path, 0, 6) == '/atomar') {
+        if (substr(self::$_request_path, 0, 7) == '/atomar') {
             self::$is_backend = true;
         }
 

@@ -8,10 +8,10 @@
     <p>Below are a list of available modules. Everything is a module, even the main application.</p>
     <hr/>
     {% if app %}
-        <h2>Application: {{ app.name }}</h2>
+        <h2>Application: {{ app.name }} <small>v{{ app.installed_version }}</small></h2>
         <p>{{ app.description }}</p>
         {% if app.installed_version != '0' %}
-            <p>Version: {{ app.installed_version }} {% if app.is_update_pending %}<a href="/!/install_app" class="btn btn-success">Update to {{ app.version }}</a>{% endif %}</p>
+            {% if app.is_update_pending %}<p>v{{ app.version }} is available</p>{% endif %}
             <!--TODO: need to provide an uninstall button-->
         {% else %}
             <p><a href="/!/install_app" class="btn btn-success">Install {{ app.version }}</a></p>

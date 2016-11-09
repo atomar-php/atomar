@@ -291,7 +291,7 @@ HTML;
                 set_error('Failed to load the application');
             }
         } else {
-            self::$app->installed_version = self::get_system('app_installed_version', 0);
+//            self::$app->installed_version = self::get_system('app_installed_version', 0);
             if (vercmp(self::$app->version, self::$app->installed_version) > 0) {
                 self::$app->is_update_pending = '1';
             }
@@ -373,7 +373,10 @@ HTML;
                     $ext->atomar_version = null;
                 }
                 if (isset($manifest['dependencies'])) {
-                    $ext->set_dependencies(array_keys($manifest['dependencies']));
+                    // TODO: eventually we will support specific versions
+                    $ext->dependencies = implode(',', array_keys($manifest['dependencies']));
+                } else {
+                    $ext->dependencies = '';
                 }
                 try {
                     \R::store($ext);
@@ -471,127 +474,67 @@ HTML;
     }
 
     /**
-     * A hook to run installation procedures after an extension has been enabled
-     */
-    public static function install_extensions() {
-        $extensions = \R::find('extension', ' is_enabled=\'1\' AND version<>installed_version ');
-        foreach ($extensions as $ext) {
-
-            // install function
-            $ext_path = self::$config['ext_dir'] . $ext->slug . '/install.php';
-            try {
-                include_once($ext_path);
-            } catch (\Exception $e) {
-                Logger::log_warning('Could not load the installation file for extension ' . $ext->slug, $e->getMessage());
-                continue;
-            }
-
-            $file = file_get_contents($ext_path);
-            $matches = array();
-            if (preg_match_all('(update_[\d\_]+)', $file, $matches)) {
-                $methods = array_flip($matches[0]);
-                ksort($methods);
-                if (!$ext->installed_version) {
-                    $ext->installed_version = 0;
-                }
-
-                $errors = false;
-                foreach ($methods as $fun => $value) {
-                    $matches = array();
-                    if (preg_match('/^update_([\d\_]+)$/', $fun, $matches)) {
-                        $version = str_replace('_', '.', $matches[1]);
-                        $max_version_compare = vercmp($version, $ext->version);
-                        if (vercmp($version, $ext->installed_version) == 1 && ($max_version_compare == 0 || $max_version_compare == -1)) {
-                            // double check in case we accidentally picked up commented code.
-                            if (function_exists($ext->slug . '\\' . $fun)) {
-                                if (call_user_func($ext->slug . '\\' . $fun)) {
-                                    if ($version == $ext->version) {
-                                        // we are done so display success notice.
-                                        set_success('Updated extension ' . $ext->slug . ' to version ' . $ext->version);
-                                    }
-                                    $ext->installed_version = $version;
-                                    store($ext);
-                                } else {
-                                    // stop running updates for this extension.
-                                    set_error('Failed to process update ' . $version . ' for extension ' . $ext->slug);
-                                    $errors = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // display success notice
-                if (!$errors) {
-                    set_success('Updated extension ' . $ext->slug . ' to version ' . $ext->version);
-                    $ext->installed_version = $ext->version;
-                    store($ext);
-                }
-            }
-        }
-    }
-
-    /**
      * Performs install/update procedures on the application
+     * @deprecated this is performed in the hooks now.
      */
     public static function install_application() {
-        if (self::$app != null) {
-            $app_install_path = self::application_dir() . 'install.php';
-            try {
-                if (file_exists($app_install_path)) {
-                    include_once($app_install_path);
-                } else {
-                    Logger::log_error('Missing application install file: ' . $app_install_path);
-                }
-            } catch (\Exception $e) {
-                Logger::log_error('Could not include file: ' . $app_install_path, $e->getMessage());
-            }
-
-            $file = file_get_contents($app_install_path);
-            $matches = array();
-            if (preg_match_all('(update_[\d\_]+)', $file, $matches)) {
-                $methods = array_flip($matches[0]);
-                ksort($methods);
-                if (!self::$app->installed_version) {
-                    self::$app->installed_version = 0;
-                }
-
-                $errors = false;
-                foreach ($methods as $fun => $value) {
-                    $matches = array();
-                    if (preg_match('/^update_([\d\_]+)$/', $fun, $matches)) {
-                        $version = str_replace('_', '.', $matches[1]);
-                        $max_version_compare = vercmp($version, self::$app->version);
-                        if (vercmp($version, self::$app->installed_version) == 1 && ($max_version_compare == 0 || $max_version_compare == -1)) {
-                            // double check in case we accidentally picked up commented code.
-                            if (function_exists(self::application_namespace() . '\\' . $fun)) {
-                                if (call_user_func(self::application_namespace() . '\\' . $fun)) {
-                                    if ($version == self::$app->version) {
-                                        // we are done so display success notice.
-                                        set_success('Updated application to version ' . self::$app->version);
-                                    }
-                                    self::$app->installed_version = $version;
-                                    Atomar::set_system('app_installed_version', $version);
-                                } else {
-                                    // stop running updates for this extension.
-                                    set_error('Failed to process update ' . $version . ' for application');
-                                    $errors = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // display success notice
-                if (!$errors) {
-                    set_success('Updated application to version ' . self::$app->version);
-                    self::$app->installed_version = self::$app->version;
-                    Atomar::set_system('app_installed_version', self::$app->installed_version);
-                }
-            }
-        }
+        set_error('deprecated install method');
+//        if (self::$app != null) {
+//            $app_install_path = self::application_dir() . 'install.php';
+//            try {
+//                if (file_exists($app_install_path)) {
+//                    include_once($app_install_path);
+//                } else {
+//                    Logger::log_error('Missing application install file: ' . $app_install_path);
+//                }
+//            } catch (\Exception $e) {
+//                Logger::log_error('Could not include file: ' . $app_install_path, $e->getMessage());
+//            }
+//
+//            $file = file_get_contents($app_install_path);
+//            $matches = array();
+//            if (preg_match_all('(update_[\d\_]+)', $file, $matches)) {
+//                $methods = array_flip($matches[0]);
+//                ksort($methods);
+//                if (!self::$app->installed_version) {
+//                    self::$app->installed_version = 0;
+//                }
+//
+//                $errors = false;
+//                foreach ($methods as $fun => $value) {
+//                    $matches = array();
+//                    if (preg_match('/^update_([\d\_]+)$/', $fun, $matches)) {
+//                        $version = str_replace('_', '.', $matches[1]);
+//                        $max_version_compare = vercmp($version, self::$app->version);
+//                        if (vercmp($version, self::$app->installed_version) == 1 && ($max_version_compare == 0 || $max_version_compare == -1)) {
+//                            // double check in case we accidentally picked up commented code.
+//                            if (function_exists(self::application_namespace() . '\\' . $fun)) {
+//                                if (call_user_func(self::application_namespace() . '\\' . $fun)) {
+//                                    if ($version == self::$app->version) {
+//                                        // we are done so display success notice.
+//                                        set_success('Updated application to version ' . self::$app->version);
+//                                    }
+//                                    self::$app->installed_version = $version;
+//                                    Atomar::set_system('app_installed_version', $version);
+//                                } else {
+//                                    // stop running updates for this extension.
+//                                    set_error('Failed to process update ' . $version . ' for application');
+//                                    $errors = true;
+//                                    break;
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                // display success notice
+//                if (!$errors) {
+//                    set_success('Updated application to version ' . self::$app->version);
+//                    self::$app->installed_version = self::$app->version;
+//                    Atomar::set_system('app_installed_version', self::$app->installed_version);
+//                }
+//            }
+//        }
     }
 
     /**

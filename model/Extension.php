@@ -25,17 +25,18 @@ class Extension extends CoreBeanModel {
     /**
      * Sets the extension dependencies
      * @param $dependencies
+     * @deprecated
      */
-    public function set_dependencies($dependencies) {
-        $this->bean->is_missing_dependencies = '0';
-        $this->bean->sharedExtensionList = array();
-        foreach($dependencies as $key => $value) {
-            $ext = \R::findOne('extension', 'slug=?', array($value));
-            if($ext !== null) {
-                $this->bean->sharedExtensionList[] = $ext;
-            } else {
-                $this->bean->is_missing_dependencies = '1';
-            }
-        }
-    }
+//    public function set_dependencies($dependencies) {
+//        $this->bean->is_missing_dependencies = '0';
+//        $this->bean->sharedExtensionList = array();
+//        foreach($dependencies as $key => $value) {
+//            $ext = \R::findOne('extension', 'slug=?', array($value));
+//            if($ext !== null) {
+//                $this->bean->sharedExtensionList[] = $ext;
+//            } else {
+//                $this->bean->is_missing_dependencies = '1';
+//            }
+//        }
+//    }
 }
