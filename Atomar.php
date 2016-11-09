@@ -85,9 +85,9 @@ class Atomar {
         AutoLoader::register(__DIR__ . '/vendor');
 
         // MVC
-        require_once(__DIR__ . '/vendor/red_bean/rb.php');
-        require_once(__DIR__ . '/vendor/Twig/Autoloader.php');
-        require_once(__DIR__ . '/vendor/Twig/SimpleFunction.php');
+        require_once(__DIR__ . '/redbeanphp/rb.php');
+
+        require_once(__DIR__ . '/vendor/autoload.php');
 
         require_once(__DIR__ . '/core/functions.php');
 

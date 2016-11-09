@@ -221,7 +221,7 @@ CSS;
                 $twig = new AtomarTwigEnvironment($loader, array(
                     'debug' => Atomar::$config['debug'],
                 ));
-                require_once(Atomar::atomar_dir() . '/vendor/Twig/Extension/Debug.php');
+//                require_once(Atomar::atomar_dir() . '/vendor/Twig/Extension/Debug.php');
                 $twig->addExtension(new \Twig_Extension_Debug());
                 // delete the cache if it exists
                 if (is_dir(Atomar::$config['cache'] . 'twig')) {

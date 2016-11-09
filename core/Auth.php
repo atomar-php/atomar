@@ -409,7 +409,7 @@ class Auth {
      * @return mixed the hashed string or false
      */
     public static function _hash($string) {
-        $hasher = new \PasswordHash(8, false);
+        $hasher = new PasswordHash(8, false);
 
         if (strlen($string) > 72) {
             // passwords should never be longer than 72 characters to prevent DoS attacks
@@ -537,7 +537,7 @@ class Auth {
      * @return boolean true if the string matches the hash otherwise false
      */
     private static function _check_hash($string, $hash) {
-        $hasher = new \PasswordHash(8, false);
+        $hasher = new PasswordHash(8, false);
 
         if (strlen($string) > 72) {
             // passwords should never be longer than 72 characters to prevent DoS attacks
