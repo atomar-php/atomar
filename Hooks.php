@@ -156,8 +156,7 @@ class Hooks extends HookReceiver
 
             '/atomar/settings/?(\?.*)?' => 'atomar\controller\Settings',
 
-            // TODO: change extensions to modules
-            '/atomar/extensions/?(\?.*)?' => 'atomar\controller\Extensions'
+            '/atomar/modules/?(\?.*)?' => 'atomar\controller\Extensions'
         );
         $unauthenticated_urls = array(
             '/atomar/login/?(\?.*)?' => 'atomar\controller\Login',

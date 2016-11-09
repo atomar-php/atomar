@@ -66,18 +66,18 @@ class API extends ApiController {
     }
 
     /**
-     * Uninstalls an extension
+     * Uninstalls a module
      * @param $id
      */
-    public function get_uninstall_extension($id) {
+    public function get_uninstall_module($id) {
         if (Auth::has_authentication('administer_extensions')) {
             if (Atomar::uninstall_extension($id)) {
-                set_success('The extension has been uninstalled');
+                set_success('The module has been uninstalled');
             } else {
-                set_warning('The extension could not be uninstalled');
+                set_warning('The module could not be uninstalled');
             }
         } else {
-            set_error('You are not authorized to uninstall extensions');
+            set_error('You are not authorized to uninstall modules');
         }
         $this->go_back();
     }

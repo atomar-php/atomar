@@ -63,8 +63,8 @@ class Extensions extends Controller {
 
         // render view
         echo $this->renderView('admin/extensions.html', array(
-            'extensions' => $rendered_extensions,
-            'ext_dir' => Atomar::extension_dir(),
+            'modules' => $rendered_extensions,
+            'modules_dir' => Atomar::extension_dir(),
             'app' => $app->export()
         ));
     }

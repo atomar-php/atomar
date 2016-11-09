@@ -349,8 +349,8 @@ CSS;
                     'access' => 'administer_site',
                     'menu' => array()
                 );
-                Atomar::$menu['secondary_menu']['/atomar/extensions'] = array(
-                    'link' => l('Extensions', '/atomar/extensions/'),
+                Atomar::$menu['secondary_menu']['/atomar/modules'] = array(
+                    'link' => l('Modules', '/atomar/modules/'),
                     'class' => array(),
                     'weight' => 900,
                     'access' => 'administer_extensions',
