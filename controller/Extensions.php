@@ -24,14 +24,11 @@ class Extensions extends Controller {
         $ext_path = Atomar::extension_dir();
         $files = scandir($ext_path);
         $extensions = array();
-//        $extension_names = array();
         foreach ($files as $f) {
             if ($f != '.' && $f != '..' && is_dir($ext_path . $f)) {
                 // load extension
                 $ext = Atomar::loadModule($ext_path . $f, $f);
                 $ext = $this->prepareModule($ext);
-
-//                $extension_names[] = $ext->name;
 
                 $extensions[$ext->slug] = $ext;
             }
@@ -77,17 +74,6 @@ class Extensions extends Controller {
      */
     private function prepareModule($module) {
         if ($module !== null) {
-
-            // check dependencies
-//            $dependencies = array();
-//            foreach($module->sharedExtensionList as $key => $dependency) {
-//                $dependencies[] = array(
-//                    'slug' => $dependency->slug,
-//                    'exists' => '1',
-//                    'is_enabled' => $dependency->is_enabled
-//                );
-//            }
-
             if ($module->installed_version && $module->is_enabled) {
                 // check for updates
                 if (vercmp($module->version, $module->installed_version) == 1) {
@@ -110,25 +96,42 @@ class Extensions extends Controller {
     }
 
     function POST($matches = array()) {
-        $extensions = $_POST['extensions'];
+        $ids =  array_keys($_POST['extensions']);
         $is_missing_dependencies = false;
         $not_supported = false;
+
         // disable all extensions
         \R::exec('UPDATE extension SET is_enabled=\'0\' where slug not in (?)', array(Atomar::application_namespace()));
+
         // process extensions
-        if (isset($extensions)) {
-            foreach ($extensions as $id => $state) {
-                $ext = \R::load('extension', $id);
+        $valid_modules = array();
+        if (isset($ids)) {
+            $modules = \R::loadAll('extension', $ids);
 
-                // check if supported
-                if ($ext->atomar_version && vercmp($ext->atomar_version, Atomar::version()) == -1) {
-                    $not_supported = true;
-                }
-
-                if (!$this->enableModule($ext->id)) {
-                    $is_missing_dependencies = true;
-                }
+            // validate supported atomar version
+            foreach($modules as $m) {
+                if ($m->atomar_version && vercmp($m->atomar_version, Atomar::version()) == -1) continue;
+                $valid_modules[$m->slug] = $m;
             }
+            $modules = $valid_modules;
+
+            // validate dependencies
+            $valid_modules = array();
+            foreach($modules as $m) {
+                if(isset($m->dependencies) && strlen(trim($m->dependencies))) {
+                    $dependencies = explode(',', trim($m->dependencies));
+                    foreach($dependencies as $d) {
+                        if(!isset($modules[$d->slug])) {
+                            // continue in outer foreach
+                            continue 2;
+                        }
+                    }
+                }
+                $m->is_enabled = '1';
+                $valid_modules[$m->slug] = $m;
+            }
+
+            \R::storeAll(array_values($valid_modules));
         }
 
         // install extensions
@@ -137,11 +140,8 @@ class Extensions extends Controller {
         // rebuild extension permissions
         Atomar::hook(new Permission());
 
-        if ($is_missing_dependencies) {
-            set_error('Some extensions could not be enabled because they are missing dependencies.');
-        }
-        if ($not_supported) {
-            set_error('Some extensions could not be enabled because they are not supported.');
+        if(isset($ids) && count($ids) != count($valid_modules)) {
+            set_error('Some modules were not installed');
         }
         $this->go('/atomar/extensions');
     }
