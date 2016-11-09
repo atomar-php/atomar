@@ -409,7 +409,7 @@ HTML;
         }
 
         // execute hooks on extensions
-        $extensions = \R::find('extension', 'is_enabled=\'1\'');
+        $extensions = \R::find('extension', 'is_enabled=\'1\' and slug<>?', array(self::application_namespace()));
         foreach ($extensions as $ext) {
             $receiver = $ext->slug.'\\Hooks';
             $class_path = self::extension_dir() . $ext->slug . DIRECTORY_SEPARATOR . 'Hooks.php';

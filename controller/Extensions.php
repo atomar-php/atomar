@@ -113,7 +113,10 @@ class Extensions extends Controller {
 
             // validate supported atomar version
             foreach($modules as $m) {
-                if ($m->atomar_version && vercmp($m->atomar_version, Atomar::version()) == -1) continue;
+                if ($m->atomar_version && vercmp($m->atomar_version, Atomar::version()) == -1) {
+                    set_error($m->slug . ' does not support this version of atomar');
+                    continue;
+                }
                 $valid_modules[$m->slug] = $m;
             }
             $modules = $valid_modules;
@@ -125,6 +128,7 @@ class Extensions extends Controller {
                     $dependencies = explode(',', trim($m->dependencies));
                     foreach($dependencies as $d) {
                         if(!isset($modules[$d])) {
+                            set_error($m->slug . ' is missing dependencies');
                             // continue in outer foreach
                             continue 2;
                         }
@@ -143,9 +147,6 @@ class Extensions extends Controller {
         // rebuild extension permissions
         Atomar::hook(new Permission());
 
-        if(isset($ids) && count($ids) != count($valid_modules)) {
-            set_error('Some modules were not installed');
-        }
         $this->go('/atomar/extensions');
     }
 }
