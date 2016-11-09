@@ -17,11 +17,11 @@ class Uninstall implements Hook {
 
     /**
      * Executed just before the hook implementation is ran
-     * @param $function_name string The name of the method that will be ran.
      * @param $extension mixed The extension in which the hook implementation is running.
+     * @return bool true if the hook execution can proceed otherwise false
      */
-    public function preProcess($function_name, $extension) {
-
+    public function preProcess($extension) {
+        return true;
     }
 
     /**

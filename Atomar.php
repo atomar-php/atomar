@@ -400,7 +400,7 @@ HTML;
         // execute hook on atomar
         $receiver = 'atomar\\Hooks';
         $instance = new $receiver();
-        if($instance instanceof HookReceiver) {
+        if($instance instanceof HookReceiver && $hook->preProcess(null) !== false) {
             $result = $instance->$hook_name($hook->params());
             $state = $hook->process($result, self::atomar_dir(), 'atomar', null, $state);
         }
@@ -409,28 +409,29 @@ HTML;
         $extensions = \R::find('extension', 'is_enabled=\'1\'');
         foreach ($extensions as $ext) {
             $receiver = $ext->slug.'\\Hooks';
-            try {
-                $class_path = self::extension_dir() . $ext->slug . DIRECTORY_SEPARATOR . 'Hooks.php';
-                if(file_exists($class_path)) {
+            $class_path = self::extension_dir() . $ext->slug . DIRECTORY_SEPARATOR . 'Hooks.php';
+            if($hook->preProcess($ext) === false) continue;
+            if(file_exists($class_path)) {
+                try {
                     include_once($class_path);
                     $instance = new $receiver();
                     if ($instance instanceof HookReceiver) {
                         $result = $instance->$hook_name($hook->params());
                         $state = $hook->process($result, self::extension_dir() . $ext->slug . DIRECTORY_SEPARATOR, $ext->slug, $ext, $state);
                     }
-                } else {
-                    set_error('Missing hook receiver in "' . $ext->slug . '" module');
+                } catch (\Error $e) {
+                    $notice = 'Could not run hook "' . $hook_name . '" for "' . $ext->slug .'" module';
+                    Logger::log_error($notice, $e->getMessage());
+                    if(self::$config['debug']) set_error($notice);
+                    continue;
                 }
-            } catch (\Error $e) {
-                $notice = 'Could not run hook "' . $hook_name . '" for "' . $ext->slug .'" module';
-                Logger::log_error($notice, $e->getMessage());
-                if(self::$config['debug']) set_error($notice);
-                continue;
+            } else {
+                set_error('Missing hook receiver in "' . $ext->slug . '" module');
             }
         }
 
         // execute hook on application
-        if (self::$app != null) {
+        if (self::$app != null && $hook->preProcess(self::$app) !== false) {
             $receiver = self::application_namespace().'\\Hooks';
             require_once(self::application_dir().DIRECTORY_SEPARATOR.'Hooks.php');
             $instance = new $receiver();

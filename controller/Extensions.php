@@ -5,6 +5,7 @@ namespace atomar\controller;
 use atomar\core\Auth;
 use atomar\core\Controller;
 use atomar\Atomar;
+use atomar\hook\Install;
 use atomar\hook\Permission;
 
 /**
@@ -125,9 +126,12 @@ class Extensions extends Controller {
                 }
             }
         }
+        // install extensions
+        Atomar::hook(new Install());
+
         // rebuild extension permissions
         Atomar::hook(new Permission());
-        // perform custom extension installation.
+
         Atomar::install_extensions();
 
         if ($is_missing_dependencies) {

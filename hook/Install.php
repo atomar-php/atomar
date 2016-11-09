@@ -3,16 +3,15 @@
 namespace atomar\hook;
 
 
-use atomar\Atomar;
-use atomar\core\Logger;
-
-class Libraries implements Hook {
+class Install implements Hook
+{
 
     /**
      * Hooks may receive optional params
      * @param $params mixed
      */
-    function __construct($params = null) {
+    public function __construct($params = null)
+    {
 
     }
 
@@ -21,8 +20,9 @@ class Libraries implements Hook {
      * @param $extension mixed The extension in which the hook implementation is running.
      * @return bool true if the hook execution can proceed otherwise false
      */
-    public function preProcess($extension) {
-        return true;
+    public function preProcess($extension)
+    {
+        return $extension->version != $extension->installed_version;
     }
 
     /**
@@ -34,25 +34,20 @@ class Libraries implements Hook {
      * @param $state mixed The last returned state of the hook. If you want to maintain state you should modify and return this.
      * @return mixed The hook state.
      */
-    public function process($params, $ext_path, $ext_namespace, $ext, $state) {
-        if (is_array($params)) {
-            foreach ($params as $library) {
-                try {
-                    include_once(realpath($ext_path . ltrim($library, '/')));
-                } catch (\Exception $e) {
-                    Logger::log_error('Could not load library', $e->getMessage());
-                }
-            }
-        }
+    public function process($params, $ext_path, $ext_namespace, $ext, $state)
+    {
+        $ext->installed_version = $ext->version;
+        store($ext);
         return $state;
     }
 
     /**
      * Executed after the hook implementations have finished executing.
      * @param $state mixed The final state of the hook.
-     * @return mixed|void
+     * @return mixed You can return whatever you need to here
      */
-    public function postProcess($state) {
+    public function postProcess($state)
+    {
         return $state;
     }
 
