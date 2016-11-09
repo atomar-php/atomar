@@ -5,13 +5,14 @@ namespace atomar;
 use atomar\core\AssetManager;
 use atomar\core\Auth;
 use atomar\core\AutoLoader;
+use atomar\core\HookReceiver;
 use atomar\core\Logger;
 use atomar\core\ReadOnlyArray;
 use atomar\core\Router;
 use atomar\core\Templator;
 use atomar\hook\Hook;
 use atomar\hook\Libraries;
-use atomar\hook\PreProcessBoot;
+use atomar\hook\PreBoot;
 use model\Extension;
 
 require_once(__DIR__ . '/core/AutoLoader.php');
@@ -304,7 +305,7 @@ HTML;
             }
         }
 
-        self::hook(new PreProcessBoot());
+        self::hook(new PreBoot());
         self::hook(new Libraries());
 
         Router::run();
@@ -394,56 +395,48 @@ HTML;
      */
     public static function hook(Hook $hook) {
         $state = array();
-        $hook_name = strtolower(preg_replace('/(?<!^)([A-Z])/', '_$1', ltrim(strrchr(get_class($hook), '\\'), '\\')));
+        $hook_name = 'hook' . ltrim(strrchr(get_class($hook), '\\'), '\\');
 
         // execute hook on atomar
-        $fun = 'atomar\\' . $hook_name;
-        $atomar_hooks_path = self::atomar_dir() . DIRECTORY_SEPARATOR . 'hooks.php';
-        require_once($atomar_hooks_path);
-        $hook->pre_process($fun, null);
-        $state = $hook->process(call_user_func($fun), self::atomar_dir(), 'atomar', null, $state);
+        $receiver = 'atomar\\Hooks';
+        $instance = new $receiver();
+        if($instance instanceof HookReceiver) {
+            $result = $instance->$hook_name();
+            $state = $hook->process($result, self::atomar_dir(), 'atomar', null, $state);
+        }
 
         // execute hooks on extensions
         $extensions = \R::find('extension', 'is_enabled=\'1\'');
         foreach ($extensions as $ext) {
-            $fun = $ext->slug . '\\' . $hook_name;
-            $ext_dir = self::extension_dir() . $ext->slug;
-            $ext_hooks_path = $ext_dir . DIRECTORY_SEPARATOR . 'hooks.php';
+            $receiver = $ext->slug.'\\Hooks';
             try {
-                if (file_exists($ext_hooks_path)) {
-                    include_once($ext_hooks_path);
+                $class_path = self::extension_dir() . $ext->slug . DIRECTORY_SEPARATOR . 'Hooks.php';
+                if(file_exists($class_path)) {
+                    include_once($class_path);
+                    $instance = new $receiver();
+                    if ($instance instanceof HookReceiver) {
+                        $result = $instance->$hook_name();
+                        $state = $hook->process($result, self::extension_dir() . $ext->slug . DIRECTORY_SEPARATOR, $ext->slug, $ext, $state);
+                    }
                 } else {
-                    Logger::log_error('Missing hooks file: ' . $ext_hooks_path);
-                    continue;
+                    set_error('Missing hook receiver in "' . $ext->slug . '" module');
                 }
-            } catch (\Exception $e) {
-                Logger::log_error('Could not include file: ' . $ext_hooks_path, $e->getMessage());
+            } catch (\Error $e) {
+                $notice = 'Could not run hook "' . $hook_name . '" for "' . $ext->slug .'" module';
+                Logger::log_error($notice, $e->getMessage());
+                if(self::$config['debug']) set_error($notice);
                 continue;
-            }
-            if (function_exists($fun)) {
-                $hook->pre_process($fun, $ext);
-                $state = $hook->process(call_user_func($fun), self::extension_dir() . $ext->slug . DIRECTORY_SEPARATOR, $ext->slug, $ext, $state);
             }
         }
 
         // execute hook on application
         if (self::$app != null) {
-            $fun = self::application_namespace() . '\\' . $hook_name;
-            $atomar_hooks_path = self::application_dir() . 'hooks.php';
-            try {
-                if (file_exists($atomar_hooks_path)) {
-                    include_once($atomar_hooks_path);
-                } else {
-                    Logger::log_error('Missing application hooks file: ' . $atomar_hooks_path);
-                }
-            } catch (\Exception $e) {
-                Logger::log_error('Could not include file: ' . $atomar_hooks_path, $e->getMessage());
-            }
-            if (function_exists($fun)) {
-                $hook->pre_process($fun, self::$app);
-                $state = $hook->process(call_user_func($fun), self::application_dir(), self::application_namespace(), self::$app, $state);
-            } else if (self::$config['debug']) {
-                set_warning('Could not find ' . $fun . '. Make sure you have configured the application directory and namespace in the configuration file.');
+            $receiver = self::application_namespace().'\\Hooks';
+            require_once(self::application_dir().DIRECTORY_SEPARATOR.'Hooks.php');
+            $instance = new $receiver();
+            if ($instance instanceof HookReceiver) {
+                $result = $instance->$hook_name();
+                $state = $hook->process($result, self::application_dir(), self::application_namespace(), self::$app, $state);
             }
         }
         return $hook->post_process($state);

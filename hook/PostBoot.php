@@ -3,7 +3,7 @@
 namespace atomar\hook;
 
 
-class PostProcessBoot implements Hook {
+class PostBoot implements Hook {
 
     /**
      * Hooks may receive optional params

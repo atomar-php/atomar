@@ -2,8 +2,8 @@
 
 namespace atomar\hook;
 
-class PreProcessBoot implements Hook {
 
+class Page implements Hook {
 
     /**
      * Hooks may receive optional params
@@ -41,6 +41,6 @@ class PreProcessBoot implements Hook {
      * @return mixed|void
      */
     public function post_process($state) {
-        return;
+
     }
 }

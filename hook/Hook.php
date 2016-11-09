@@ -15,6 +15,7 @@ interface Hook {
      * Executed just before the hook implementation is ran
      * @param $function_name string The name of the method that will be ran.
      * @param $extension mixed The extension in which the hook implementation is running.
+     * @deprecated
      */
     public function pre_process($function_name, $extension);
 

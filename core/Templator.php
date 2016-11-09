@@ -4,8 +4,8 @@ namespace atomar\core;
 
 use atomar\Atomar;
 use atomar\hook\Menu;
-use atomar\hook\PreProcessPage;
-use atomar\hook\TwigFunction;
+use atomar\hook\Page;
+use atomar\hook\Twig;
 
 /**
  * Class View handles all of the view management
@@ -209,7 +209,7 @@ CSS;
             'trigger_menu' => true
         );
         $options = array_merge($default_options, $options);
-        if ($options['trigger_preprocess_page']) Atomar::hook(new PreProcessPage());
+        if ($options['trigger_preprocess_page']) Atomar::hook(new Page());
         try {
             // initialize twig template engine
             $loader = new \Twig_Loader_Filesystem(array(
@@ -324,7 +324,7 @@ CSS;
             $twig->addFunction($letter_trim);
             $twig->addFunction($print_debug);
             if ($options['trigger_twig_function']) {
-                Atomar::hook(new TwigFunction($twig));
+                Atomar::hook(new Twig($twig));
             }
 
             // prepare user
