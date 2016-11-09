@@ -2,16 +2,15 @@
 
 namespace atomar\hook;
 
+class PreBoot implements Hook {
 
-class TwigFunction implements Hook {
-    private $twig;
 
     /**
      * Hooks may receive optional params
      * @param $params mixed
      */
     function __construct($params = null) {
-        $this->twig = $params;
+
     }
 
     /**
@@ -33,12 +32,6 @@ class TwigFunction implements Hook {
      * @return mixed The hook state.
      */
     public function process($params, $ext_path, $ext_namespace, $ext, $state) {
-        if ($state == null) {
-            $state = array();
-        }
-        if (is_array($params)) {
-            $state = array_merge($state, $params);
-        }
         return $state;
     }
 
@@ -48,9 +41,6 @@ class TwigFunction implements Hook {
      * @return mixed|void
      */
     public function post_process($state) {
-        foreach ($state as $key => $value) {
-            $twig_fun = new \Twig_simpleFunction($key, $value, array('is_safe' => array('html')));
-            $this->twig->addFunction($twig_fun);
-        }
+        return;
     }
 }

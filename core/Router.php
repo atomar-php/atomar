@@ -4,9 +4,9 @@ namespace atomar\core;
 
 use atomar\Atomar;
 use atomar\exception\UnknownController;
-use atomar\hook\PostProcessBoot;
-use atomar\hook\PreProcessBoot;
-use atomar\hook\Url;
+use atomar\hook\PostBoot;
+use atomar\hook\PreBoot;
+use atomar\hook\Route;
 
 /**
  * Class Router handles all of the url routing
@@ -79,47 +79,6 @@ class Router {
      */
     public static function run($urls = null) {
         if ($urls == null) {
-
-            /**
-             * CONTROLLER
-             */
-            // map urls to controllers
-            $system_urls = array(
-                '/404/?(\?.*)?' => 'atomar\controller\ExceptionHandler'
-            );
-            $authenticated_urls = array(
-                // TODO: make api /atomar/api
-                '/!/(?P<api>[a-zA-Z\_-]+)/?(\?.*)?' => 'atomar\controller\API',
-
-                '/atomar/logout/?(\?.*)?' => 'atomar\controller\Logout',
-                '/atomar/user/(?P<id>\d+)/edit/?(\?.*)?' => 'atomar\controller\UserEdit',
-                '/atomar/?(\?.*)?' => 'atomar\controller\Admin',
-                '/atomar/users/?(\?.*)?' => 'atomar\controller\Users',
-                '/atomar/users/create/?(\?.*)?' => 'atomar\controller\UserAdd',
-
-                '/atomar/permissions/?(\?.*)?' => 'atomar\controller\Permissions',
-
-                '/atomar/roles/?(\?.*)?' => 'atomar\controller\Roles',
-                '/atomar/roles/create/?(\?.*)?' => 'atomar\controller\RolesAdd',
-                '/atomar/roles/(?P<id>\d+)/edit/?(\?.*)?' => 'atomar\controller\RolesEdit',
-
-                '/atomar/settings/?(\?.*)?' => 'atomar\controller\Settings',
-
-                // TODO: change extensions to modules
-                '/atomar/extensions/?(\?.*)?' => 'atomar\controller\Extensions'
-            );
-            $unauthenticated_urls = array(
-                '/atomar/login/?(\?.*)?' => 'atomar\controller\Login',
-            );
-            $public_urls = array(
-                // TODO: make api /atomar/api
-                '/!/(?P<api>cron)/?(\?.*)?' => 'atomar\controller\API',
-                '/(\?.*)?' => 'atomar\controller\Index'
-            );
-            $maintenance_urls = array(
-                '/(\?.*)?' => 'atomar\controller\Maintenance'
-            );
-
             // validate cache and files path
             if (Auth::has_authentication('administer_site')) {
                 if (!file_exists(Atomar::$config['cache'])) {
@@ -151,44 +110,17 @@ if(typeof RegisterGlobal == 'function') RegisterGlobal('user', user);
 JAVASCRIPT;
             }
 
-            /**
-             * Enable appropriate urls
-             */
-            if (Atomar::get_system('maintenance_mode', '0') == '1' && !Auth::has_authentication('administer_site')) {
-                $extension_urls = Atomar::hook(new Url());
-                // extensions may only override system and unauthenticated urls while in maintenance mode
-                $overidable_system_urls = array_intersect_key($extension_urls, $system_urls);
-                $overidable_unauthenticated_urls = array_intersect_key($extension_urls, $unauthenticated_urls);
-                if(!Auth::$user) {
-                    $urls = array_merge($unauthenticated_urls);
-                } else {
-                    $urls = array();
-                }
-                $urls = array_merge($urls, $maintenance_urls, $system_urls, $authenticated_urls, $overidable_system_urls, $overidable_unauthenticated_urls);
-            } else {
-                if (!Auth::$user) {
-                    // require login
-                    $urls = array_merge($public_urls, $system_urls, $unauthenticated_urls);
-                } else {
-                    // authenticated
-                    $urls = array_merge($public_urls, $system_urls, $authenticated_urls);
-                }
-                try {
-                    $extension_urls = Atomar::hook(new Url());
-                    if (is_array($extension_urls)) {
-                        $urls = array_merge($urls, $extension_urls);
-                    }
+            // hook urls
+//            try {
+            $urls = Atomar::hook(new Route());
+//            } catch (UnknownController $e) {
+//                if (Atomar::$config['debug']) {
+//                    // TODO: perform some automated tasks to facilitate development
+//                    throw $e;
+//                }
+//            }
 
-                } catch (UnknownController $e) {
-                    if (Atomar::$config['debug']) {
-                        // TODO: perform some automated tasks to facilitate development
-                        throw $e;
-                    }
-                }
-            }
-            unset($public_urls, $system_urls, $unauthenticated_urls, $authenticated_urls);
-
-            Atomar::hook(new PostProcessBoot());
+            Atomar::hook(new PostBoot());
         }
 
         // begin routing

@@ -19,7 +19,7 @@ class Cron implements Hook {
      * @param $extension mixed The extension in which the hook implementation is running.
      */
     public function pre_process($function_name, $extension) {
-        echo '  [' . fancy_date() . '] Running ' . $function_name . '<br>';
+        echo '  [' . fancy_date() . '] Running cron<br>';
     }
 
     /**

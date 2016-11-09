@@ -5,13 +5,14 @@ namespace atomar;
 use atomar\core\AssetManager;
 use atomar\core\Auth;
 use atomar\core\AutoLoader;
+use atomar\core\HookReceiver;
 use atomar\core\Logger;
 use atomar\core\ReadOnlyArray;
 use atomar\core\Router;
 use atomar\core\Templator;
 use atomar\hook\Hook;
 use atomar\hook\Libraries;
-use atomar\hook\PreProcessBoot;
+use atomar\hook\PreBoot;
 use model\Extension;
 
 require_once(__DIR__ . '/core/AutoLoader.php');
@@ -304,7 +305,7 @@ HTML;
             }
         }
 
-        self::hook(new PreProcessBoot());
+        self::hook(new PreBoot());
         self::hook(new Libraries());
 
         Router::run();
@@ -394,14 +395,15 @@ HTML;
      */
     public static function hook(Hook $hook) {
         $state = array();
-        $hook_name = strtolower(preg_replace('/(?<!^)([A-Z])/', '_$1', ltrim(strrchr(get_class($hook), '\\'), '\\')));
+        $hook_name = 'hook' . ltrim(strrchr(get_class($hook), '\\'), '\\');
 
         // execute hook on atomar
-        $fun = 'atomar\\' . $hook_name;
-        $atomar_hooks_path = self::atomar_dir() . DIRECTORY_SEPARATOR . 'hooks.php';
-        require_once($atomar_hooks_path);
-        $hook->pre_process($fun, null);
-        $state = $hook->process(call_user_func($fun), self::atomar_dir(), 'atomar', null, $state);
+        $receiver = 'atomar\\Hooks';
+        $instance = new $receiver();
+        if($instance instanceof HookReceiver) {
+            $result = $instance->$hook_name();
+            $state = $hook->process($result, self::atomar_dir(), 'atomar', null, $state);
+        }
 
         // execute hooks on extensions
         $extensions = \R::find('extension', 'is_enabled=\'1\'');
@@ -428,22 +430,17 @@ HTML;
 
         // execute hook on application
         if (self::$app != null) {
-            $fun = self::application_namespace() . '\\' . $hook_name;
-            $atomar_hooks_path = self::application_dir() . 'hooks.php';
+            $receiver = self::application_namespace().'\\Hooks';
             try {
-                if (file_exists($atomar_hooks_path)) {
-                    include_once($atomar_hooks_path);
-                } else {
-                    Logger::log_error('Missing application hooks file: ' . $atomar_hooks_path);
+                $instance = new $receiver();
+                if ($instance instanceof HookReceiver) {
+                    $result = $instance->$hook_name();
+                    $state = $hook->process($result, self::application_dir(), self::application_namespace(), self::$app, $state);
                 }
-            } catch (\Exception $e) {
-                Logger::log_error('Could not include file: ' . $atomar_hooks_path, $e->getMessage());
-            }
-            if (function_exists($fun)) {
-                $hook->pre_process($fun, self::$app);
-                $state = $hook->process(call_user_func($fun), self::application_dir(), self::application_namespace(), self::$app, $state);
-            } else if (self::$config['debug']) {
-                set_warning('Could not find ' . $fun . '. Make sure you have configured the application directory and namespace in the configuration file.');
+            } catch (\Error $e) {
+                $notice = 'Failed to run application hook ' . $hook_name;
+                Logger::log_error($notice, $e->getMessage());
+                if(self::$config['debug']) set_error($notice);
             }
         }
         return $hook->post_process($state);

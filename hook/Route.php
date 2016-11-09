@@ -6,7 +6,7 @@ namespace atomar\hook;
 use atomar\Atomar;
 use atomar\exception\UnknownController;
 
-class Url implements Hook {
+class Route implements Hook {
 
     private $root_ext_dir;
 
@@ -55,8 +55,12 @@ class Url implements Hook {
                 if($top_namespace !== false && $top_namespace === Atomar::application_namespace()) {
                     // use application path
                     $trimmed = strstr($class_path, '\\');
-                    $class_path = Atomar::application_dir() . ltrim($trimmed, '\\');
-                }  else {
+                    $class_path = rtrim(Atomar::application_dir(), '\\') . DIRECTORY_SEPARATOR . ltrim($trimmed, '\\');
+                } else if($top_namespace !== false && $top_namespace === 'atomar') {
+                    // use atomar path
+                    $trimmed = strstr($class_path, '\\');
+                    $class_path = Atomar::atomar_dir() . DIRECTORY_SEPARATOR . ltrim($trimmed, '\\');
+                } else {
                     // use root extension dir
                     $class_path = Atomar::extension_dir() . ltrim($class_path, '\\');
                 }
