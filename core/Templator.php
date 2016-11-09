@@ -450,21 +450,6 @@ CSS;
                     'menu' => array()
                 );
 
-                // TRICKY: allows \atomar\controllers\CAdminDocumentation.php to override the docs menu so we don't generate the menu unnecessarily
-                $docs_menu = Atomar::$menu['secondary_menu']['/atomar/documentation']['menu'];
-                Atomar::$menu['secondary_menu']['/atomar/documentation'] = array(
-                    'link' => l('Documentation', '/atomar/documentation/'),
-                    'class' => array(),
-                    'weight' => 9999,
-                    'access' => '',
-                    'menu' => array(
-                        'options' => array('visible' => 'when_active')
-                    )
-                );
-                if (is_array($docs_menu)) {
-                    Atomar::$menu['secondary_menu']['/atomar/documentation']['menu'] = array_merge(Atomar::$menu['secondary_menu']['/atomar/documentation']['menu'], $docs_menu);
-                }
-
                 if ($options['trigger_menu']) Atomar::hook(new Menu());
 
 

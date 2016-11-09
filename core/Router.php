@@ -105,9 +105,6 @@ class Router {
 
                 '/atomar/configuration/?(\?.*)?' => 'atomar\controller\AdminConfiguration',
 
-                '/atomar/documentation/?(\?.*)?' => 'atomar\controller\Documentation',
-                '/atomar/documentation/(?P<type>[a-z]+)/(?P<name>[a-zA-Z\.\_\-]+)/?(\?.*)?' => 'atomar\controller\Documentation',
-
                 '/atomar/settings/?(\?.*)?' => 'atomar\controller\Settings',
 
                 '/atomar/extensions/?(\?.*)?' => 'atomar\controller\Extensions',
