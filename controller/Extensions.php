@@ -98,48 +98,48 @@ class Extensions extends Controller {
     }
 
     function POST($matches = array()) {
+        $valid_modules = array();
+        $modules = array();
         $ids =  array_keys($_POST['extensions']);
-        $is_missing_dependencies = false;
-        $not_supported = false;
 
         // disable all extensions
         \R::exec('UPDATE extension SET is_enabled=\'0\'');
 
         // process extensions
-        $valid_modules = array();
         if (isset($ids)) {
             $modules = \R::loadAll('extension', $ids);
-            $modules = array_merge($modules, \R::find('extension', 'slug=?', array(Atomar::application_namespace())));
+        }
 
-            // validate supported atomar version
-            foreach($modules as $m) {
-                if ($m->atomar_version && vercmp($m->atomar_version, Atomar::version()) == -1) {
-                    set_error($m->slug . ' does not support this version of atomar');
-                    continue;
-                }
-                $valid_modules[$m->slug] = $m;
+        $modules = array_merge($modules, \R::find('extension', 'slug=?', array(Atomar::application_namespace())));
+
+        // validate supported atomar version
+        foreach($modules as $m) {
+            if ($m->atomar_version && vercmp($m->atomar_version, Atomar::version()) == -1) {
+                set_error($m->slug . ' only supports atomar v' . $m->atomar_version);
+                continue;
             }
-            $modules = $valid_modules;
+            $valid_modules[$m->slug] = $m;
+        }
+        $modules = $valid_modules;
 
-            // validate dependencies
-            $valid_modules = array();
-            foreach($modules as $m) {
-                if(isset($m->dependencies) && strlen(trim($m->dependencies))) {
-                    $dependencies = explode(',', trim($m->dependencies));
-                    foreach($dependencies as $d) {
-                        if(!isset($modules[$d])) {
-                            set_error($m->slug . ' is missing dependencies');
-                            // continue in outer foreach
-                            continue 2;
-                        }
+        // validate dependencies
+        $valid_modules = array();
+        foreach($modules as $m) {
+            if(isset($m->dependencies) && strlen(trim($m->dependencies))) {
+                $dependencies = explode(',', trim($m->dependencies));
+                foreach($dependencies as $d) {
+                    if(!isset($modules[$d])) {
+                        set_error($m->slug . ' is missing dependencies: ' . $m->dependencies);
+                        // continue in outer foreach
+                        continue 2;
                     }
                 }
-                $m->is_enabled = '1';
-                $valid_modules[$m->slug] = $m;
             }
-
-            \R::storeAll(array_values($valid_modules));
+            $m->is_enabled = '1';
+            $valid_modules[$m->slug] = $m;
         }
+
+        \R::storeAll(array_values($valid_modules));
 
         // install extensions
         Atomar::hook(new Install());
