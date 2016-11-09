@@ -200,22 +200,23 @@ HTML;
         }
         unset($db);
 
-        /**
-         * Read debug mode
-         *
-         */
-        // enable debug by default
-        self::$config['debug'] = boolval(self::get_system('debug', true));
-        self::$config->lock();
-
-        if (!self::$config['debug']) {
+        if (self::$config['db']['freeze']) {
             \R::useWriterCache(true);
             // TODO: breaks adding certain things to the db
             \R::freeze(true);
-            error_reporting(0);
-        } else {
+        }
+
+        // set default debug mode
+        self::$config['debug'] = boolval(self::get_system('debug', true));
+
+        // log config from further changes
+        self::$config->lock();
+
+        if(self::$config['debug']) {
             ini_set('display_errors', 1);
             error_reporting(E_ALL ^ E_NOTICE);
+        } else {
+            error_reporting(0);
         }
 
         /**
@@ -486,7 +487,7 @@ HTML;
                     $ext->atomar_version = null;
                 }
                 if (isset($manifest['dependencies'])) {
-                    $ext->set_dependencies($manifest['dependencies']);
+                    $ext->set_dependencies(array_keys($manifest['dependencies']));
                 }
                 try {
                     \R::store($ext);

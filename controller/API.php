@@ -45,45 +45,9 @@ class API extends ApiController {
     }
 
     /**
-     * Enables or disables css caching
-     * @param $enable
-     */
-    public function get_cache_css($enable) {
-        if (Auth::has_authentication('administer_site')) {
-            Atomar::set_system('cache_css', $enable == true);
-            if ($enable) {
-                set_success('CSS caching has been enabled');
-            } else {
-                set_success('CSS caching has been disabled');
-            }
-        } else {
-            set_error('You are not authorized to change the css caching');
-        }
-        $this->go_back();
-    }
-
-    /**
-     * Enables or disables js caching
-     * @param $enable
-     */
-    public function get_cache_js($enable) {
-        if (Auth::has_authentication('administer_site')) {
-            Atomar::set_system('cache_js', $enable == true);
-            if ($enable) {
-                set_success('JS caching has been enabled');
-            } else {
-                set_success('JS caching has been disabled');
-            }
-        } else {
-            set_error('You are not authorized to change the js caching');
-        }
-        $this->go_back();
-    }
-
-    /**
      * Clears the asset cache
      */
-    public function get_clear_cache() {
+    public function get_empty_cache() {
         if (Auth::has_authentication('administer_site')) {
             if (is_dir(Atomar::$config['cache'])) {
                 if (deleteDir(Atomar::$config['cache'])) {

@@ -435,13 +435,6 @@ CSS;
                     'access' => 'administer_site',
                     'menu' => array()
                 );
-                Atomar::$menu['secondary_menu']['/atomar/performance'] = array(
-                    'link' => l('Performance', '/atomar/performance/'),
-                    'class' => array(),
-                    'weight' => 850,
-                    'access' => 'administer_site',
-                    'menu' => array()
-                );
                 Atomar::$menu['secondary_menu']['/atomar/extensions'] = array(
                     'link' => l('Extensions', '/atomar/extensions/'),
                     'class' => array(),

@@ -2,11 +2,6 @@
 
 namespace atomar\hook;
 
-
-use atomar\core\Cache;
-use atomar\Atomar;
-use atomar\core\Router;
-
 class PreProcessBoot implements Hook {
 
 
@@ -46,15 +41,6 @@ class PreProcessBoot implements Hook {
      * @return mixed|void
      */
     public function post_process($state) {
-        // perform caching if enabled and not in debug mode.
-        if (!Atomar::$config['debug'] && !Router::is_url_backend()) {
-            if (Atomar::get_system('cache_css', false)) {
-                Cache::cache_css();
-            }
-            if (Atomar::get_system('cache_js', false)) {
-                Cache::cache_js();
-            }
-        }
         return;
     }
 }
