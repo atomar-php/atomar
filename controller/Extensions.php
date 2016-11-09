@@ -20,6 +20,9 @@ class Extensions extends Controller {
     function GET($matches = array()) {
         Auth::authenticate('administer_extensions');
 
+        // prepare the application module
+        $app = $this->prepareModule(Atomar::loadModule(Atomar::application_dir(), Atomar::application_namespace()));
+
         // search for extensions
         $ext_path = Atomar::extension_dir();
         $files = scandir($ext_path);
@@ -62,7 +65,7 @@ class Extensions extends Controller {
         echo $this->renderView('admin/extensions.html', array(
             'extensions' => $rendered_extensions,
             'ext_dir' => Atomar::extension_dir(),
-            'app' => Atomar::getAppInfo()
+            'app' => $app->export()
         ));
     }
 
@@ -74,13 +77,12 @@ class Extensions extends Controller {
      */
     private function prepareModule($module) {
         if ($module !== null) {
+            $module->is_update_pending = '0';
             if ($module->installed_version && $module->is_enabled) {
                 // check for updates
                 if (vercmp($module->version, $module->installed_version) == 1) {
                     // TODO: change these to 'has_update'
                     $module->is_update_pending = '1';
-                } else {
-                    $module->is_update_pending = '0';
                 }
             }
 
@@ -101,12 +103,13 @@ class Extensions extends Controller {
         $not_supported = false;
 
         // disable all extensions
-        \R::exec('UPDATE extension SET is_enabled=\'0\' where slug not in (?)', array(Atomar::application_namespace()));
+        \R::exec('UPDATE extension SET is_enabled=\'0\'');
 
         // process extensions
         $valid_modules = array();
         if (isset($ids)) {
             $modules = \R::loadAll('extension', $ids);
+            $modules = array_merge($modules, \R::find('extension', 'slug=?', array(Atomar::application_namespace())));
 
             // validate supported atomar version
             foreach($modules as $m) {
@@ -121,7 +124,7 @@ class Extensions extends Controller {
                 if(isset($m->dependencies) && strlen(trim($m->dependencies))) {
                     $dependencies = explode(',', trim($m->dependencies));
                     foreach($dependencies as $d) {
-                        if(!isset($modules[$d->slug])) {
+                        if(!isset($modules[$d])) {
                             // continue in outer foreach
                             continue 2;
                         }
@@ -144,45 +147,5 @@ class Extensions extends Controller {
             set_error('Some modules were not installed');
         }
         $this->go('/atomar/extensions');
-    }
-
-    // stores an extension in the db and saves it in the cache
-
-    private function enableModule($id) {
-        $extension = \R::load('extension', $id); //\R::load('extension', $id);
-
-        // validate dependencies
-        $required_extensions = array();
-        $missing_dependencies = array();
-        if($extension->dependencies) {
-            $dependencies = explode(',', trim($extension->dependencies));
-            $missing_dependencies = array_flip($dependencies);
-            $required_extensions = \R::find('extension', 'slug IN (' . \R::genSlots($dependencies) . ') ', $dependencies);
-        }
-
-        if ($required_extensions) {
-            // check if missing
-            foreach ($required_extensions as $required_ext) {
-                unset($missing_dependencies[$required_ext->slug]);
-            }
-            if (count($missing_dependencies) > 0) {
-                set_notice('missing dependencies');
-                return false;
-            }
-
-            // enable dependencies
-            foreach ($required_extensions as $ext) {
-                if (!$this->enableModule($ext->id)) {
-                    // disable the extension
-                    $extension->is_enabled = '0';
-                    \R::store($extension);
-                    return false;
-                }
-            }
-        }
-
-        // Enable extension.
-        $extension->is_enabled = '1';
-        return \R::store($extension);
     }
 }
