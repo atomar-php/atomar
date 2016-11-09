@@ -18,7 +18,7 @@ class Permission implements Hook {
      * @param $function_name string The name of the method that will be ran.
      * @param $extension mixed The extension in which the hook implementation is running.
      */
-    public function pre_process($function_name, $extension) {
+    public function preProcess($function_name, $extension) {
 
     }
 
@@ -54,7 +54,16 @@ class Permission implements Hook {
      * @param $state mixed The final state of the hook.
      * @return mixed|void
      */
-    public function post_process($state) {
+    public function postProcess($state) {
+        return $state;
+    }
 
+    /**
+     * Returns an array of parameters that will be passed to the hook receiver
+     * @return array
+     */
+    public function params()
+    {
+        return null;
     }
 }

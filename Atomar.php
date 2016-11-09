@@ -401,7 +401,7 @@ HTML;
         $receiver = 'atomar\\Hooks';
         $instance = new $receiver();
         if($instance instanceof HookReceiver) {
-            $result = $instance->$hook_name();
+            $result = $instance->$hook_name($hook->params());
             $state = $hook->process($result, self::atomar_dir(), 'atomar', null, $state);
         }
 
@@ -415,7 +415,7 @@ HTML;
                     include_once($class_path);
                     $instance = new $receiver();
                     if ($instance instanceof HookReceiver) {
-                        $result = $instance->$hook_name();
+                        $result = $instance->$hook_name($hook->params());
                         $state = $hook->process($result, self::extension_dir() . $ext->slug . DIRECTORY_SEPARATOR, $ext->slug, $ext, $state);
                     }
                 } else {
@@ -435,11 +435,11 @@ HTML;
             require_once(self::application_dir().DIRECTORY_SEPARATOR.'Hooks.php');
             $instance = new $receiver();
             if ($instance instanceof HookReceiver) {
-                $result = $instance->$hook_name();
+                $result = $instance->$hook_name($hook->params());
                 $state = $hook->process($result, self::application_dir(), self::application_namespace(), self::$app, $state);
             }
         }
-        return $hook->post_process($state);
+        return $hook->postProcess($state);
     }
 
     /**

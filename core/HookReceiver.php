@@ -32,7 +32,10 @@ abstract class HookReceiver
 
     }
 
-    function hookTwig() {
+    /**
+     * @param AtomarTwigEnvironment $twig
+     */
+    function hookTwig($twig) {
 
     }
 

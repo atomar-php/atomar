@@ -17,7 +17,7 @@ interface Hook {
      * @param $extension mixed The extension in which the hook implementation is running.
      * @deprecated
      */
-    public function pre_process($function_name, $extension);
+    public function preProcess($function_name, $extension);
 
     /**
      * Executes the hook with the result of the hooked.
@@ -35,5 +35,11 @@ interface Hook {
      * @param $state mixed The final state of the hook.
      * @return mixed You can return whatever you need to here
      */
-    public function post_process($state);
+    public function postProcess($state);
+
+    /**
+     * Returns an array of parameters that will be passed to the hook receiver
+     * @return array
+     */
+    public function params();
 }
