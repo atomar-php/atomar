@@ -55,7 +55,7 @@ CSS;
         $password = $_POST['password'];
         if (!Auth::login($username, $password)) {
             set_error('Login failed');
-            $this->go('/user/login');
+            $this->go('/atomar/login');
         } else {
             $this->go('/');
         }

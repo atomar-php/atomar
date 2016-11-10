@@ -258,8 +258,8 @@ INSERT INTO `permission` (`id`, `slug`, `name`) VALUES
   (1, 'administer_site', 'Administer site'),
   (2, 'administer_users', 'Administer users'),
   (3, 'administer_roles', 'Administer roles'),
-  (3, 'administer_extensions', 'Administer extensions'),
-  (4, 'administer_permissions', 'Administer permissions');
+  (4, 'administer_extensions', 'Administer extensions'),
+  (5, 'administer_permissions', 'Administer permissions');
 
 -- Insert roles
 

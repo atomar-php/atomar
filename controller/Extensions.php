@@ -149,6 +149,6 @@ class Extensions extends Controller {
         // rebuild extension permissions
         Atomar::hook(new Permission());
 
-        $this->go('/atomar/extensions');
+        $this->go();
     }
 }
