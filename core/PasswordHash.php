@@ -33,6 +33,31 @@ class PasswordHash {
 	var $portable_hashes;
 	var $random_state;
 
+    /**
+     * PasswordHash constructor.
+     * @param $iteration_count_log2
+     * @param $portable_hashes
+     */
+    function __construct($iteration_count_log2, $portable_hashes)
+    {
+        $this->itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+        if ($iteration_count_log2 < 4 || $iteration_count_log2 > 31)
+            $iteration_count_log2 = 8;
+        $this->iteration_count_log2 = $iteration_count_log2;
+
+        $this->portable_hashes = $portable_hashes;
+
+        $this->random_state = microtime();
+        if (function_exists('getmypid'))
+            $this->random_state .= getmypid();
+    }
+
+    /**
+     * @deprecated you are crazy!!!!
+     * @param $iteration_count_log2
+     * @param $portable_hashes
+     */
 	function PasswordHash($iteration_count_log2, $portable_hashes)
 	{
 		$this->itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
