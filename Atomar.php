@@ -2,6 +2,7 @@
 
 namespace atomar;
 
+use atomar\controller\Install;
 use atomar\core\AssetManager;
 use atomar\core\Auth;
 use atomar\core\AutoLoader;
@@ -134,6 +135,22 @@ class Atomar {
     }
 
     /**
+     * Returns the namespace of the atomar php framework
+     * @return string
+     */
+    public static function atomar_namespace() {
+        return 'atomar';
+    }
+
+    /**
+     * Checks if debug mode is active
+     * @return mixed|null
+     */
+    public static function debug() {
+        return self::$config['debug'];
+    }
+
+    /**
      * Returns the path to the root site dir
      * @return string
      */
@@ -261,14 +278,11 @@ HTML;
         /**
          * Check if installation is required
          */
-        if (!Auth::$user) {
-            if (count(\R::findAll('user')) == 0) {
-                $urls = array(
-                    '/.*' => 'atomar\controller\Install',
-                );
-                Router::run($urls);
-                exit;
-            }
+        if(!Auth::$user && Install::requiresInstall()) {
+            Router::run(array(
+                '/.*' => 'atomar\controller\Install',
+            ));
+            exit;
         }
 
         /**
@@ -292,7 +306,6 @@ HTML;
                 set_error('Failed to load the application');
             }
         } else {
-//            self::$app->installed_version = self::get_system('app_installed_version', 0);
             if (vercmp(self::$app->version, self::$app->installed_version) > 0) {
                 self::$app->is_update_pending = '1';
             }
@@ -433,22 +446,23 @@ HTML;
      * @param string $directory the module directory
      * @param array $state the state object from another hook execution
      * @param Extension $module the module db object if available
-     * @param bool $postProcess if true the hook will run it's post process method
+     * @param bool $postProcess if true the hook will run it's post process method. Default is true
+     * @param bool $force if true the hook will be executed even if the pre process method returns false
      * @return array|null the hook state
      * @throws \Exception|HookException Exception is throw if parameters are missing, HookException is throw if the receiver is missing
      */
-    public static function hookModule(Hook $hook, string $namespace, string $directory, array $state=null, Extension $module=null, $postProcess=true) {
+    public static function hookModule(Hook $hook, string $namespace, string $directory, array $state=null, Extension $module=null, $postProcess=true, $force=false) {
         if(!$hook) throw new \Exception('Missing hook parameter');
         if(!$namespace) throw new \Exception('Missing namespace parameter');
         if(!$directory) throw new \Exception('Missing directory parameter');
         $state = is_array($state) ? $state : array();
-        $module = $module || null;
+        $module = isset($module) ? $module : null;
 
         $hookMethod = 'hook' . ltrim(strrchr(get_class($hook), '\\'), '\\');
         $receiver = $namespace . '\\Hooks';
         $classPath = rtrim($directory, '\\/') . DIRECTORY_SEPARATOR . 'Hooks.php';
 
-        if($hook->preProcess($module) === false) return $state;
+        if($hook->preProcess($module) === false && $force === false) return $state;
         if(!file_exists($classPath)) throw new HookException('Missing hook receiver in "' . $namespace . '"');
 
         try {
@@ -513,6 +527,7 @@ HTML;
     /**
      * A hook to run uninstall processes after an extension has been disabled.
      * This is rather dangerous so we are not using this method right now. See uninstall_extension()
+     * @deprecated allow the hook to run the uninstall
      */
     public static function hook_uninstall() {
         $extensions = \R::find('extension', 'is_enabled=\'1\'');
