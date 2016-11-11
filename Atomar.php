@@ -298,6 +298,7 @@ HTML;
          * Autoload app
          *
          */
+        AutoLoader::register(self::application_dir());
         AutoLoader::register(self::application_dir(), 1);
         self::$app = self::loadModule(self::application_dir(), self::application_namespace());
         if (!isset(self::$app)) {
