@@ -12,7 +12,8 @@ interface Hook {
     function __construct($params = null);
 
     /**
-     * Executed just before the hook implementation is ran
+     * Executed just before the hook implementation is ran.
+     * If this returns false the hook will not be executed.
      * @param $extension mixed The extension in which the hook implementation is running.
      * @return bool true if the hook execution can proceed otherwise false
      */

@@ -300,7 +300,6 @@ class Auth {
                         $p->slug = $level;
                         $p->name = machine_to_human($level);
                         \R::store($p);
-                        set_notice('Added permission "' . $level . '" to database.');
                     }
                 }
             }
@@ -368,7 +367,7 @@ class Auth {
      * @param RedBeanPHP /OODBBean $user the user that will be registered
      * @param string $password the human readable password
      * @param RedBeanPHP /OODBBean $role the role assigned to the user
-     * @return mixed the user id if registration suceeded otherwise false.
+     * @return mixed the user id if registration succeeded otherwise false.
      */
     public static function register($user, $password, $role) {
         if (!$role->id) {

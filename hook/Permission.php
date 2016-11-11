@@ -2,7 +2,6 @@
 
 namespace atomar\hook;
 
-
 class Permission implements Hook {
 
     /**
@@ -42,7 +41,6 @@ class Permission implements Hook {
                     $p->slug = $permission;
                     $p->name = machine_to_human($permission);
                     \ R::store($p);
-                    set_notice('Added permission "' . $permission . '" to database.');
                 }
             }
         }

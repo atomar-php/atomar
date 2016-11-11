@@ -325,21 +325,21 @@ CSS;
                     'link' => l('Users', '/atomar/users/'),
                     'class' => array(),
                     'weight' => 500,
-                    'access' => 'administer_users',
+                    'access' => 'administer_site',
                     'menu' => array(),
                 );
                 Atomar::$menu['secondary_menu']['/atomar/roles'] = array(
                     'link' => l('Roles', '/atomar/roles/'),
                     'class' => array(),
                     'weight' => 600,
-                    'access' => 'administer_roles',
+                    'access' => 'administer_site',
                     'menu' => array()
                 );
                 Atomar::$menu['secondary_menu']['/atomar/permissions'] = array(
                     'link' => l('Permissions', '/atomar/permissions/'),
                     'class' => array(),
                     'weight' => 700,
-                    'access' => 'administer_permissions',
+                    'access' => 'administer_site',
                     'menu' => array()
                 );
                 Atomar::$menu['secondary_menu']['/atomar/settings'] = array(
@@ -353,7 +353,7 @@ CSS;
                     'link' => l('Modules', '/atomar/modules/'),
                     'class' => array(),
                     'weight' => 900,
-                    'access' => 'administer_extensions',
+                    'access' => 'administer_site',
                     'menu' => array()
                 );
 
