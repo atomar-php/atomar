@@ -328,7 +328,8 @@ SQL;
 
             '/atomar/settings/?(\?.*)?' => 'atomar\controller\Settings',
 
-            '/atomar/modules/?(\?.*)?' => 'atomar\controller\Extensions'
+            '/atomar/modules/?' => 'atomar\controller\Extensions',
+            '/atomar/modules/(?P<module>[a-z0-9\_]+)/?(\?.*)?' => 'atomar\controller\ModuleSettings'
         );
         $unauthenticated_urls = array(
             '/atomar/login/?(\?.*)?' => 'atomar\controller\Login',

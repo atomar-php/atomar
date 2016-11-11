@@ -8,7 +8,7 @@
     <p>Below are a list of available modules. Everything is a module, even the main application.</p>
     <hr/>
     {% if app %}
-        <h2>Application: {{ app.name }} {% if app.installed_version and app.is_enabled %}<small>v{{ app.installed_version }}</small>{% endif %}</h2>
+        <h2>Application: {{ app.name }} {% if app.installed_version and app.is_enabled %}<small>v{{ app.installed_version }} {% if app.has_controls %}<a href="/atomar/modules/{{app.slug}}"><span class="glyphicon glyphicon-cog"></span></a>{% endif %}</small>{% endif %}</h2>
         <p>{{ app.description }}</p>
         {% if app.installed_version != app.version %}
             {% if app.is_update_pending %}<p>v{{ app.version }} is available</p>{% endif %}
@@ -41,7 +41,7 @@
             {% else %}
         <tr>
             {% endif %}
-            <td>{{ ext.name }}</td>
+            <td>{{ ext.name }} {% if ext.is_enabled and ext.has_controls %}<a href="/atomar/modules/{{ ext.slug }}"><span class="glyphicon glyphicon-cog"></span></a>{% endif %}</td>
             <td>{{ ext.description }}</td>
             <td>
                 {% if ext.is_enabled %}

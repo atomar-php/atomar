@@ -298,7 +298,7 @@ HTML;
          * Autoload app
          *
          */
-        AutoLoader::register(self::application_dir());
+        AutoLoader::register(self::application_dir(), 1);
         self::$app = self::loadModule(self::application_dir(), self::application_namespace());
         if (!isset(self::$app)) {
             Logger::log_error('Could not load the application from ' . self::application_dir());
@@ -408,7 +408,7 @@ HTML;
     /**
      * Performs operations on a hook
      * @param Hook $hook the hook to perform
-     * @return mixed
+     * @return array|null the hook state
      */
     public static function hook(Hook $hook) {
         $hook_name = 'hook' . ltrim(strrchr(get_class($hook), '\\'), '\\');

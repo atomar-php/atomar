@@ -54,4 +54,12 @@ abstract class HookReceiver
     function hookPage() {
 
     }
+
+    /**
+     * Gives the controller to be used for managing the module in the admin page.
+     * @return string the class name e.g. 'atomar\controller\Controls'
+     */
+    function hookControls() {
+        return null;
+    }
 }
