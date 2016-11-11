@@ -10,6 +10,7 @@ use atomar\core\Logger;
 use atomar\core\ReadOnlyArray;
 use atomar\core\Router;
 use atomar\core\Templator;
+use atomar\exception\HookException;
 use atomar\hook\Hook;
 use atomar\hook\Libraries;
 use atomar\hook\PreBoot;
@@ -397,55 +398,78 @@ HTML;
      * @return mixed
      */
     public static function hook(Hook $hook) {
-        $state = array();
         $hook_name = 'hook' . ltrim(strrchr(get_class($hook), '\\'), '\\');
 
         // execute hook on atomar
-        $receiver = 'atomar\\Hooks';
-        $instance = new $receiver();
-        if($instance instanceof HookReceiver && $hook->preProcess(null) !== false) {
-            $result = $instance->$hook_name($hook->params());
-            $state = $hook->process($result, self::atomar_dir(), 'atomar', null, $state);
-        }
+        $state = self::hookModule($hook, 'atomar', self::atomar_dir(), null, null, false);
 
         // execute hooks on extensions
         $extensions = \R::find('extension', 'is_enabled=\'1\' and slug<>?', array(self::application_namespace()));
         foreach ($extensions as $ext) {
-            $receiver = $ext->slug.'\\Hooks';
-            $class_path = self::extension_dir() . $ext->slug . DIRECTORY_SEPARATOR . 'Hooks.php';
-            if($hook->preProcess($ext) === false) continue;
-            if(file_exists($class_path)) {
-                try {
-                    include_once($class_path);
-                    $instance = new $receiver();
-                    if ($instance instanceof HookReceiver) {
-                        $result = $instance->$hook_name($hook->params());
-                        $state = $hook->process($result, self::extension_dir() . $ext->slug . DIRECTORY_SEPARATOR, $ext->slug, $ext, $state);
-                    }
-                } catch (\Error $e) {
-                    $notice = 'Could not run hook "' . $hook_name . '" for "' . $ext->slug .'" module';
-                    Logger::log_error($notice, $e->getMessage());
-                    if(self::$config['debug']) set_error($notice);
-                    continue;
-                }
-            } else {
-                set_error('Missing hook receiver in "' . $ext->slug . '" module');
+            try {
+                $state = self::hookModule($hook, $ext->slug, self::extension_dir() . $ext->slug . DIRECTORY_SEPARATOR, $state, $ext->box(), false);
+            } catch (\Exception $e) {
+                $notice = 'Could not run hook "' . $hook_name . '" for "' . $ext->slug .'" module';
+                Logger::log_error($notice, $e->getMessage());
+                if(self::$config['debug']) set_error($notice);
+                continue;
             }
         }
 
         // execute hook on application
         // TRICKY: we re-load the application during hooks in case its settings were changed
         self::$app = self::loadModule(self::application_dir(), self::application_namespace());
-        if (self::$app != null && self::$app->is_enabled && $hook->preProcess(self::$app) !== false) {
-            $receiver = self::application_namespace().'\\Hooks';
-            require_once(self::application_dir().DIRECTORY_SEPARATOR.'Hooks.php');
-            $instance = new $receiver();
-            if ($instance instanceof HookReceiver) {
-                $result = $instance->$hook_name($hook->params());
-                $state = $hook->process($result, self::application_dir(), self::application_namespace(), self::$app, $state);
-            }
+        if (self::$app != null && self::$app->is_enabled) { //} && $hook->preProcess(self::$app) !== false) {
+            $state = self::hookModule($hook, self::application_namespace(), self::application_dir(), $state, self::$app->box(), false);
         }
         return $hook->postProcess($state);
+    }
+
+    /**
+     * Executes a hook on a single module.
+     *
+     * @param Hook $hook the hook that will be executed
+     * @param string $namespace the module namespace
+     * @param string $directory the module directory
+     * @param array $state the state object from another hook execution
+     * @param Extension $module the module db object if available
+     * @param bool $postProcess if true the hook will run it's post process method
+     * @return array|null the hook state
+     * @throws \Exception|HookException Exception is throw if parameters are missing, HookException is throw if the receiver is missing
+     */
+    public static function hookModule(Hook $hook, string $namespace, string $directory, array $state=null, Extension $module=null, $postProcess=true) {
+        if(!$hook) throw new \Exception('Missing hook parameter');
+        if(!$namespace) throw new \Exception('Missing namespace parameter');
+        if(!$directory) throw new \Exception('Missing directory parameter');
+        $state = is_array($state) ? $state : array();
+        $module = $module || null;
+
+        $hookMethod = 'hook' . ltrim(strrchr(get_class($hook), '\\'), '\\');
+        $receiver = $namespace . '\\Hooks';
+        $classPath = rtrim($directory, '\\/') . DIRECTORY_SEPARATOR . 'Hooks.php';
+
+        if($hook->preProcess($module) === false) return $state;
+        if(!file_exists($classPath)) throw new HookException('Missing hook receiver in "' . $namespace . '"');
+
+        try {
+            require_once($classPath);
+            $instance = new $receiver();
+            if ($instance instanceof HookReceiver) {
+                $result = $instance->$hookMethod($hook->params());
+                $state = $hook->process($result, $directory, $namespace, $module, $state);
+            } else {
+                throw new HookException('Receiver is not an instance of HookReceiver in "' . $namespace . '"');
+            }
+        } catch (\Error $e) {
+            // convert errors to exceptions for simplicity
+            throw new \Exception($e->getMessage());
+        }
+
+        if($postProcess) {
+            $state = $hook->postProcess($state);
+        }
+
+        return $state;
     }
 
     /**
