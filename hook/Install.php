@@ -3,6 +3,8 @@
 namespace atomar\hook;
 
 
+use model\Extension;
+
 class Install implements Hook
 {
 
@@ -23,7 +25,7 @@ class Install implements Hook
     public function preProcess($extension)
     {
         // ensures we do not install if this is atomar or the extension does not have an update.
-        return $extension != null && $extension->version != $extension->installed_version && $extension->is_enabled == '1';
+        return $extension instanceof Extension && $extension->version != $extension->installed_version && $extension->is_enabled == '1';
     }
 
     /**
@@ -37,7 +39,7 @@ class Install implements Hook
      */
     public function process($params, $ext_path, $ext_namespace, $ext, $state)
     {
-        if($ext instanceof \RedBeanPHP\OODBBean) {
+        if($ext instanceof Extension) {
             $ext->installed_version = $ext->version;
             store($ext);
         }

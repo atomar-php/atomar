@@ -456,7 +456,7 @@ HTML;
         if(!$namespace) throw new \Exception('Missing namespace parameter');
         if(!$directory) throw new \Exception('Missing directory parameter');
         $state = is_array($state) ? $state : array();
-        $module = $module || null;
+        $module = isset($module) ? $module : null;
 
         $hookMethod = 'hook' . ltrim(strrchr(get_class($hook), '\\'), '\\');
         $receiver = $namespace . '\\Hooks';
