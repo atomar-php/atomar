@@ -68,7 +68,13 @@ class Auth {
                 Router::go('/');
             } else {
                 Logger::log_warning('Detected a potential redirect loop', '/');
-                echo Templator::render_view('500.html');
+                echo Templator::render_view('500.html', array(), array(
+                    'render_messages' => false,
+                    'render_menus' => false,
+                    'trigger_preprocess_page' => false,
+                    'trigger_twig_function' => false,
+                    'trigger_menu' => false
+                ));
                 exit;
             }
         };

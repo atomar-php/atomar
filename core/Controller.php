@@ -58,7 +58,13 @@ abstract class Controller {
         } else {
             // we hit a redirect loop
             Logger::log_warning('Detected a potential redirect loop', Router::request_path());
-            echo Templator::render_view('500.html');
+            echo Templator::render_view('500.html', array(), array(
+                'render_messages' => false,
+                'render_menus' => false,
+                'trigger_preprocess_page' => false,
+                'trigger_twig_function' => false,
+                'trigger_menu' => false
+            ));
             exit;
         }
     }
@@ -118,6 +124,12 @@ abstract class Controller {
         $path = $scheme . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         echo Templator::render_view('404.html', array(
             'path' => $path
+        ), array(
+            'render_messages' => false,
+            'render_menus' => false,
+            'trigger_preprocess_page' => false,
+            'trigger_twig_function' => false,
+            'trigger_menu' => false
         ));
         exit(1);
     }

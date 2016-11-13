@@ -161,6 +161,11 @@ JAVASCRIPT;
                 echo Templator::render_view('debug.html', array(
                     'exception' => $e,
                     'php_version' => $version
+                ), array(
+                    'render_messages' => false,
+                    'render_menus' => false,
+                    'trigger_preprocess_page' => false,
+                    'trigger_menu' => false
                 ));
             } else if (!Auth::$user) {
                 // un-authenticated users
@@ -179,6 +184,12 @@ JAVASCRIPT;
                 $path = $scheme . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
                 echo Templator::render_view('404.html', array(
                     'path' => $path
+                ), array(
+                    'render_messages' => false,
+                    'render_menus' => false,
+                    'trigger_preprocess_page' => false,
+                    'trigger_twig_function' => false,
+                    'trigger_menu' => false
                 ));
             }
         }
@@ -276,7 +287,13 @@ JAVASCRIPT;
      */
     private static function redirect_loop_catcher($path) {
         Logger::log_warning('Detected a potential redirect loop', $path);
-        echo Templator::render_view('500.html');
+        echo Templator::render_view('500.html', array(), array(
+            'render_messages' => false,
+            'render_menus' => false,
+            'trigger_preprocess_page' => false,
+            'trigger_twig_function' => false,
+            'trigger_menu' => false
+        ));
         exit;
     }
 
