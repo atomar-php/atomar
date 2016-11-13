@@ -15,12 +15,12 @@
     {% endif %}
 
     {% if atomar.debug %}
+    <a href="/!/debug_mode?enable=0" class="btn btn-primary">Disable debug mode</a>
+    {% else %}
     <div class="btn-group">
-      <a href="/!/debug_mode?enable=0" class="btn btn-primary">Disable debug mode</a>
+      <a href="/!/debug_mode?enable=1" class="btn btn-default">Enable debug mode</a>
       <a class="btn btn-default" href="/!/empty_cache">Empty Cache</a>
     </div>
-    {% else %}
-    <a href="/!/debug_mode?enable=1" class="btn btn-default">Enable debug mode</a>
     {% endif %}
   </div>
 </div>
