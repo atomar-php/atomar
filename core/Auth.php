@@ -230,6 +230,15 @@ class Auth {
     }
 
     /**
+     * Returns an array of users that have the given role
+     * @param string $role_slug the role to search by
+     * @return array the users in this role.
+     */
+    public static function get_users_by_role(string $role_slug) {
+        return \R::findAll('user', 'role_id in (select id from role where slug=?)', array($role_slug));
+    }
+
+    /**
      * A utility method that returns a permission bean given it's slug.
      *
      * @param string $permission_slug the slug of the permission
