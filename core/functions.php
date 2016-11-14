@@ -451,11 +451,11 @@ function word_trim($string, $max_width) {
  * @return string the formatted time period.
  */
 function relative_date($time, $round_to_date=true) {
-    if(is_string($time)) $time = strtotime($time);
+    if(!ctype_digit($time)) $time = strtotime($time);
     $now = time();
     $time_is_past = $time < $now;
-    $time = abs($time - $now);
-    $seconds = floor(abs($time));
+    $relative_time = abs($time - $now);
+    $seconds = floor(abs($relative_time));
 
     if($seconds < 60) {
         $result = 'less than a minute';
