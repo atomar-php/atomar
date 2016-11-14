@@ -556,10 +556,10 @@ HTML;
     /**
      * Returns a variable stored in the database or the default value.
      * @param string $key
-     * @param string $default
+     * @param string|null $default
      * @return string
      */
-    public static function get_variable(string $key, string $default) {
+    public static function get_variable(string $key, string $default=null) {
         $var = \R::findOne('setting', ' name=? ', array($key));
         if ($var) {
             return $var->value;
