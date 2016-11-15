@@ -268,6 +268,7 @@ CSS;
             $args['atomar']['favicon'] = Atomar::$config['favicon'];
             $args['atomar']['site_name'] = Atomar::$config['site_name'];
             $args['atomar']['site_url'] = Atomar::$config['site_url'];
+            $args['atomar']['page_url'] = rtrim(Atomar::$config['site_url'], '/') . '/' . ltrim(Router::request_path(), '/') . Router::request_query();
             $args['atomar']['email']['contact_email'] = Atomar::$config['email']['contact_email'];
             $args['atomar']['cron_token'] = Atomar::$config['cron_token'];
             $args['atomar']['maintenance'] = Atomar::get_system('maintenance_mode', '0');
