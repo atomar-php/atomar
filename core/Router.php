@@ -119,19 +119,15 @@ class Router {
                 if (!self::is_active_url('/', true)) {
                     self::go('/');
                 } else {
-                    self::redirect_loop_catcher($path);
+                    self::throw500();
                 }
             } else if (Atomar::$config['debug'] || Auth::has_authentication('administer_site')) {
                 // print the error
                 $version = phpversion();
-                echo Templator::render_view('debug.html', array(
-                    'exception' => $e,
+                echo Templator::render_template('debug.html', array(
+                    'e' => $e,
+                    'body' => print_r($e, true),
                     'php_version' => $version
-                ), array(
-                    'render_messages' => false,
-                    'render_menus' => false,
-                    'trigger_preprocess_page' => false,
-                    'trigger_menu' => false
                 ));
             } else if (!Auth::$user) {
                 // un-authenticated users
@@ -139,7 +135,7 @@ class Router {
                 if (!self::is_active_url('/', true)) {
                     self::go('/');
                 } else {
-                    self::redirect_loop_catcher($path);
+                    self::throw500();
                 }
             } else {
                 self::throw404();
@@ -186,28 +182,12 @@ class Router {
     }
 
     public static function throw500() {
-        echo Templator::render_view('500.html', array(
-            'path' => self::page_url()
-        ), array(
-            'render_messages' => false,
-            'render_menus' => false,
-            'trigger_preprocess_page' => false,
-            'trigger_twig_function' => false,
-            'trigger_menu' => false
-        ));
+        echo Templator::render_template('500.html');
         exit(1);
     }
 
     public static function throw404() {
-        echo Templator::render_view('404.html', array(
-            'path' => self::page_url()
-        ), array(
-            'render_messages' => false,
-            'render_menus' => false,
-            'trigger_preprocess_page' => false,
-            'trigger_twig_function' => false,
-            'trigger_menu' => false
-        ));
+        echo Templator::render_template('404.html');
         exit(1);
     }
 
@@ -277,22 +257,6 @@ class Router {
      */
     public static function page_url() {
         return rtrim(Atomar::$config['site_url'], '/') . '/' . ltrim(self::request_path(), '/') . self::request_query();
-    }
-
-    /**
-     * Display a 404 page instead of starting a redirect loop
-     * @param $path
-     */
-    private static function redirect_loop_catcher($path) {
-        Logger::log_warning('Detected a potential redirect loop', $path);
-        echo Templator::render_view('500.html', array(), array(
-            'render_messages' => false,
-            'render_menus' => false,
-            'trigger_preprocess_page' => false,
-            'trigger_twig_function' => false,
-            'trigger_menu' => false
-        ));
-        exit;
     }
 
     /**

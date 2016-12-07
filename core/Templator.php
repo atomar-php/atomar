@@ -16,6 +16,7 @@ class Templator {
      * An array of scripts that will be included on each page.
      * This allows for dynamic use of scripts so we don't have to load
      * everything on each page.
+     * @deprecated we will no longer directly support injecting js and css
      * @var array
      */
     public static $js = array();
@@ -57,6 +58,7 @@ class Templator {
 
     /**
      * Indicates that the Templator has been initialized by init()
+     * @deprecated this no longer serves a purpose
      * @var bool
      */
     private static $is_initialized = false;
@@ -93,6 +95,87 @@ class Templator {
         );
 
         self::$is_initialized = true;
+    }
+
+    /**
+     * Formats a relative path to an extension asset into an absolute path
+     * @param $asset
+     * @return string
+     * @deprecated extension assets are now correctly handled by the AssetManager
+     */
+    public static function resolve_ext_asset($asset) {
+        return '/' . ltrim(rtrim(Atomar::extension_dir(), '\\/'), '\\/') . '/' . $asset;
+    }
+
+    /**
+     * Formats a relative path to an application asset into an absolute path
+     * @param $asset
+     * @return string
+     * @deprecated application assets are now correctly handled by the AssetManager
+     */
+    public static function resolve_app_asset($asset) {
+        return '/' . ltrim(rtrim(Atomar::application_dir(), '\\/'), '\\/') . '/' . $asset;
+    }
+
+    /**
+     * Returns the template rendering engine
+     * @return AtomarTwigEnvironment
+     */
+    private static function getTemplateEngine() {
+        $loader = new \Twig_Loader_Filesystem(array(
+            Atomar::application_dir(),
+            Atomar::extension_dir(),
+            Atomar::atomar_dir() . DIRECTORY_SEPARATOR . 'views'
+        ));
+        if (Atomar::$config['debug']) {
+            $twig = new AtomarTwigEnvironment($loader, array(
+                'debug' => Atomar::$config['debug'],
+            ));
+            $twig->addExtension(new \Twig_Extension_Debug());
+            // delete the cache if it exists
+            if (is_dir(Atomar::$config['cache'] . 'twig')) {
+                deleteDir(Atomar::$config['cache'] . 'twig');
+            }
+        } else {
+            if (!is_dir(Atomar::$config['cache'] . 'twig')) {
+                $old = umask(0002);
+                mkdir(Atomar::$config['cache'] . 'twig', 0777, true);
+                umask($old);
+            }
+            $twig = new AtomarTwigEnvironment($loader, array(
+                'cache' => Atomar::$config['cache'] . 'twig'
+            ));
+        }
+        return $twig;
+    }
+
+    /**
+     * Returns the properly formatted template path.
+     * TODO: this should be temporary until we fix the template path loading to be namespaced
+     * @param $template
+     * @return string
+     */
+    private static function normalizeTemplatePath($template) {
+        $template = ltrim($template, '/');
+
+        // TRICKY: app templates are prefixed with the app namespace, but templates are loaded relative to
+        // the app dir. We trim them here so they match.
+        if(substr($template, 0, strlen(Atomar::application_namespace())) == Atomar::application_namespace()) {
+            $template = substr($template, strlen(Atomar::application_namespace()));
+        }
+        return $template;
+    }
+
+    /**
+     * Renders a template with injected arguments.
+     * @param string $template the template that will be rendered
+     * @param array $args the arguments to be injected
+     * @return string html
+     */
+    public static function render_template($template, $args = array()) {
+        $twig = self::getTemplateEngine();
+        $template = self::normalizeTemplatePath($template);
+        return $twig->render($template, $args);
     }
 
     /**
@@ -162,40 +245,17 @@ CSS;
     }
 
     /**
-     * Formats a relative path to an extension asset into an absolute path
-     * @param $asset
-     * @return string
-     */
-    public static function resolve_ext_asset($asset) {
-        return '/' . ltrim(rtrim(Atomar::extension_dir(), '\\/'), '\\/') . '/' . $asset;
-    }
-
-    /**
-     * Formats a relative path to an application asset into an absolute path
-     * @param $asset
-     * @return string
-     */
-    public static function resolve_app_asset($asset) {
-        return '/' . ltrim(rtrim(Atomar::application_dir(), '\\/'), '\\/') . '/' . $asset;
-    }
-
-    /**
-     * Utility to render the view
+     * Renders a view.
+     * This calls a number of hooks to allow pre-processing the output
      *
      * @param string $template the path to the template that will be rendered
      * @param array $args the arguments that will be passed to the template
      * @param array $options optional rules regarding how the template is rendered.
      * @throws \Exception
-     * @return string
+     * @return string html
      */
-    public static function render_view($template, $args = array(), $options = array()) {
-        $template = ltrim($template, '/');
-
-        // TRICKY: app templates are prefixed with the app namespace, but templates are loaded relative to
-        // the app dir. We trim them here so they match.
-        if(substr($template, 0, strlen(Atomar::application_namespace())) == Atomar::application_namespace()) {
-            $template = substr($template, strlen(Atomar::application_namespace()));
-        }
+    public static function renderView($template, $args = array(), $options = array()) {
+        $twig = self::getTemplateEngine();
 
         $default_options = array(
             'render_messages' => true,
@@ -205,130 +265,89 @@ CSS;
             'trigger_menu' => true
         );
         $options = array_merge($default_options, $options);
-        try {
-            // initialize twig template engine
-            $loader = new \Twig_Loader_Filesystem(array(
-                Atomar::application_dir(),
-                Atomar::extension_dir(),
-                Atomar::atomar_dir() . DIRECTORY_SEPARATOR . 'views'
-            ));
-            if (Atomar::$config['debug']) {
-                $twig = new AtomarTwigEnvironment($loader, array(
-                    'debug' => Atomar::$config['debug'],
-                ));
-                $twig->addExtension(new \Twig_Extension_Debug());
-                // delete the cache if it exists
-                if (is_dir(Atomar::$config['cache'] . 'twig')) {
-                    deleteDir(Atomar::$config['cache'] . 'twig');
-                }
-            } else {
-                if (!is_dir(Atomar::$config['cache'] . 'twig')) {
-                    $old = umask(0002);
-                    mkdir(Atomar::$config['cache'] . 'twig', 0777, true);
-                    umask($old);
-                }
-                $twig = new AtomarTwigEnvironment($loader, array(
-                    'cache' => Atomar::$config['cache'] . 'twig'
-                ));
-            }
 
-            if ($options['trigger_twig_function']) {
-                Atomar::hook(new Twig($twig));
-            }
+        if ($options['trigger_twig_function']) {
+            Atomar::hook(new Twig($twig));
+        }
 
-            $variables = array();
-            if ($options['trigger_preprocess_page']) {
-                $variables = Atomar::hook(new Page());
-            }
+        $variables = array();
+        if ($options['trigger_preprocess_page']) {
+            $variables = Atomar::hook(new Page());
+        }
 
-            // prepare user
-            if (Auth::$user) {
-                $user = Auth::$user->export();
-                $user['authenticated'] = 1;
-            } else {
-                $user = array();
-                $user['authenticated'] = 0;
-            }
-            if (isset($user['last_login'])) {
-                $user['last_login'] = fancy_date(strtotime($user['last_login']));
-            } else {
-                $user['last_login'] = '';
-            }
-            $user['is_admin'] = Auth::has_authentication('administer_site');
-            $user['is_super'] = Auth::is_super();
-            $args['atomar']['user'] = $user;
-            unset($user);
+        // prepare user
+        if (Auth::$user) {
+            $user = Auth::$user->export();
+            $user['authenticated'] = 1;
+        } else {
+            $user = array();
+            $user['authenticated'] = 0;
+        }
+        if (isset($user['last_login'])) {
+            $user['last_login'] = fancy_date(strtotime($user['last_login']));
+        } else {
+            $user['last_login'] = '';
+        }
+        $user['is_admin'] = Auth::has_authentication('administer_site');
+        $user['is_super'] = Auth::is_super();
+        $args['atomar']['user'] = $user;
+        unset($user);
 
-            // prepare return
-            if (isset($_SESSION['return']) && !isset($args['return'])) {
-                $args['return'] = $_SESSION['return'];
-            }
+        // prepare return
+        if (isset($_SESSION['return']) && !isset($args['return'])) {
+            $args['return'] = $_SESSION['return'];
+        }
 
-            // prepare site info
-            $args['atomar']['favicon'] = Atomar::$config['favicon'];
-            $args['atomar']['site_name'] = Atomar::$config['site_name'];
-            $args['atomar']['site_url'] = Atomar::$config['site_url'];
-            $args['atomar']['page_url'] = Router::page_url();
-            $args['atomar']['email']['contact_email'] = Atomar::$config['email']['contact_email'];
-            $args['atomar']['cron_token'] = Atomar::$config['cron_token'];
-            $args['atomar']['maintenance'] = Atomar::get_system('maintenance_mode', '0');
-            $args['atomar']['version'] = Atomar::version();
-            $args['atomar']['year'] = date('Y');
+        // prepare site info
+        $args['atomar']['favicon'] = Atomar::$config['favicon'];
+        $args['atomar']['site_name'] = Atomar::$config['site_name'];
+        $args['atomar']['site_url'] = Atomar::$config['site_url'];
+        $args['atomar']['page_url'] = Router::page_url();
+        $args['atomar']['email']['contact_email'] = Atomar::$config['email']['contact_email'];
+        $args['atomar']['cron_token'] = Atomar::$config['cron_token'];
+        $args['atomar']['maintenance'] = Atomar::get_system('maintenance_mode', '0');
+        $args['atomar']['version'] = Atomar::version();
+        $args['atomar']['year'] = date('Y');
 
-            if ($options['render_menus']) {
-                if ($options['trigger_menu']) Atomar::hook(new Menu());
+        if ($options['render_menus']) {
+            if ($options['trigger_menu']) Atomar::hook(new Menu());
 
-                // render menu
-                foreach (Atomar::$menu as $key => $menu) {
-                    // TODO: sort menu.
-                    $args['atomar']['menu'][$key] = render_menu($menu, false, $key);
-                }
-            }
-
-            if ($options['render_messages'] && isset($_SESSION['messages'])) {
-                // display messages
-                foreach ($_SESSION['messages'] as $type => $messages) {
-                    $args['atomar'][$type] = $messages;
-                    $_SESSION['messages'][$type] = array();
-                }
-            }
-
-            // load other system variables
-            $args['atomar']['debug'] = Atomar::$config['debug'];
-            $args['atomar']['time'] = time();
-            $args['atomar']['template']['name'] = $template;
-            $args['atomar']['template']['variables'] = $variables;
-
-            // load scripts
-            if (count(self::$js)) {
-                $args['atomar']['js'] = '\'' . implode('?v=' . Atomar::version() . '\',\'', self::$js) . '?v=' . Atomar::version() . '\'';
-            }
-            $args['atomar']['js_onload'] = implode(' ', self::$js_onload);
-            $args['atomar']['jquery_no_conflict'] = self::$jquery_no_conflict;
-
-            // load css
-            $args['atomar']['css'] = self::$css;
-            $args['atomar']['css_inline'] = implode(' ', self::$css_inline);
-
-            // TRICKY: backwards compatibility
-            $args['sys'] = $args['atomar'];
-
-            return $twig->render($template, $args);
-        } catch (\Exception $ex) {
-            if ($options['_controller']['type'] == 'lightbox') {
-                // Let lightboxes handle their own exceptions
-                throw $ex;
-            } elseif (Atomar::$config['debug']) {
-                // print the error
-                print_debug('An exception was encountered while rendering the view');
-                print_debug($ex);
-            } else {
-                // fall back is to display 500 error.
-                $loader = new \Twig_Loader_Filesystem(Atomar::atomar_dir() . '/views');
-                $twig = new AtomarTwigEnvironment($loader);
-                Logger::log_error($ex->getMessage(), $ex->getTraceAsString());
-                return $twig->render('500.html');
+            // render menu
+            foreach (Atomar::$menu as $key => $menu) {
+                // TODO: sort menu.
+                $args['atomar']['menu'][$key] = render_menu($menu, false, $key);
             }
         }
+
+        if ($options['render_messages'] && isset($_SESSION['messages'])) {
+            // display messages
+            foreach ($_SESSION['messages'] as $type => $messages) {
+                $args['atomar'][$type] = $messages;
+                $_SESSION['messages'][$type] = array();
+            }
+        }
+
+        // load other system variables
+        $args['atomar']['debug'] = Atomar::$config['debug'];
+        $args['atomar']['time'] = time();
+        $args['atomar']['template']['name'] = $template;
+        $args['atomar']['template']['variables'] = $variables;
+
+        // load scripts
+        if (count(self::$js)) {
+            $args['atomar']['js'] = '\'' . implode('?v=' . Atomar::version() . '\',\'', self::$js) . '?v=' . Atomar::version() . '\'';
+        }
+        $args['atomar']['js_onload'] = implode(' ', self::$js_onload);
+        $args['atomar']['jquery_no_conflict'] = self::$jquery_no_conflict;
+
+        // load css
+        $args['atomar']['css'] = self::$css;
+        $args['atomar']['css_inline'] = implode(' ', self::$css_inline);
+
+        // TRICKY: backwards compatibility
+        $args['sys'] = $args['atomar'];
+
+        $template = self::normalizeTemplatePath($template);
+        return $twig->render($template, $args);
     }
 }

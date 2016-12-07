@@ -1,28 +1,49 @@
-{% extends "_plain.html" %}
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <title>Debug</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="/atomar/assets/css/bootstrap.min.css?v={{ atomar.version }}">
+  <style>
+    body {
+      background-color: #484848;
+      color: #fefefe;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h2>Debug Mode</h2>
 
-{% block title %}Exception{% endblock %}
+        <blockquote>
+          An exception has occurred at <code>{{ e.file }}:{{ e.line }}</code>
+          <br>
+          <em>"{{ e.getMessage }}"</em>
+        </blockquote>
+        <p>
+          Quick Links
+        </p>
+        <p>
+          <a href="/atomar/login" class="btn btn-default">Login</a>
+          <a href="/" class="btn btn-default">Home Page</a>
+          <a href="/atomar" class="btn btn-default">Admin</a>
+        </p>
+      </div>
+    </div>
+    <div class="row">
+      <pre style="background: #fff; color: #000; padding: 10px; border: solid 1px #ccc;">
+        {{ body|raw }}
+      </pre>
+    </div>
 
-{% block content %}
-<div class="row">
-  <div class="col-md-12">
-    <h2>Exception: <small>{{ exception.getMessage }}</small></h2>
-    <p >
-      PHP version: {{ php_version }}
-      <a href="/user/login" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-arrow-left"></span> Login</a>
-      <a href="/" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-arrow-left"></span> Home Page</a>
-      <a href="/atomar" class="btn btn-xs btn-default"><span class="glyphicon glyphicon-arrow-left"></span> Admin</a>
-    </p>
+    <footer class="text-center">
+      <p>
+        PHP version: {{ php_version }}
+      </p>
+    </footer>
   </div>
-</div>
-<div class="row">
-  <p>
-    {{ print_debug(exception)|raw }}
-  </p>
-</div>
-
-<footer class="text-center">
-  &copy; {{ atomar.year }}, <a href="{{ atomar.site_url }}">{{ atomar.site_name }}</a>
-</footer>
-{% endblock %}
-
-
+</body>
+</html>

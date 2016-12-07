@@ -2,6 +2,8 @@
 
 namespace atomar\core;
 
+use atomar\Atomar;
+
 /**
  * The controller is initialized and ran at the end of a url route.
  */
@@ -56,16 +58,7 @@ abstract class Controller {
         } else if (!Router::is_active_url('/', true)) {
             Router::go('/');
         } else {
-            // we hit a redirect loop
-            Logger::log_warning('Detected a potential redirect loop', Router::request_path());
-            echo Templator::render_view('500.html', array(), array(
-                'render_messages' => false,
-                'render_menus' => false,
-                'trigger_preprocess_page' => false,
-                'trigger_twig_function' => false,
-                'trigger_menu' => false
-            ));
-            exit;
+            $this->throw500();
         }
     }
 
@@ -79,14 +72,14 @@ abstract class Controller {
 
     /**
      * Renders the view and does some extra processing
-     * @param string $view the relative path to the view that will be redered
+     * @param string $view the relative path to the view that will be rendered
      * @param array $args custom options that will be sent to the view
      * @param array $options optional rules regarding how the template will be rendered.
      * @return string the rendered html
      */
     protected function renderView($view, $args = array(), $options = array()) {
         if (!isset($options['_controller'])) $options['_controller']['type'] = 'controller';
-        return Templator::render_view($view, $args, $options);
+        return Templator::renderView($view, $args, $options);
     }
 
     /**
@@ -94,62 +87,20 @@ abstract class Controller {
      * @param String|bool $url uri that we will be routed to.
      */
     protected function go($url = false) {
-        // TODO: need to decide if we actually want to set the return url each time.
-        // provide a default return uri
-        // $_SESSION['return'] = $_SERVER["REQUEST_URI"];
         // Reload the current page by default
         if (!$url) {
             $url = $_SERVER['REQUEST_URI'];
         }
-        // NOTE: the redirect loop detection does not work correctly so it is disabled.
-//      if(!l_active($url, true) || $_SESSION['system:last_route'] != $url) {
         Router::go($url);
-//      } else {
-//        // we hit a redirect loop
-//        log_warning('Detected a potential redirect loop', S::$_REQUEST_PATH);
-//        echo render_view('500.html');
-//        exit;
-//      }
     }
 
-    /**
-     * Renders a 404 error on the current page.
-     */
     protected function throw404() {
-        if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
-            $scheme = 'https://';
-        } else {
-            $scheme = 'http://';
-        }
-        $path = $scheme . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        echo Templator::render_view('404.html', array(
-            'path' => $path
-        ), array(
-            'render_messages' => false,
-            'render_menus' => false,
-            'trigger_preprocess_page' => false,
-            'trigger_twig_function' => false,
-            'trigger_menu' => false
-        ));
+        echo file_get_contents(Atomar::atomar_dir() . '/views/400.html');
         exit(1);
     }
 
     protected function throw500() {
-        if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
-            $scheme = 'https://';
-        } else {
-            $scheme = 'http://';
-        }
-        $path = $scheme . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        echo Templator::render_view('500.html', array(
-            'path' => $path
-        ), array(
-            'render_messages' => false,
-            'render_menus' => false,
-            'trigger_preprocess_page' => false,
-            'trigger_twig_function' => false,
-            'trigger_menu' => false
-        ));
+        echo file_get_contents(Atomar::atomar_dir() . '/views/500.html');
         exit(1);
     }
 
@@ -159,7 +110,17 @@ abstract class Controller {
      * @param \Exception $e the exception
      */
     public function exception_handler($e) {
-        Logger::log_error($e->getMessage(), $e);
-        $this->throw500();
+        if(Atomar::$config['debug']) {
+            $version = phpversion();
+            echo Templator::render_template("debug.html", array(
+                'e' => $e,
+                'body' => print_r($e, true),
+                'php_version' => $version
+            ));
+            exit(1);
+        } else {
+            Logger::log_error($e->getMessage(), $e);
+            $this->throw500();
+        }
     }
 }

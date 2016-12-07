@@ -62,19 +62,13 @@ class Auth {
             self::$_min_password_length = self::$_config['min_password_length'];
         }
         self::$_auth_failure_callback = function ($user, $url) {
+            // TODO: might it be better to use a hook?
             set_error('You are not authorized to access ' . $url);
             Logger::log_error('Authentication Failure by user: ' . $user->id . ' at: ' . $url);
             if (!Router::is_active_url('/', true)) {
                 Router::go('/');
             } else {
-                Logger::log_warning('Detected a potential redirect loop', '/');
-                echo Templator::render_view('500.html', array(), array(
-                    'render_messages' => false,
-                    'render_menus' => false,
-                    'trigger_preprocess_page' => false,
-                    'trigger_twig_function' => false,
-                    'trigger_menu' => false
-                ));
+                echo Templator::render_template('500.html');
                 exit;
             }
         };
