@@ -14,7 +14,6 @@ use atomar\core\Templator;
 use atomar\exception\HookException;
 use atomar\hook\Hook;
 use atomar\hook\Libraries;
-use atomar\hook\MaintenanceController;
 use atomar\hook\PreBoot;
 use model\Extension;
 
@@ -35,7 +34,7 @@ class Atomar {
      * Embodies the site menu system.
      * TODO: the menu should be placed in it's own class
      * You may modify this array at any time using the appropriate design pattern.
-     * You can see here we started with two empty menus. You may add as many menus as nessesary
+     * You can see here we started with two empty menus. You may add as many menus as necessary
      * and they will be rendered wherever they are called in the template.
      * @var array
      */
@@ -64,12 +63,6 @@ class Atomar {
      * @var bool
      */
     private static $is_initialized = false;
-
-    /**
-     * The function that will be executed when maintenance mode is active
-     * @var \Closure
-     */
-    private static $_maintenance_mode_callback = null;
 
     /**
      * The site application
@@ -298,14 +291,6 @@ HTML;
     }
 
     /**
-     * Allows the default maintenance mode callback to be overridden.
-     * @param \Closure $function the callback to execute when maintenance mode is active.
-     */
-    public static function set_maintenance_mode_handler(\Closure $function) {
-        self::$_maintenance_mode_callback = $function;
-    }
-
-    /**
      * Returns the path to the extension directory
      * @return string
      */
@@ -454,25 +439,6 @@ HTML;
      */
     public static function application_namespace() {
         return self::$config['app_namespace'];
-    }
-
-    /**
-     * Executes the maintenance mode callback
-     * By default all template hooks and options are disabled
-     */
-    public static function run_maintenance() {
-        if (is_callable(self::$_maintenance_mode_callback)) {
-            $options['_controller']['type'] = 'controller';
-            $options['render_messages'] = false;
-            $options['render_menus'] = false;
-            $options['trigger_preprocess_page'] = false;
-            $options['trigger_twig_function'] = false;
-            $options['trigger_menu'] = false;
-            call_user_func(self::$_maintenance_mode_callback, array(), $options);
-            exit;
-        } else {
-            throw new \Exception('The site is currently being updated.', 1);
-        }
     }
 
     /**

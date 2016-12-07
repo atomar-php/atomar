@@ -1,7 +1,6 @@
 <?php
 namespace atomar\core;
 use atomar\Atomar;
-use atomar\controller\Maintenance;
 use model\Extension;
 
 /**

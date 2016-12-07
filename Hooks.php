@@ -5,7 +5,6 @@ use atomar\controller\Maintenance;
 use atomar\core\Auth;
 use atomar\core\AutoLoader;
 use atomar\core\HookReceiver;
-use atomar\core\Logger;
 use atomar\core\Templator;
 
 class Hooks extends HookReceiver

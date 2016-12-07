@@ -24,6 +24,7 @@ class Templator {
      * An array of scripts that will be executed after the page is ready.
      * This allows for dynamic use of scripts so we don't have to load
      * everything on each page.
+     * @deprecated we will no longer directly support injecting js and css
      * @var array
      */
     public static $js_onload = array();
@@ -32,6 +33,7 @@ class Templator {
      * An array of css files to be inserted in the head of each page.
      * This allows for dynamic use of css so we don't have to load
      * everything on each page.
+     * @deprecated we will no longer directly support injecting js and css
      * @var array
      */
     public static $css = array();
@@ -40,6 +42,7 @@ class Templator {
      * An array of css properties to be inserted in the head of each page.
      * This allows for dynamic use of css so we don't have to load
      * everything on each page.
+     * @deprecated we will no longer directly support injecting js and css
      * @var array
      */
     public static $css_inline = array();
@@ -47,6 +50,7 @@ class Templator {
     /**
      * Puts jQuery into no conflict mode so it can work with prototype.
      * http://learn.jquery.com/using-jquery-core/avoid-conflicts-other-libraries/
+     * @deprecated we will no longer directly support injecting js and css
      * @var boolean
      */
     public static $jquery_no_conflict = false;
