@@ -32,6 +32,8 @@ class Page implements Hook {
      * @return mixed The hook state.
      */
     public function process($params, $ext_path, $ext_namespace, $ext, $state) {
+        if(!is_array($state)) $state = array();
+        if(is_array($params)) $state = array_merge_recursive($state, $params);
         return $state;
     }
 

@@ -81,7 +81,7 @@ class Router {
      */
     public static function run($urls = null) {
         if ($urls == null) {
-            if(Atomar::get_system('maintenance_mode', '0') == '1') {
+            if(Atomar::get_system('maintenance_mode', '0') == '1' && !Auth::has_authentication('administer_site')) {
                 $urls = Atomar::hook(new MaintenanceRoute());
             } else {
                 $urls = Atomar::hook(new Route());
@@ -183,7 +183,6 @@ class Router {
 
         // un-matched route
         throw new \Exception("URL, $path, not found.");
-
     }
 
     public static function throw500() {

@@ -21,7 +21,9 @@ abstract class HookReceiver
      */
     protected function loadRoute($ext, $slug) {
         $file = Atomar::atomar_dir() . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . $slug . '.json';
-        if($ext != null) {
+        if($ext != null && $ext->slug == Atomar::application_namespace()) {
+            $file = Atomar::application_dir() . 'routes' . DIRECTORY_SEPARATOR . $slug . '.json';
+        } else if($ext != null) {
             $file = Atomar::extension_dir() . $ext->slug . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . $slug . '.json';
         }
         $routes = array();
@@ -31,6 +33,7 @@ abstract class HookReceiver
             $data = str_replace("\n", '', $data);
             $routes = json_decode($data, true);
         }
+        if(!is_array($routes)) $routes = array();
         return $routes;
     }
 
@@ -83,8 +86,12 @@ abstract class HookReceiver
 
     }
 
+    /**
+     * Called before the template is processed.
+     * @return array the variables that will be injected into the page
+     */
     function hookPage() {
-
+        return array();
     }
 
     /**

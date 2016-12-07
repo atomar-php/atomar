@@ -52,13 +52,6 @@ class Templator {
     public static $jquery_no_conflict = false;
 
     /**
-     * An array of variables stored as key=>values to be include in the template.
-     * This allows variables to be dynamically added to a template from anywhere within the system.
-     * @var array
-     */
-    public static $global_template_vars = array();
-
-    /**
      * Indicates that the Templator has been initialized by init()
      * @var bool
      */
@@ -208,7 +201,6 @@ CSS;
             'trigger_menu' => true
         );
         $options = array_merge($default_options, $options);
-        if ($options['trigger_preprocess_page']) Atomar::hook(new Page());
         try {
             // initialize twig template engine
             $loader = new \Twig_Loader_Filesystem(array(
@@ -238,6 +230,11 @@ CSS;
 
             if ($options['trigger_twig_function']) {
                 Atomar::hook(new Twig($twig));
+            }
+
+            $variables = array();
+            if ($options['trigger_preprocess_page']) {
+                $variables = Atomar::hook(new Page());
             }
 
             // prepare user
@@ -296,7 +293,7 @@ CSS;
             $args['atomar']['debug'] = Atomar::$config['debug'];
             $args['atomar']['time'] = time();
             $args['atomar']['template']['name'] = $template;
-            $args['atomar']['template']['variables'] = self::$global_template_vars;
+            $args['atomar']['template']['variables'] = $variables;
 
             // load scripts
             if (count(self::$js)) {

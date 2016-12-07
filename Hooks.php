@@ -453,6 +453,7 @@ var user = {
 if(typeof RegisterGlobal == 'function') RegisterGlobal('user', user);
 JAVASCRIPT;
         }
+        return array();
     }
 
     function hookMaintenanceController()
@@ -463,10 +464,6 @@ JAVASCRIPT;
     function hookMaintenanceRoute($ext)
     {
         $urls = $this->loadRoute($ext, 'maintenance');
-        if(Auth::has_authentication('administer_site')) {
-            $admin_urls = $this->loadRoute($ext, 'admin');
-            if(is_array($admin_urls)) $urls = array_merge($urls, $admin_urls);
-        }
         return $urls;
     }
 }
