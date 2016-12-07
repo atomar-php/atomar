@@ -14,6 +14,7 @@ use atomar\core\Templator;
 use atomar\exception\HookException;
 use atomar\hook\Hook;
 use atomar\hook\Libraries;
+use atomar\hook\MaintenanceController;
 use atomar\hook\PreBoot;
 use model\Extension;
 
@@ -239,59 +240,20 @@ HTML;
         }
 
         /**
-         * Error and Exception handling
-         */
-//        set_exception_handler(function($e) {
-//            Logger::log_error($e->getMessage(), $e);
-//            throw $e;
-//        });
-
-        /**
          * AUTHENTICATION
          */
         Auth::setup(self::$config['auth']);
         Auth::run();
 
         /**
-         * PHP Info
-         */
-        if (self::$config['debug'] && isset($_REQUEST['phpinfo']) && $_REQUEST['phpinfo'] && Auth::has_authentication('administer_site')) {
-            phpinfo();
-            exit;
-        }
-
-        /**
-         * Default Maintenance handler
-         *
-         */
-        self::set_maintenance_mode_handler(function () {
-            $site_name = Atomar::$config['site_name'];
-            $message = <<<HTML
-  <p class="text-center">
-     $site_name is currently being updated and will be back online shortly.
-  </p>
-HTML;
-            echo Templator::render_error('Site Maintenance', $message);
-            exit;
-        });
-
-        /**
          * Check if installation is required
          */
         if(!Auth::$user && Install::requiresInstall()) {
+            // TODO: rather than routing we should just execute the install controller
             Router::run(array(
                 '/.*' => 'atomar\controller\Install',
             ));
             exit;
-        }
-
-        /**
-         * Autoload extensions
-         *
-         */
-        $extensions = \R::find('extension', 'is_enabled=\'1\'');
-        foreach ($extensions as $ext) {
-            AutoLoader::register(realpath(self::extension_dir() . $ext->slug));
         }
 
         /**
@@ -409,7 +371,7 @@ HTML;
     /**
      * Performs operations on a hook
      * @param Hook $hook the hook to perform
-     * @return array|null the hook state
+     * @return mixed|null the hook state
      */
     public static function hook(Hook $hook) {
         $hook_name = 'hook' . ltrim(strrchr(get_class($hook), '\\'), '\\');
@@ -445,18 +407,17 @@ HTML;
      * @param Hook $hook the hook that will be executed
      * @param string $namespace the module namespace
      * @param string $directory the module directory
-     * @param array $state the state object from another hook execution
+     * @param mixed $state the state object from another hook execution
      * @param Extension $module the module db object if available
      * @param bool $postProcess if true the hook will run it's post process method. Default is true
      * @param bool $force if true the hook will be executed even if the pre process method returns false
-     * @return array|null the hook state
+     * @return mixed|null the hook state
      * @throws \Exception|HookException Exception is throw if parameters are missing, HookException is throw if the receiver is missing
      */
-    public static function hookModule(Hook $hook, string $namespace, string $directory, array $state=null, Extension $module=null, $postProcess=true, $force=false) {
+    public static function hookModule(Hook $hook, string $namespace, string $directory, $state=null, Extension $module=null, $postProcess=true, $force=false) {
         if(!$hook) throw new \Exception('Missing hook parameter');
         if(!$namespace) throw new \Exception('Missing namespace parameter');
         if(!$directory) throw new \Exception('Missing directory parameter');
-        $state = is_array($state) ? $state : array();
         $module = isset($module) ? $module : null;
 
         $hookMethod = 'hook' . ltrim(strrchr(get_class($hook), '\\'), '\\');

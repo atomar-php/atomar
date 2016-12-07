@@ -8,7 +8,7 @@ use atomar\exception\UnknownController;
 
 class Route implements Hook {
 
-    private $root_ext_dir;
+    private $ext;
 
     /**
      * Hooks may receive optional params
@@ -24,6 +24,7 @@ class Route implements Hook {
      * @return bool true if the hook execution can proceed otherwise false
      */
     public function preProcess($extension) {
+        $this->ext = $extension;
         return true;
     }
 
@@ -97,6 +98,6 @@ class Route implements Hook {
      */
     public function params()
     {
-        return null;
+        return $this->ext;
     }
 }

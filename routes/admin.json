@@ -1,0 +1,19 @@
+{
+  "/!/(?P<api>[a-zA-Z\\_-]+)/?(\\?.*)?": "atomar\\controller\\API",
+  "/atomar/logout/?(\\?.*)?": "atomar\\controller\\Logout",
+  "/atomar/user/(?P<id>\\d+)/edit/?(\\?.*)?": "atomar\\controller\\UserEdit",
+  "/atomar/?(\\?.*)?": "atomar\\controller\\Admin",
+  "/atomar/users/?(\\?.*)?": "atomar\\controller\\Users",
+  "/atomar/users/create/?(\\?.*)?": "atomar\\controller\\UserAdd",
+
+  "/atomar/permissions/?(\\?.*)?": "atomar\\controller\\Permissions",
+
+  "/atomar/roles/?(\\?.*)?": "atomar\\controller\\Roles",
+  "/atomar/roles/create/?(\\?.*)?": "atomar\\controller\\RolesAdd",
+  "/atomar/roles/(?P<id>\\d+)/edit/?(\\?.*)?": "atomar\\controller\\RolesEdit",
+
+  "/atomar/settings/?(\\?.*)?": "atomar\\controller\\Settings",
+
+  "/atomar/modules/?": "atomar\\controller\\Extensions",
+  "/atomar/modules/(?P<module>[a-z0-9\\_]+)/?(\\?.*)?": "atomar\\controller\\ModuleSettings"
+}

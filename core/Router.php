@@ -4,6 +4,8 @@ namespace atomar\core;
 
 use atomar\Atomar;
 use atomar\exception\UnknownController;
+use atomar\hook\MaintenanceController;
+use atomar\hook\MaintenanceRoute;
 use atomar\hook\PostBoot;
 use atomar\hook\PreBoot;
 use atomar\hook\Route;
@@ -79,57 +81,21 @@ class Router {
      */
     public static function run($urls = null) {
         if ($urls == null) {
-            // validate cache and files path
-            if (Auth::has_authentication('administer_site')) {
-                if (!file_exists(Atomar::$config['cache'])) {
-                    mkdir(Atomar::$config['cache'], 0775, true);
-                }
-                if (!file_exists(Atomar::$config['files'])) {
-                    mkdir(Atomar::$config['files'], 0770, true);
-                }
-                if (!is_writable(Atomar::$config['cache'])) {
-                    set_error('The cache directory (' . Atomar::$config['cache'] . ') is not write-able');
-                }
-                if (!is_writable(Atomar::$config['files'])) {
-                    set_error('The files directory (' . Atomar::$config['files'] . ') is not write-able');
-                }
+            if(Atomar::get_system('maintenance_mode', '0') == '1') {
+                $urls = Atomar::hook(new MaintenanceRoute());
+            } else {
+                $urls = Atomar::hook(new Route());
             }
-
-            if (Auth::$user) {
-                // give the user info to js
-                $fname = str_replace('\'', '\\\'', Auth::$user->first_name);
-                $lname = str_replace('\'', '\\\'', Auth::$user->last_name);
-                $id = Auth::$user->id;
-                Templator::$js_onload[] = <<<JAVASCRIPT
-var user = {
-  first_name:'$fname',
-  last_name:'$lname',
-  id:$id
-}
-if(typeof RegisterGlobal == 'function') RegisterGlobal('user', user);
-JAVASCRIPT;
-            }
-
-            // hook urls
-//            try {
-            $urls = Atomar::hook(new Route());
-//            } catch (UnknownController $e) {
-//                if (Atomar::$config['debug']) {
-//                    // TODO: perform some automated tasks to facilitate development
-//                    throw $e;
-//                }
-//            }
-
-            Atomar::hook(new PostBoot());
         }
+
+        Atomar::hook(new PostBoot());
 
         // begin routing
         try {
             self::route($urls);
-            /**
-             * Display debugging info
-             */
-            if (Auth::has_authentication('administer_site') && Atomar::$config['debug'] && isset($_GET['debug']) && $_GET['debug'] == 1) {
+
+            // show debugging info
+            if (Auth::has_authentication('administer_site') && isset($_GET['debug'])) {
                 if (Auth::$user) {
                     $user = Auth::$user->export();
                 } else {
@@ -176,21 +142,7 @@ JAVASCRIPT;
                     self::redirect_loop_catcher($path);
                 }
             } else {
-                if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
-                    $scheme = 'https://';
-                } else {
-                    $scheme = 'http://';
-                }
-                $path = $scheme . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-                echo Templator::render_view('404.html', array(
-                    'path' => $path
-                ), array(
-                    'render_messages' => false,
-                    'render_menus' => false,
-                    'trigger_preprocess_page' => false,
-                    'trigger_twig_function' => false,
-                    'trigger_menu' => false
-                ));
+                self::throw404();
             }
         }
     }
@@ -205,38 +157,77 @@ JAVASCRIPT;
         $method = strtoupper($_SERVER['REQUEST_METHOD']);
         $path = $_SERVER['REQUEST_URI'];
 
-        $found = false;
-
         krsort($urls);
 
+        // match route
         foreach ($urls as $regex => $class) {
             $regex = str_replace('/', '\/', $regex);
             $regex = '^' . $regex . '\/?$';
             if (preg_match("/$regex/i", $path, $matches)) {
-                $found = true;
                 if (class_exists($class)) {
-                    $obj = new $class(false);
-                    if (method_exists($obj, $method)) {
-                        try {
-                            $obj->$method($matches);
-                        } catch (\Exception $e) {
-                            if (method_exists($obj, 'exception_handler')) {
-                                $obj->exception_handler($e);
-                            } else {
-                                throw $e;
-                            }
-                        }
-                    } else {
-                        throw new \BadMethodCallException("Method, $method, not supported.");
-                    }
+                    $controller = new $class(false);
+                    self::callController($controller, $method, $matches);
                 } else {
                     throw new \Exception("Class, $class, not found.");
                 }
-                break;
+                return;
             }
         }
-        if (!$found) {
-            throw new \Exception("URL, $path, not found.");
+
+        // handle maintenance mode
+        if(Atomar::get_system('maintenance_mode', '0') == '1') {
+            $controller = Atomar::hook(new MaintenanceController());
+            self::callController($controller, $method, array());
+            return;
+        }
+
+        // un-matched route
+        throw new \Exception("URL, $path, not found.");
+
+    }
+
+    public static function throw500() {
+        echo Templator::render_view('500.html', array(
+            'path' => self::page_url()
+        ), array(
+            'render_messages' => false,
+            'render_menus' => false,
+            'trigger_preprocess_page' => false,
+            'trigger_twig_function' => false,
+            'trigger_menu' => false
+        ));
+        exit(1);
+    }
+
+    public static function throw404() {
+        echo Templator::render_view('404.html', array(
+            'path' => self::page_url()
+        ), array(
+            'render_messages' => false,
+            'render_menus' => false,
+            'trigger_preprocess_page' => false,
+            'trigger_twig_function' => false,
+            'trigger_menu' => false
+        ));
+        exit(1);
+    }
+
+    /**
+     * Executes a controller.
+     * @param Controller $controller the controller to run
+     * @param string $method the method to be called
+     * @param array $matches the matched arguments found in the url
+     * @throws \BadMethodCallException if the request method is not implemented in the controller
+     */
+    private static function callController($controller, $method, $matches) {
+        if($controller instanceof Controller && method_exists($controller, $method)) {
+            try {
+                $controller->$method($matches);
+            } catch (\Exception $e) {
+                $controller->exception_handler($e);
+            }
+        } else {
+            throw new \BadMethodCallException("Method, $method, not supported on " . get_class($controller) . ".");
         }
     }
 
@@ -279,6 +270,14 @@ JAVASCRIPT;
      */
     public static function request_query() {
         return self::$_request_query;
+    }
+
+    /**
+     * Returns the fully qualified url of the current page
+     * @return string
+     */
+    public static function page_url() {
+        return rtrim(Atomar::$config['site_url'], '/') . '/' . ltrim(self::request_path(), '/') . self::request_query();
     }
 
     /**

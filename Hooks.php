@@ -1,35 +1,149 @@
 <?php
 namespace atomar;
 
+use atomar\controller\Maintenance;
 use atomar\core\Auth;
+use atomar\core\AutoLoader;
 use atomar\core\HookReceiver;
+use atomar\core\Logger;
+use atomar\core\Templator;
 
 class Hooks extends HookReceiver
 {
 
-    function hookCron()
-    {
-        // TODO: Implement onCron() method.
-    }
+    function hookCron() {}
 
-    function hookLibraries()
-    {
-        // TODO: Implement onLibraries() method.
-    }
+    function hookLibraries() {}
 
     function hookMenu()
     {
-        // TODO: Implement onMenu() method.
+        $menu = array(
+            'primary_menu' => array(),
+            'secondary_menu' => array()
+        );
+
+        // admin users
+        if (Auth::has_authentication('administer_site')) {
+            $menu['primary_menu']['/atomar'] = array(
+                'link' => l('administer', '/atomar'),
+                'class' => array(),
+                'weight' => 9999,
+                'access' => 'administer_site',
+                'menu' => array()
+            );
+        }
+        if (Auth::$user) {
+            $menu['primary_menu']['/atomar/logout'] = array(
+                'link' => l('logout', '/atomar/logout'),
+                'class' => array(),
+                'weight' => 0,
+                'access' => array(),
+                'menu' => array()
+            );
+        } else {
+            $menu['primary_menu']['/atomar/login'] = array(
+                'link' => l('login', '/atomar/login'),
+                'class' => array(),
+                'weight' => 0,
+                'access' => array(),
+                'menu' => array()
+            );
+        }
+
+        // secondary menu
+        $menu['secondary_menu']['admin_menu'] = array(
+            'title' => 'Admin Menu',
+            'class' => array('section-header'),
+            'weight' => -9999,
+            'access' => array(),
+            'menu' => array()
+        );
+        $menu['secondary_menu']['/atomar'] = array(
+            'link' => l('Admin home', '/atomar'),
+            'options' => array(
+                'active' => 'exact'
+            ),
+            'class' => array(),
+            'weight' => -8888,
+            'access' => 'administer_site',
+            'menu' => array()
+        );
+        $menu['secondary_menu']['/atomar/users'] = array(
+            'link' => l('Users', '/atomar/users/'),
+            'class' => array(),
+            'weight' => 500,
+            'access' => 'administer_site',
+            'menu' => array(),
+        );
+        $menu['secondary_menu']['/atomar/roles'] = array(
+            'link' => l('Roles', '/atomar/roles/'),
+            'class' => array(),
+            'weight' => 600,
+            'access' => 'administer_site',
+            'menu' => array()
+        );
+        $menu['secondary_menu']['/atomar/permissions'] = array(
+            'link' => l('Permissions', '/atomar/permissions/'),
+            'class' => array(),
+            'weight' => 700,
+            'access' => 'administer_site',
+            'menu' => array()
+        );
+        $menu['secondary_menu']['/atomar/settings'] = array(
+            'link' => l('Settings', '/atomar/settings/'),
+            'class' => array(),
+            'weight' => 800,
+            'access' => 'administer_site',
+            'menu' => array()
+        );
+        $menu['secondary_menu']['/atomar/modules'] = array(
+            'link' => l('Modules', '/atomar/modules/'),
+            'class' => array(),
+            'weight' => 900,
+            'access' => 'administer_site',
+            'menu' => array()
+        );
+        return $menu;
     }
 
-    function hookPermission()
-    {
-        // TODO: Implement onPermission() method.
-    }
+    function hookPermission() {}
 
     function hookPreBoot()
     {
-        // TODO: Implement onPreBoot() method.
+        /**
+         * PHP Info
+         */
+        if (Atomar::$config['debug'] && isset($_REQUEST['phpinfo']) && $_REQUEST['phpinfo'] && Auth::has_authentication('administer_site')) {
+            phpinfo();
+            exit;
+        }
+
+        /**
+         * Autoload extensions
+         *
+         */
+        $extensions = \R::find('extension', 'is_enabled=\'1\'');
+        foreach ($extensions as $ext) {
+            AutoLoader::register(realpath(Atomar::extension_dir() . $ext->slug));
+        }
+
+        // create cache and file directories
+        if (!file_exists(Atomar::$config['cache'])) {
+            mkdir(Atomar::$config['cache'], 0775, true);
+        }
+        if (!file_exists(Atomar::$config['files'])) {
+            mkdir(Atomar::$config['files'], 0770, true);
+        }
+
+        // validate cache and files path
+        if (Auth::has_authentication('administer_site')) {
+            if (!is_writable(Atomar::$config['cache'])) {
+                set_warning('The cache directory (' . Atomar::$config['cache'] . ') is not write-able');
+            }
+            if (!is_writable(Atomar::$config['files'])) {
+                set_warning('The files directory (' . Atomar::$config['files'] . ') is not write-able');
+            }
+        }
     }
 
     function hookPostBoot()
@@ -307,63 +421,52 @@ SQL;
         }
     }
 
-    function hookRoute()
+    function hookRoute($ext)
     {
         $urls = array();
-        $authenticated_urls = array(
-            // TODO: make api /atomar/api
-            '/!/(?P<api>[a-zA-Z\_-]+)/?(\?.*)?' => 'atomar\controller\API',
-
-            '/atomar/logout/?(\?.*)?' => 'atomar\controller\Logout',
-            '/atomar/user/(?P<id>\d+)/edit/?(\?.*)?' => 'atomar\controller\UserEdit',
-            '/atomar/?(\?.*)?' => 'atomar\controller\Admin',
-            '/atomar/users/?(\?.*)?' => 'atomar\controller\Users',
-            '/atomar/users/create/?(\?.*)?' => 'atomar\controller\UserAdd',
-
-            '/atomar/permissions/?(\?.*)?' => 'atomar\controller\Permissions',
-
-            '/atomar/roles/?(\?.*)?' => 'atomar\controller\Roles',
-            '/atomar/roles/create/?(\?.*)?' => 'atomar\controller\RolesAdd',
-            '/atomar/roles/(?P<id>\d+)/edit/?(\?.*)?' => 'atomar\controller\RolesEdit',
-
-            '/atomar/settings/?(\?.*)?' => 'atomar\controller\Settings',
-
-            '/atomar/modules/?' => 'atomar\controller\Extensions',
-            '/atomar/modules/(?P<module>[a-z0-9\_]+)/?(\?.*)?' => 'atomar\controller\ModuleSettings'
-        );
-        $unauthenticated_urls = array(
-            '/atomar/login/?(\?.*)?' => 'atomar\controller\Login',
-        );
-        $public_urls = array(
-            // TODO: make api /atomar/api
-            '/!/(?P<api>cron)/?(\?.*)?' => 'atomar\controller\API',
-            '/(\?.*)?' => 'atomar\controller\Index',
-            '/404/?(\?.*)?' => 'atomar\controller\ExceptionHandler'
-        );
-        $maintenance_urls = array(
-            '/(\?.*)?' => 'atomar\controller\Maintenance'
-        );
+        $admin_urls = $this->loadRoute($ext, 'admin');
+        $anonymous_urls = $this->loadRoute($ext, 'anonymous');
 
         // enable appropriate urls
-        if (Atomar::get_system('maintenance_mode', '0') == '1' && !Auth::has_authentication('administer_site')) {
-            // maintenance mode for non-admin users
-            if(!Auth::$user) {
-                $urls = $unauthenticated_urls;
-            }
-            $urls = array_merge($urls, $maintenance_urls, $authenticated_urls, $unauthenticated_urls);
-        } else {
-            if (!Auth::$user) {
-                // require login
-                $urls = array_merge($public_urls, $unauthenticated_urls);
-            } else {
-                // authenticated
-                $urls = array_merge($public_urls, $authenticated_urls);
-            }
+        if (!Auth::$user) {
+            // require login
+            $urls = $anonymous_urls;
+        } else if(Auth::has_authentication('administer_site')) {
+            // authenticated
+            $urls = array_merge($anonymous_urls, $admin_urls);
         }
         return $urls;
     }
 
     function hookPage() {
+        // give the user info to js
+        if (Auth::$user) {
+            $id = Auth::$user->id;
+            $is_admin = Auth::has_authentication('administer_site');
+            $is_super = Auth::is_super();
+            Templator::$js_onload[] = <<<JAVASCRIPT
+var user = {
+  id:$id,
+  is_admin:$is_admin,
+  is_super:$is_super
+}
+if(typeof RegisterGlobal == 'function') RegisterGlobal('user', user);
+JAVASCRIPT;
+        }
+    }
 
+    function hookMaintenanceController()
+    {
+        return new Maintenance();
+    }
+
+    function hookMaintenanceRoute($ext)
+    {
+        $urls = $this->loadRoute($ext, 'maintenance');
+        if(Auth::has_authentication('administer_site')) {
+            $admin_urls = $this->loadRoute($ext, 'admin');
+            if(is_array($admin_urls)) $urls = array_merge($urls, $admin_urls);
+        }
+        return $urls;
     }
 }

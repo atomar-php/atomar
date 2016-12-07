@@ -220,7 +220,6 @@ CSS;
                 $twig = new AtomarTwigEnvironment($loader, array(
                     'debug' => Atomar::$config['debug'],
                 ));
-//                require_once(Atomar::atomar_dir() . '/vendor/Twig/Extension/Debug.php');
                 $twig->addExtension(new \Twig_Extension_Debug());
                 // delete the cache if it exists
                 if (is_dir(Atomar::$config['cache'] . 'twig')) {
@@ -268,7 +267,7 @@ CSS;
             $args['atomar']['favicon'] = Atomar::$config['favicon'];
             $args['atomar']['site_name'] = Atomar::$config['site_name'];
             $args['atomar']['site_url'] = Atomar::$config['site_url'];
-            $args['atomar']['page_url'] = rtrim(Atomar::$config['site_url'], '/') . '/' . ltrim(Router::request_path(), '/') . Router::request_query();
+            $args['atomar']['page_url'] = Router::page_url();
             $args['atomar']['email']['contact_email'] = Atomar::$config['email']['contact_email'];
             $args['atomar']['cron_token'] = Atomar::$config['cron_token'];
             $args['atomar']['maintenance'] = Atomar::get_system('maintenance_mode', '0');
@@ -276,90 +275,7 @@ CSS;
             $args['atomar']['year'] = date('Y');
 
             if ($options['render_menus']) {
-                // admin users
-                if (Auth::has_authentication('administer_site')) {
-                    Atomar::$menu['primary_menu']['/atomar'] = array(
-                        'link' => l('administer', '/atomar'),
-                        'class' => array(),
-                        'weight' => 9999,
-                        'access' => 'administer_site',
-                        'menu' => array()
-                    );
-                }
-                if (Auth::$user) {
-                    Atomar::$menu['primary_menu']['/atomar/logout'] = array(
-                        'link' => l('logout', '/atomar/logout'),
-                        'class' => array(),
-                        'weight' => 0,
-                        'access' => array(),
-                        'menu' => array()
-                    );
-                } else {
-                    Atomar::$menu['primary_menu']['/atomar/login'] = array(
-                        'link' => l('login', '/atomar/login'),
-                        'class' => array(),
-                        'weight' => 0,
-                        'access' => array(),
-                        'menu' => array()
-                    );
-                }
-
-                // secondary menu
-                Atomar::$menu['secondary_menu']['admin_menu'] = array(
-                    'title' => 'Admin Menu',
-                    'class' => array('section-header'),
-                    'weight' => -9999,
-                    'access' => array(),
-                    'menu' => array()
-                );
-                Atomar::$menu['secondary_menu']['/atomar'] = array(
-                    'link' => l('Admin home', '/atomar'),
-                    'options' => array(
-                        'active' => 'exact'
-                    ),
-                    'class' => array(),
-                    'weight' => -8888,
-                    'access' => 'administer_site',
-                    'menu' => array()
-                );
-                Atomar::$menu['secondary_menu']['/atomar/users'] = array(
-                    'link' => l('Users', '/atomar/users/'),
-                    'class' => array(),
-                    'weight' => 500,
-                    'access' => 'administer_site',
-                    'menu' => array(),
-                );
-                Atomar::$menu['secondary_menu']['/atomar/roles'] = array(
-                    'link' => l('Roles', '/atomar/roles/'),
-                    'class' => array(),
-                    'weight' => 600,
-                    'access' => 'administer_site',
-                    'menu' => array()
-                );
-                Atomar::$menu['secondary_menu']['/atomar/permissions'] = array(
-                    'link' => l('Permissions', '/atomar/permissions/'),
-                    'class' => array(),
-                    'weight' => 700,
-                    'access' => 'administer_site',
-                    'menu' => array()
-                );
-                Atomar::$menu['secondary_menu']['/atomar/settings'] = array(
-                    'link' => l('Settings', '/atomar/settings/'),
-                    'class' => array(),
-                    'weight' => 800,
-                    'access' => 'administer_site',
-                    'menu' => array()
-                );
-                Atomar::$menu['secondary_menu']['/atomar/modules'] = array(
-                    'link' => l('Modules', '/atomar/modules/'),
-                    'class' => array(),
-                    'weight' => 900,
-                    'access' => 'administer_site',
-                    'menu' => array()
-                );
-
                 if ($options['trigger_menu']) Atomar::hook(new Menu());
-
 
                 // render menu
                 foreach (Atomar::$menu as $key => $menu) {

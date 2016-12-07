@@ -133,4 +133,33 @@ abstract class Controller {
         ));
         exit(1);
     }
+
+    protected function throw500() {
+        if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
+            $scheme = 'https://';
+        } else {
+            $scheme = 'http://';
+        }
+        $path = $scheme . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        echo Templator::render_view('500.html', array(
+            'path' => $path
+        ), array(
+            'render_messages' => false,
+            'render_menus' => false,
+            'trigger_preprocess_page' => false,
+            'trigger_twig_function' => false,
+            'trigger_menu' => false
+        ));
+        exit(1);
+    }
+
+    /**
+     * This method will be called automatically to handle any exceptions in the controller.
+     *
+     * @param \Exception $e the exception
+     */
+    public function exception_handler($e) {
+        Logger::log_error($e->getMessage(), $e);
+        $this->throw500();
+    }
 }
