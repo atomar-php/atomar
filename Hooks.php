@@ -423,17 +423,15 @@ SQL;
 
     function hookRoute($ext)
     {
-        $urls = array();
         $admin_urls = $this->loadRoute($ext, 'admin');
         $anonymous_urls = $this->loadRoute($ext, 'anonymous');
+        $urls = $this->loadRoute($ext, 'public');
 
         // enable appropriate urls
         if (!Auth::$user) {
-            // require login
-            $urls = $anonymous_urls;
+            $urls = array_merge($urls, $anonymous_urls);
         } else if(Auth::has_authentication('administer_site')) {
-            // authenticated
-            $urls = array_merge($anonymous_urls, $admin_urls);
+            $urls = array_merge($urls, $admin_urls);
         }
         return $urls;
     }
