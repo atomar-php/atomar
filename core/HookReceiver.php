@@ -117,4 +117,13 @@ abstract class HookReceiver
     function hookMaintenanceController() {
         return null;
     }
+
+    /**
+     * Gives the controller to display the server status
+     * @param int $code the server status code that will be displayed
+     * @return Controller|null
+     */
+    function hookServerResponseCode($code) {
+        return null;
+    }
 }

@@ -95,13 +95,11 @@ abstract class Controller {
     }
 
     protected function throw404() {
-        echo file_get_contents(Atomar::atomar_dir() . '/views/400.html');
-        exit(1);
+        Router::displayServerResponseCode(404);
     }
 
     protected function throw500() {
-        echo file_get_contents(Atomar::atomar_dir() . '/views/500.html');
-        exit(1);
+        Router::displayServerResponseCode(500);
     }
 
     /**

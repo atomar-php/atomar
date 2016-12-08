@@ -2,6 +2,7 @@
 namespace atomar;
 
 use atomar\controller\Maintenance;
+use atomar\controller\ServerResponseHandler;
 use atomar\core\Auth;
 use atomar\core\AutoLoader;
 use atomar\core\HookReceiver;
@@ -462,5 +463,10 @@ JAVASCRIPT;
     {
         $urls = $this->loadRoute($ext, 'maintenance');
         return $urls;
+    }
+
+    function hookServerResponseCode($code)
+    {
+        return new ServerResponseHandler();
     }
 }

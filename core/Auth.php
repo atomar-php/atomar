@@ -68,8 +68,7 @@ class Auth {
             if (!Router::is_active_url('/', true)) {
                 Router::go('/');
             } else {
-                echo Templator::render_template('500.html');
-                exit;
+                Router::displayServerResponseCode(500);
             }
         };
     }

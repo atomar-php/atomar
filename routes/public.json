@@ -1,5 +1,4 @@
 {
   "/!/(?P<api>cron)/?(\\?.*)?": "atomar\\controller\\API",
-  "/(\\?.*)?": "atomar\\controller\\Index",
-  "/404/?(\\?.*)?": "atomar\\controller\\ExceptionHandler"
+  "/(\\?.*)?": "atomar\\controller\\Index"
 }

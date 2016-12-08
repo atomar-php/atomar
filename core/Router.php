@@ -4,6 +4,7 @@ namespace atomar\core;
 
 use atomar\Atomar;
 use atomar\exception\UnknownController;
+use atomar\hook\ServerResponseCode;
 use atomar\hook\MaintenanceController;
 use atomar\hook\MaintenanceRoute;
 use atomar\hook\PostBoot;
@@ -119,7 +120,7 @@ class Router {
                 if (!self::is_active_url('/', true)) {
                     self::go('/');
                 } else {
-                    self::throw500();
+                    self::displayServerResponseCode(500);
                 }
             } else if (Atomar::$config['debug'] || Auth::has_authentication('administer_site')) {
                 // print the error
@@ -135,10 +136,10 @@ class Router {
                 if (!self::is_active_url('/', true)) {
                     self::go('/');
                 } else {
-                    self::throw500();
+                    self::displayServerResponseCode(500);
                 }
             } else {
-                self::throw404();
+                self::displayServerResponseCode(404);
             }
         }
     }
@@ -181,14 +182,22 @@ class Router {
         throw new \Exception("URL, $path, not found.");
     }
 
-    public static function throw500() {
-        echo Templator::render_template('500.html');
-        exit(1);
-    }
-
-    public static function throw404() {
-        echo Templator::render_template('404.html');
-        exit(1);
+    /**
+     * Displays a server response code in the browser and halts execution.
+     * This is usually used to display error codes.
+     *
+     * @param int $code
+     */
+    public static function displayServerResponseCode(int $code) {
+        $controller = Atomar::hook(new ServerResponseCode($code));
+        http_response_code($code);
+        if($controller instanceof Controller) {
+            $controller->GET(array('code' => $code));
+        } else {
+            // in the rare event there is no controller just print the code
+            echo $code;
+        }
+        exit();
     }
 
     /**
