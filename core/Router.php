@@ -114,7 +114,7 @@ class Router {
             // url not found
             if(Auth::has_authentication('administer_site') || Atomar::$config['debug']) {
                 $version = phpversion();
-                echo Templator::render_template('debug.html', array(
+                echo Templator::render_template('@atomar/views/debug.html', array(
                     'e' => $e,
                     'body' => print_r($e, true),
                     'php_version' => $version
@@ -126,7 +126,7 @@ class Router {
             // route error
             if(Auth::has_authentication('administer_site') || Atomar::$config['debug']) {
                 $version = phpversion();
-                echo Templator::render_template('debug.html', array(
+                echo Templator::render_template('@atomar/views/debug.html', array(
                     'e' => $e,
                     'body' => print_r($e, true),
                     'php_version' => $version

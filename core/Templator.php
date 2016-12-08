@@ -122,11 +122,14 @@ class Templator {
      * @return AtomarTwigEnvironment
      */
     private static function getTemplateEngine() {
-        $loader = new \Twig_Loader_Filesystem(array(
-            Atomar::application_dir(),
-            Atomar::extension_dir(),
-            Atomar::atomar_dir() . DIRECTORY_SEPARATOR . 'views'
-        ));
+        $loader = new \Twig_Loader_Filesystem();
+        $loader->addPath(getcwd()); // TRICKY: we set a path in the _main namespace so template error messages make more sense.
+        $loader->addPath(Atomar::application_dir(), Atomar::application_namespace());
+        $extensions = \R::find('extension', 'is_enabled=\'1\' and slug<>?', array(Atomar::application_namespace()));
+        foreach($extensions as $ext) {
+            $loader->addPath(Atomar::extension_dir() . $ext->slug, $ext->slug);
+        }
+        $loader->addPath(Atomar::atomar_dir(), Atomar::atomar_namespace());
         if (Atomar::$config['debug']) {
             $twig = new AtomarTwigEnvironment($loader, array(
                 'debug' => Atomar::$config['debug'],
@@ -151,17 +154,13 @@ class Templator {
 
     /**
      * Returns the properly formatted template path.
-     * TODO: this should be temporary until we fix the template path loading to be namespaced
      * @param $template
      * @return string
      */
     private static function normalizeTemplatePath($template) {
         $template = ltrim($template, '/');
-
-        // TRICKY: app templates are prefixed with the app namespace, but templates are loaded relative to
-        // the app dir. We trim them here so they match.
-        if(substr($template, 0, strlen(Atomar::application_namespace())) == Atomar::application_namespace()) {
-            $template = substr($template, strlen(Atomar::application_namespace()));
+        if(strlen($template) == 0 || substr($template, 0, 1) != '@') {
+            throw new \Exception('Templates must be namespaced. Try using \'@' . $template . '\'');
         }
         return $template;
     }
@@ -235,7 +234,7 @@ body {
   font-weight: normal;
 }
 CSS;
-        return $twig->render('error.html', array(
+        return $twig->render('@atomar/views/error.html', array(
             'body_class' => 'install',
             'title' => $title,
             'message' => $message,
