@@ -110,36 +110,30 @@ class Router {
                     $urls
                 ));
             }
-        } catch (\Exception $e) {
-            if(Atomar::$config['debug']) {
-                Logger::log_warning('Routing exception', $e->getMessage());
-            }
-            $path = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-            if (Atomar::get_system('maintenance_mode', '0') == '1' && !Auth::has_authentication('administer_site')) {
-                // prevent redirect loops.
-                if (!self::is_active_url('/', true)) {
-                    self::go('/');
-                } else {
-                    self::displayServerResponseCode(500);
-                }
-            } else if (Atomar::$config['debug'] || Auth::has_authentication('administer_site')) {
-                // print the error
+        } catch (UnknownRouteException $e) {
+            // url not found
+            if(Auth::has_authentication('administer_site') || Atomar::$config['debug']) {
                 $version = phpversion();
                 echo Templator::render_template('debug.html', array(
                     'e' => $e,
                     'body' => print_r($e, true),
                     'php_version' => $version
                 ));
-            } else if (!Auth::$user) {
-                // un-authenticated users
-                Logger::log_error('An exception occurred in the controller while on the route ' . $path, $e->getMessage());
-                if (!self::is_active_url('/', true)) {
-                    self::go('/');
-                } else {
-                    self::displayServerResponseCode(500);
-                }
             } else {
                 self::displayServerResponseCode(404);
+            }
+        } catch (\Exception $e) {
+            // route error
+            if(Auth::has_authentication('administer_site') || Atomar::$config['debug']) {
+                $version = phpversion();
+                echo Templator::render_template('debug.html', array(
+                    'e' => $e,
+                    'body' => print_r($e, true),
+                    'php_version' => $version
+                ));
+            } else {
+                Logger::log_warning('Routing exception', $e->getMessage());
+                self::displayServerResponseCode(500);
             }
         }
     }
@@ -148,7 +142,7 @@ class Router {
      * Begins routing to the appropriate classes
      *
      * @param   array $urls The regex-based url to class mapping
-     * @throws \Exception Thrown if no match is found
+     * @throws \Exception|UnknownRouteException
      */
     private static function route($urls) {
         $method = strtoupper($_SERVER['REQUEST_METHOD']);
@@ -179,7 +173,7 @@ class Router {
         }
 
         // un-matched route
-        throw new \Exception("URL, $path, not found.");
+        throw new UnknownRouteException("URL, $path, not found.");
     }
 
     /**
@@ -207,7 +201,7 @@ class Router {
      * @param array $matches the matched arguments found in the url
      * @throws \BadMethodCallException if the request method is not implemented in the controller
      */
-    private static function callController($controller, $method, $matches) {
+    private static function callController($controller, $method, $matches=array()) {
         if($controller instanceof Controller && method_exists($controller, $method)) {
             try {
                 $controller->$method($matches);
@@ -318,4 +312,8 @@ class Router {
     public static function is_url_backend() {
         return self::$is_backend;
     }
+}
+
+class UnknownRouteException extends \Exception {
+
 }
