@@ -206,7 +206,7 @@ class Router {
             try {
                 $controller->$method($matches);
             } catch (\Exception $e) {
-                $controller->exception_handler($e);
+                $controller->exceptionHandler($e);
             }
         } else {
             throw new \BadMethodCallException("Method, $method, not supported on " . get_class($controller) . ".");

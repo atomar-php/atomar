@@ -107,7 +107,7 @@ abstract class Controller {
      *
      * @param \Exception $e the exception
      */
-    public function exception_handler($e) {
+    public function exceptionHandler($e) {
         if(Atomar::$config['debug']) {
             $version = phpversion();
             echo Templator::render_template("@atomar/views/debug.html", array(

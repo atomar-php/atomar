@@ -114,7 +114,7 @@ JAVASCRIPT;
      *
      * @param Exception $e the exception
      */
-    public function exception_handler($e) {
+    public function exceptionHandler($e) {
         Logger::log_error($e->getMessage(), $e->getTrace());
         set_error('A Lightbox exception has occured. See the log for details.');
         $this->dismiss();
