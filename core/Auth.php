@@ -161,22 +161,6 @@ class Auth {
                 set_error('Unable to start the session.');
                 return false;
             }
-            // regenerate the session id every once in awhile to make it harder to hack.
-            // TRICKY JL 01/02/2014 - regenerating the id too often may cause the user to be logged out while
-            // clicking on links too fast.
-//            return true; // NOTE: JL 02/24/2014 - Session regeneration is temporarily disabled while debugging session expiration bug.
-//            if (!isset($_SESSION['session_last_regenerated_at'])) {
-//                $_SESSION['session_last_regenerated_at'] = self::$_now - self::$_config['session_id_regeneration_period'];
-//            }
-//            if (self::$_now - $_SESSION['session_last_regenerated_at'] >= self::$_config['session_id_regeneration_period']) {
-//                $old_id = session_id();
-//                $_SESSION['session_last_regenerated_at'] = self::$_now;
-//                if (session_regenerate_id(true)) { // regenerated the session, delete the old one.
-//                    if (Atomar::$config['debug']) Logger::log_notice('Regenerated the session id: ' . $old_id . ' to: ' . session_id(), $_SESSION);
-//                } else {
-//                    Logger::log_error('An error occured while regenerating the session id: ' . $old_id, $_SESSION);
-//                }
-//            }
         }
         return true;
     }
@@ -302,12 +286,11 @@ class Auth {
             }
 
 
-            // check if permission level exists in database.
+            // add mission permission levels to the database
             if (Atomar::$config['debug']) {
                 foreach ($levels as $level) {
                     $p = \R::findOne('permission', 'slug=?', array($level));
                     if (!$p) {
-                        // add new permissions to database
                         $p = \R::dispense('permission');
                         $p->slug = $level;
                         $p->name = machine_to_human($level);
