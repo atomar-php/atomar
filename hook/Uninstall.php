@@ -46,7 +46,7 @@ class Uninstall implements Hook {
     /**
      * Executed after the hook implementations have finished executing.
      * @param $state mixed The final state of the hook.
-     * @return mixed|void
+     * @return mixed
      */
     public function postProcess($state) {
         return $state;

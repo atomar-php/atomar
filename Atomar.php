@@ -15,6 +15,7 @@ use atomar\exception\HookException;
 use atomar\hook\Hook;
 use atomar\hook\Libraries;
 use atomar\hook\PreBoot;
+use atomar\hook\Uninstall;
 use model\Extension;
 
 require_once(__DIR__ . '/core/AutoLoader.php');
@@ -443,11 +444,17 @@ HTML;
     /**
      * Uninstalls a single module
      * @param int $id
-     * @return bool
+     * @return bool true if the module was successfully un-installed
      */
     public static function uninstall_module(int $id) {
         set_warning('This method is deprecated');
-        // TODO: use the uninstall hook but only on this extension
+        $ext = \R::load('extension', $id);
+        if($ext->id) {
+            self::hookModule(new Uninstall(), $ext->slug, self::extension_dir().$ext->slug.DIRECTORY_SEPARATOR, null, $ext->box());
+            return true;
+        } else {
+            set_error('That module does not exist');
+        }
         return false;
     }
 
