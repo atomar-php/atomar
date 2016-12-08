@@ -102,7 +102,7 @@ parent.$(parent.window.document).trigger('lightbox.redirect', {
   url:'$url'
 });
 JAVASCRIPT;
-        echo parent::renderView('_lightbox_utility.html', array(), array(
+        echo parent::renderView('@atomar/views/_lightbox_utility.html', array(), array(
             'render_messages' => false,
             'render_menus' => false
         ));
@@ -158,7 +158,7 @@ parent.$(parent.window.document).trigger('lightbox.dismiss',  {
   }
 });
 JAVASCRIPT;
-        echo parent::renderView('_lightbox_utility.html', array(), array(
+        echo parent::renderView('@atomar/views/_lightbox_utility.html', array(), array(
             'render_messages' => false,
             'render_menus' => false
         ));

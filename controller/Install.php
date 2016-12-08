@@ -58,7 +58,7 @@ CSS;
 
     function GET($matches = array()) {
         Templator::$css_inline[] = self::$css;
-        echo $this->renderView('install.html', $matches);
+        echo $this->renderView('@atomar/views/install.html', $matches);
     }
 
     function POST($matches = array()) {

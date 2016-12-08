@@ -47,7 +47,7 @@ body {
 }
 CSS;
 
-        echo $this->renderView('admin/login.html');
+        echo $this->renderView('@atomar/views/admin/login.html');
     }
 
     function POST($matches = array()) {

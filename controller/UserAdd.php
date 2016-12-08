@@ -38,7 +38,7 @@ class UserAdd extends Lightbox {
         $args = array_merge($values, array(
             'roles' => $user_roles
         ));
-        echo $this->renderView('admin/modal.user.edit.html', $args);
+        echo $this->renderView('@atomar/views/admin/modal.user.edit.html', $args);
     }
 
     function POST($matches = array()) {

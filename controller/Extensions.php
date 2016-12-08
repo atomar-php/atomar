@@ -72,7 +72,7 @@ class Extensions extends Controller {
         \R::exec('DELETE FROM `extension` WHERE `name` NOT IN (' . \R::genSlots($valid_names) . ') ', $valid_names);
 
         // render view
-        echo $this->renderView('admin/extensions.html', array(
+        echo $this->renderView('@atomar/views/admin/extensions.html', array(
             'modules' => $rendered_extensions,
             'modules_dir' => Atomar::extension_dir(),
             'app' => $app->export()

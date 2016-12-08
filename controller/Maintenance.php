@@ -14,7 +14,7 @@ class Maintenance extends Controller {
 
     public function GET($matches = array()) {
         $message = "We are performing some updates and will be back shortly.";
-        echo Templator::render_template('maintenance.html', array(
+        echo Templator::render_template('@atomar/views/maintenance.html', array(
             'title'=> Atomar::$config['site_name'],
             'message'=> $message
         ));

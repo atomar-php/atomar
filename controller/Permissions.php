@@ -12,7 +12,7 @@ class Permissions extends Controller {
         $permissions = \R::findAll('permission', ' ORDER BY slug ASC ');
 
         // render page
-        echo $this->renderView('admin/permissions.html', array(
+        echo $this->renderView('@atomar/views/admin/permissions.html', array(
             'permissions' => $permissions
         ));
     }

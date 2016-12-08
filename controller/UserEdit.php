@@ -43,7 +43,7 @@ class UserEdit extends Lightbox {
             $this->header('Edit User <small>' . $user['username'] . '</small>');
 
             // render page
-            echo $this->renderView('admin/modal.user.edit.html', array(
+            echo $this->renderView('@atomar/views/admin/modal.user.edit.html', array(
                 'user' => $user,
                 'roles' => $user_roles,
                 'is_admin' => Auth::has_authentication('administer_users')
