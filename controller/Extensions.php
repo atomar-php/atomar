@@ -11,7 +11,6 @@ use atomar\hook\Permission;
 use model\Extension;
 
 /**
- * TODO: we need to finish updating this class.
  * We need to handle what happens when a dependency is missing.
  * Class AdminExtensions
  * @package atomar\controller
@@ -92,7 +91,6 @@ class Extensions extends Controller {
             if ($module->installed_version && $module->is_enabled) {
                 // check for updates
                 if (vercmp($module->version, $module->installed_version) == 1) {
-                    // TODO: change these to 'has_update'
                     $module->is_update_pending = '1';
                 }
             } else {

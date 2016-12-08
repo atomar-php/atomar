@@ -314,7 +314,6 @@ CSS;
 
             // render menu
             foreach (Atomar::$menu as $key => $menu) {
-                // TODO: sort menu.
                 $args['atomar']['menu'][$key] = render_menu($menu, false, $key);
             }
         }

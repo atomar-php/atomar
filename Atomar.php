@@ -32,7 +32,6 @@ class Atomar {
     public static $config;
     /**
      * Embodies the site menu system.
-     * TODO: the menu should be placed in it's own class
      * You may modify this array at any time using the appropriate design pattern.
      * You can see here we started with two empty menus. You may add as many menus as necessary
      * and they will be rendered wherever they are called in the template.

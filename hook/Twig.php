@@ -2,7 +2,10 @@
 
 namespace atomar\hook;
 
-// TODO: let this be done in the page hook
+/**
+ * Class Twig collects template functions for use in twig html templates
+ * @package atomar\hook
+ */
 class Twig implements Hook {
     private $twig;
 

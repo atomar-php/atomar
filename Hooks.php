@@ -148,7 +148,7 @@ class Hooks extends HookReceiver
 
     function hookPostBoot()
     {
-        // TODO: Implement onPostBoot() method.
+
     }
 
     function hookTwig($twig)

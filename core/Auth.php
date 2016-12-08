@@ -358,7 +358,7 @@ class Auth {
 
     /**
      * Create a new account for the user
-     * TODO: check if registration is enabled by system
+     * T
      * @param RedBeanPHP /OODBBean $user the user that will be registered
      * @param string $password the human readable password
      * @param RedBeanPHP /OODBBean $role the role assigned to the user
@@ -421,7 +421,7 @@ class Auth {
     /**
      * Log in the user
      * If log in is successful you can access the user via A::$user
-     * TODO: check if logins are enabled by the system
+     *
      * @param string $email the email of the user
      * @param string $password the human readable password of the user account
      * @param bool $remember_me if set to true the user will be logged in indefinitely
@@ -547,7 +547,7 @@ class Auth {
 
     /**
      * Grants a user access to the site without creating an authenticated session.
-     * TODO: check of logins are enabled by the system
+     *
      * @param int $user_id the id of the user who will be logged in
      * @return boolean true if login was successful
      */
