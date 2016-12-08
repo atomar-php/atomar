@@ -57,17 +57,11 @@ class Router {
      */
     public static function init() {
         // set up request variables
-        $regex = '^(?<path>((?!\?).)*)(?<query>.*)$';
-        if (preg_match("/$regex/i", $_SERVER['REQUEST_URI'], $matches)) {
-            self::$_request_path = $matches['path'];
-            if (isset($matches['query'])) {
-                self::$_request_query = $matches['query'];
-            }
-        }
-        if (substr(self::$_request_path, 0, 3) == '/!/') {
+        self::$_request_path = explode('?', $_SERVER['REQUEST_URI'])[0];
+        self::$_request_query = $_SERVER['QUERY_STRING'];
+        if (substr(self::$_request_path, 0, 12) == '/atomar/api/') {
             self::$is_process = true;
-        }
-        if (substr(self::$_request_path, 0, 7) == '/atomar') {
+        } else if (substr(self::$_request_path, 0, 7) == '/atomar') {
             self::$is_backend = true;
         }
 
@@ -275,6 +269,7 @@ class Router {
     /**
      * Check if the current url is executing a process.
      * TODO: technically these are rest APIs not processes.
+     * @deprecated
      * @return boolean true if the url is a process
      */
     public static function is_url_process() {
@@ -307,6 +302,7 @@ class Router {
 
     /**
      * Check if the current url is a backend url a.k.a /atomar
+     * @deprecated
      * @return boolean true if the url is a backend url.
      */
     public static function is_url_backend() {

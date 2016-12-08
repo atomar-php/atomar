@@ -53,7 +53,7 @@
                 {% else %}
                 {{ ext.version }}
                 {% if ext.installed_version %}
-                <a href="/!/uninstall_module?id={{ ext.id }}" class="tip pull-right text-muted"
+                <a href="/atomar/api/uninstall_module?id={{ ext.id }}" class="tip pull-right text-muted"
                    data-confirm="CAUTION! Are you sure you want to completely uninstall this module. This may result in data loss."
                    title="Completely uninstall module"><span class="glyphicon glyphicon-trash"></span></a>
                 {% endif %}

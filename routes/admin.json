@@ -1,5 +1,5 @@
 {
-  "/!/(?P<api>[a-zA-Z\\_-]+)/?(\\?.*)?": "atomar\\controller\\API",
+  "/atomar/api/(?P<api>[a-zA-Z\\_-]+)/?(\\?.*)?": "atomar\\controller\\API",
   "/atomar/logout/?(\\?.*)?": "atomar\\controller\\Logout",
   "/atomar/user/(?P<id>\\d+)/edit/?(\\?.*)?": "atomar\\controller\\UserEdit",
   "/atomar/?(\\?.*)?": "atomar\\controller\\Admin",

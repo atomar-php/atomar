@@ -35,9 +35,9 @@
       <td class="center">
         <a data-lightbox="/atomar/user/{{ user.id }}/edit?r=/atomar/users"><span class="glyphicon glyphicon-edit tip" data-toggle="tooltip" title="edit"></span></a>
         {% if user.is_enabled %}
-        <a href="/!/enable_user?id={{ user.id }}&amp;enabled=0&amp;r=/atomar/users"><span class="glyphicon glyphicon-thumbs-down tip" data-toggle="tooltip" title="disable"></span></a>
+        <a href="/atomar/api/enable_user?id={{ user.id }}&amp;enabled=0&amp;r=/atomar/users"><span class="glyphicon glyphicon-thumbs-down tip" data-toggle="tooltip" title="disable"></span></a>
         {% else %}
-        <a href="/!/enable_user?id={{ user.id }}&amp;enabled=1&amp;r=/atomar/users"><span class="glyphicon glyphicon-thumbs-up tip" data-toggle="tooltip" title="enable"></span></a>
+        <a href="/atomar/api/enable_user?id={{ user.id }}&amp;enabled=1&amp;r=/atomar/users"><span class="glyphicon glyphicon-thumbs-up tip" data-toggle="tooltip" title="enable"></span></a>
         {% endif %}
       </td>
     </tr>
