@@ -439,8 +439,8 @@ SQL;
         // give the user info to js
         if (Auth::$user) {
             $id = Auth::$user->id;
-            $is_admin = Auth::has_authentication('administer_site');
-            $is_super = Auth::is_super();
+            $is_admin = Auth::has_authentication('administer_site') ? 'true' : 'false';
+            $is_super = Auth::is_super() ? 'true' : 'false';
             Templator::$js_onload[] = <<<JAVASCRIPT
 var user = {
   id:$id,
