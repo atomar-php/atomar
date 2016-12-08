@@ -292,6 +292,7 @@ HTML;
 
     /**
      * Returns the path to the extension directory
+     * TODO: rename this to 'modules_dir'
      * @return string
      */
     public static function extension_dir() {
@@ -447,43 +448,16 @@ HTML;
      * @return bool true if the module was successfully un-installed
      */
     public static function uninstall_module(int $id) {
-        set_warning('This method is deprecated');
         $ext = \R::load('extension', $id);
         if($ext->id) {
             self::hookModule(new Uninstall(), $ext->slug, self::extension_dir().$ext->slug.DIRECTORY_SEPARATOR, null, $ext->box());
+            $ext->installed_version = '';
+            store($ext);
             return true;
         } else {
             set_error('That module does not exist');
         }
         return false;
-    }
-
-    /**
-     * A hook to run uninstall processes after an extension has been disabled.
-     * This is rather dangerous so we are not using this method right now. See uninstall_extension()
-     * @deprecated allow the hook to run the uninstall
-     */
-    public static function hook_uninstall() {
-        $extensions = \R::find('extension', 'is_enabled=\'1\'');
-        foreach ($extensions as $ext) {
-            // uninstall function
-            $fun = $ext->slug . '_uninstall';
-            $ext_path = self::$config['ext_dir'] . $ext->slug . '/install.php';
-            try {
-                include_once($ext_path);
-            } catch (\Exception $e) {
-                Logger::log_warning('Could not load the un-installation file for extension ' . $ext->slug, $e->getMessage());
-                continue;
-            }
-            if (function_exists($fun)) {
-                if (call_user_func($fun)) {
-                    $ext->installed_version = '';
-                    store($ext);
-                } else {
-                    Logger::log_error('Failed to uninstall extension ' . $ext->slug);
-                }
-            }
-        }
     }
 
     /**
