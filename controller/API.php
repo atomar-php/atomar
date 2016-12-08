@@ -70,8 +70,8 @@ class API extends ApiController {
      * @param $id
      */
     public function get_uninstall_module($id) {
-        if (Auth::has_authentication('administer_extensions')) {
-            if (Atomar::uninstall_extension($id)) {
+        if (Auth::has_authentication('administer_modules')) {
+            if (Atomar::uninstall_module($id)) {
                 set_success('The module has been uninstalled');
             } else {
                 set_warning('The module could not be uninstalled');

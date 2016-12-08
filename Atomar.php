@@ -441,11 +441,11 @@ HTML;
     }
 
     /**
-     * Uninstalls a single extension
+     * Uninstalls a single module
      * @param int $id
      * @return bool
      */
-    public static function uninstall_extension(int $id) {
+    public static function uninstall_module(int $id) {
         set_warning('This method is deprecated');
         // TODO: use the uninstall hook but only on this extension
         return false;
