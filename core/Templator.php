@@ -166,6 +166,20 @@ class Templator {
     }
 
     /**
+     * Renders the debug page
+     * @param \Exception $e the exception that will be displayed
+     * @return string html
+     */
+    public static function renderDebug($e) {
+        $version = phpversion();
+        return self::render_template('@atomar/views/debug.html', array(
+            'e' => $e,
+            'body' => print_r($e, true),
+            'php_version' => $version
+        ));
+    }
+
+    /**
      * Renders a template with injected arguments.
      * @param string $template the template that will be rendered
      * @param array $args the arguments to be injected

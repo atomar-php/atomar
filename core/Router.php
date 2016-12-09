@@ -107,24 +107,14 @@ class Router {
         } catch (UnknownRouteException $e) {
             // url not found
             if(Auth::has_authentication('administer_site') || Atomar::$config['debug']) {
-                $version = phpversion();
-                echo Templator::render_template('@atomar/views/debug.html', array(
-                    'e' => $e,
-                    'body' => print_r($e, true),
-                    'php_version' => $version
-                ));
+                echo Templator::renderDebug($e);
             } else {
                 self::displayServerResponseCode(404);
             }
         } catch (\Exception $e) {
             // route error
             if(Auth::has_authentication('administer_site') || Atomar::$config['debug']) {
-                $version = phpversion();
-                echo Templator::render_template('@atomar/views/debug.html', array(
-                    'e' => $e,
-                    'body' => print_r($e, true),
-                    'php_version' => $version
-                ));
+                echo Templator::renderDebug($e);
             } else {
                 Logger::log_warning('Routing exception', $e->getMessage());
                 self::displayServerResponseCode(500);

@@ -296,7 +296,15 @@ HTML;
             $regex = str_replace('/', '\/', $regex);
             $regex = '^' . $regex . '\/?$';
             if (preg_match("/$regex/i", $path, $matches)) {
-                if(!isset($matches['path'])) throw new \Exception('missing path');
+                if(!isset($matches['path'])) {
+                    if(Auth::has_authentication('administer_site') || self::$config['debug']) {
+                        http_response_code(500);
+                        echo Templator::renderDebug(new \Exception('static asset route expressions must define a \'path\'. e.g. \'/atomar/assets/(?P<path>.*)\''));
+                    } else {
+                        Router::displayServerResponseCode(500);
+                    }
+                    exit();
+                }
                 $file = rtrim($dir, '/').DIRECTORY_SEPARATOR.ltrim(explode('?', $matches['path'])[0], '/');
                 $ext = ltrim(strtolower(strrchr($file, '.')), '.');
                 switch ($ext) {
