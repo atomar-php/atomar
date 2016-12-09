@@ -2,6 +2,7 @@
 
 namespace atomar\core;
 use atomar\Atomar;
+use atomar\hook\StaticAssets;
 
 /**
  * Class AssetManager serves assets from the core without requiring a complete boot.
@@ -14,18 +15,41 @@ class AssetManager {
      * Runs the asset manager
      */
     public static function run() {
-        // TODO: this class should operate on hooks to define the static paths. Then we'll map urls to static paths
-        $file = self::realpath(Router::request_path());
-        if($file !== null) {
-            $args = array(
-                'content_type' => self::getContentType($file),
-            );
-            if(!Atomar::$config['debug']) {
-                $args['expires'] = Atomar::$config['expires_header'];
+        $urls = Atomar::hook(new StaticAssets());
+        $path = $_SERVER['REQUEST_URI'];
+        krsort($urls);
+
+        foreach($urls as $regex => $dir) {
+            $regex = str_replace('/', '\/', $regex);
+            $regex = '^' . $regex . '\/?$';
+            if (preg_match("/$regex/i", $path, $matches)) {
+                $file = rtrim($dir, '/').DIRECTORY_SEPARATOR.ltrim($path, '/');
+                $args = array(
+                    'content_type' => mime_content_type($file),
+                );
+                if(!Atomar::$config['debug']) {
+                    $args['expires'] = Atomar::$config['expires_header'];
+                }
+                stream_file(, $args);
+                exit;
             }
-            stream_file($file, $args);
-            exit;
         }
+        Router::displayServerResponseCode(404);
+
+        // 404
+
+        // TODO: this class should operate on hooks to define the static paths. Then we'll map urls to static paths
+//        $file = self::realpath(Router::request_path());
+//        if($file !== null) {
+//            $args = array(
+//                'content_type' => self::getContentType($file),
+//            );
+//            if(!Atomar::$config['debug']) {
+//                $args['expires'] = Atomar::$config['expires_header'];
+//            }
+//            stream_file($file, $args);
+//            exit;
+//        }
         // NOTE: extensions must use atomar\core\Templator::resolve_ext_asset(); to correctly generate urls for assets.
         // only the core and application are privileged to have auto asset resolution. Otherwise extensions could override
         // core or application resources.
@@ -37,7 +61,7 @@ class AssetManager {
      * @param $path
      * @return string
      */
-    public static function realpath($path) {
+    private static function realpath($path) {
         $atomar_asset_url = '/atomar/assets/';
         $app_asset_url = '/assets/';
         $well_known_url = '/.well-known';

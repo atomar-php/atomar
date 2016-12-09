@@ -436,6 +436,11 @@ SQL;
         return $urls;
     }
 
+    function hookStaticAssets($module)
+    {
+        return $this->loadRoute($module, 'assets');
+    }
+
     function hookPage() {
         // give the user info to js
         if (Auth::$user) {
