@@ -109,6 +109,7 @@ abstract class Controller {
      */
     public function exceptionHandler($e) {
         if(Atomar::debug() || Auth::has_authentication('administer_site')) {
+            http_response_code(500);
             Templator::renderDebug($e);
             exit();
         } else {

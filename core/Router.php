@@ -107,6 +107,7 @@ class Router {
         } catch (UnknownRouteException $e) {
             // url not found
             if(Auth::has_authentication('administer_site') || Atomar::debug()) {
+                http_response_code(404);
                 echo Templator::renderDebug($e);
             } else {
                 self::displayServerResponseCode(404);
@@ -114,6 +115,7 @@ class Router {
         } catch (\Exception $e) {
             // route error
             if(Auth::has_authentication('administer_site') || Atomar::debug()) {
+                http_response_code(500);
                 echo Templator::renderDebug($e);
             } else {
                 Logger::log_warning('Routing exception', $e->getMessage());
