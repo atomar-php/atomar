@@ -3,7 +3,6 @@
 namespace atomar;
 
 use atomar\controller\Install;
-use atomar\core\AssetManager;
 use atomar\core\Auth;
 use atomar\core\AutoLoader;
 use atomar\core\HookReceiver;
