@@ -11,14 +11,14 @@ use atomar\hook\Permission;
 use model\Extension;
 
 /**
- * We need to handle what happens when a dependency is missing.
+ * TODO: We need to handle what happens when a dependency is missing.
  * Class AdminExtensions
  * @package atomar\controller
  */
-class Extensions extends Controller {
+class Modules extends Controller {
 
     function GET($matches = array()) {
-        Auth::authenticate('administer_extensions');
+        Auth::authenticate('administer_modules');
 
         // prepare the application module
         $app = $this->prepareModule(Atomar::loadModule(Atomar::application_dir(), Atomar::application_namespace()));
@@ -98,10 +98,11 @@ class Extensions extends Controller {
             }
 
             // check supported core versions
-            if (!$module->atomar_version || vercmp($module->atomar_version, Atomar::version()) >= 0) {
+            if ($module->atomar_version && vercmp($module->atomar_version, Atomar::version()) >= 0) {
                 $module->is_supported = '1';
             } else {
                 $module->is_supported = '0';
+                $module->is_enabled = '0';
             }
             store($module);
         }

@@ -57,17 +57,11 @@ class Router {
      */
     public static function init() {
         // set up request variables
-        $regex = '^(?<path>((?!\?).)*)(?<query>.*)$';
-        if (preg_match("/$regex/i", $_SERVER['REQUEST_URI'], $matches)) {
-            self::$_request_path = $matches['path'];
-            if (isset($matches['query'])) {
-                self::$_request_query = $matches['query'];
-            }
-        }
-        if (substr(self::$_request_path, 0, 3) == '/!/') {
+        self::$_request_path = explode('?', $_SERVER['REQUEST_URI'])[0];
+        self::$_request_query = $_SERVER['QUERY_STRING'];
+        if (substr(self::$_request_path, 0, 12) == '/atomar/api/') {
             self::$is_process = true;
-        }
-        if (substr(self::$_request_path, 0, 7) == '/atomar') {
+        } else if (substr(self::$_request_path, 0, 7) == '/atomar') {
             self::$is_backend = true;
         }
 
@@ -112,25 +106,15 @@ class Router {
             }
         } catch (UnknownRouteException $e) {
             // url not found
-            if(Auth::has_authentication('administer_site') || Atomar::$config['debug']) {
-                $version = phpversion();
-                echo Templator::render_template('@atomar/views/debug.html', array(
-                    'e' => $e,
-                    'body' => print_r($e, true),
-                    'php_version' => $version
-                ));
+            if(Auth::has_authentication('administer_site') || Atomar::debug()) {
+                echo Templator::renderDebug($e);
             } else {
                 self::displayServerResponseCode(404);
             }
         } catch (\Exception $e) {
             // route error
-            if(Auth::has_authentication('administer_site') || Atomar::$config['debug']) {
-                $version = phpversion();
-                echo Templator::render_template('@atomar/views/debug.html', array(
-                    'e' => $e,
-                    'body' => print_r($e, true),
-                    'php_version' => $version
-                ));
+            if(Auth::has_authentication('administer_site') || Atomar::debug()) {
+                echo Templator::renderDebug($e);
             } else {
                 Logger::log_warning('Routing exception', $e->getMessage());
                 self::displayServerResponseCode(500);
@@ -275,6 +259,7 @@ class Router {
     /**
      * Check if the current url is executing a process.
      * TODO: technically these are rest APIs not processes.
+     * @deprecated
      * @return boolean true if the url is a process
      */
     public static function is_url_process() {
@@ -307,6 +292,7 @@ class Router {
 
     /**
      * Check if the current url is a backend url a.k.a /atomar
+     * @deprecated
      * @return boolean true if the url is a backend url.
      */
     public static function is_url_backend() {

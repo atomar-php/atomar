@@ -113,7 +113,7 @@ class Hooks extends HookReceiver
         /**
          * PHP Info
          */
-        if (Atomar::$config['debug'] && isset($_REQUEST['phpinfo']) && $_REQUEST['phpinfo'] && Auth::has_authentication('administer_site')) {
+        if (Atomar::debug() && isset($_REQUEST['phpinfo']) && $_REQUEST['phpinfo'] && Auth::has_authentication('administer_site')) {
             phpinfo();
             exit;
         }
@@ -434,6 +434,11 @@ SQL;
             $urls = array_merge($urls, $admin_urls);
         }
         return $urls;
+    }
+
+    function hookStaticAssets($module)
+    {
+        return $this->loadRoute($module, 'assets');
     }
 
     function hookPage() {

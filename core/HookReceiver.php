@@ -15,15 +15,15 @@ abstract class HookReceiver
      * Reads a set of routes from the /routes directory.
      * Example: /routes/public.json can be loaded by using the 'public' slug.
      *
-     * @param Extension $ext the extension who's route will be loaded
+     * @param Extension $module the module who's route will be loaded
      * @param string $slug the name of the routes to be loaded
      */
-    protected function loadRoute($ext, $slug) {
+    protected function loadRoute($module, $slug) {
         $file = Atomar::atomar_dir() . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . $slug . '.json';
-        if($ext != null && $ext->slug == Atomar::application_namespace()) {
+        if($module != null && $module->slug == Atomar::application_namespace()) {
             $file = Atomar::application_dir() . 'routes' . DIRECTORY_SEPARATOR . $slug . '.json';
-        } else if($ext != null) {
-            $file = Atomar::extension_dir() . $ext->slug . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . $slug . '.json';
+        } else if($module != null) {
+            $file = Atomar::extension_dir() . $module->slug . DIRECTORY_SEPARATOR . 'routes' . DIRECTORY_SEPARATOR . $slug . '.json';
         }
         $routes = array();
         if(file_exists($file)) {
@@ -125,5 +125,14 @@ abstract class HookReceiver
      */
     function hookServerResponseCode($code) {
         return null;
+    }
+
+    /**
+     * Gives url mappings to static directories
+     * @param $module
+     * @return array
+     */
+    function hookStaticAssets($module) {
+        return array();
     }
 }

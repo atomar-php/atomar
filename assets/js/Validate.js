@@ -116,7 +116,7 @@ function Validate(element) {
           }
         });
         if (global.lightbox) global.lightbox.resize(global.lightbox.width);
-        $.get('/!/validate/?action=' + self.validation + values, function(data) {
+        $.get('/atomar/api/validate/?action=' + self.validation + values, function(data) {
           var success = true;
 
         // Remove Loading

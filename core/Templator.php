@@ -130,9 +130,9 @@ class Templator {
             $loader->addPath(Atomar::extension_dir() . $ext->slug, $ext->slug);
         }
         $loader->addPath(Atomar::atomar_dir(), Atomar::atomar_namespace());
-        if (Atomar::$config['debug']) {
+        if (Atomar::debug()) {
             $twig = new AtomarTwigEnvironment($loader, array(
-                'debug' => Atomar::$config['debug'],
+                'debug' => Atomar::debug(),
             ));
             $twig->addExtension(new \Twig_Extension_Debug());
             // delete the cache if it exists
@@ -163,6 +163,20 @@ class Templator {
             throw new \Exception('Templates must be namespaced. Try using \'@' . $template . '\'');
         }
         return $template;
+    }
+
+    /**
+     * Renders the debug page
+     * @param \Exception $e the exception that will be displayed
+     * @return string html
+     */
+    public static function renderDebug($e) {
+        $version = phpversion();
+        return self::render_template('@atomar/views/debug.html', array(
+            'e' => $e,
+            'body' => print_r($e, true),
+            'php_version' => $version
+        ));
     }
 
     /**
@@ -326,7 +340,7 @@ CSS;
         }
 
         // load other system variables
-        $args['atomar']['debug'] = Atomar::$config['debug'];
+        $args['atomar']['debug'] = Atomar::debug();
         $args['atomar']['time'] = time();
         $args['atomar']['template']['name'] = $template;
         $args['atomar']['template']['variables'] = $variables;

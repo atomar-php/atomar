@@ -3,7 +3,6 @@
 namespace atomar;
 
 use atomar\controller\Install;
-use atomar\core\AssetManager;
 use atomar\core\Auth;
 use atomar\core\AutoLoader;
 use atomar\core\HookReceiver;
@@ -15,6 +14,7 @@ use atomar\exception\HookException;
 use atomar\hook\Hook;
 use atomar\hook\Libraries;
 use atomar\hook\PreBoot;
+use atomar\hook\StaticAssets;
 use atomar\hook\Uninstall;
 use model\Extension;
 
@@ -187,31 +187,7 @@ class Atomar {
         Templator::init();
         Router::init();
 
-        /**
-         * Server static assets
-         */
-        // TODO: make this configurable so modules can define static directories
-        AssetManager::run();
-
-        /**
-         * Model
-         */
-        // prefix model names. e.g. MUser
-        define('REDBEAN_MODEL_PREFIX', '\\model\\');
-        // set up connection
-        $db = self::$config['db'];
-        \R::setup('mysql:host=' . $db['host'] . ';dbname=' . $db['name'], $db['user'], $db['password']);
-        // test db connection
-        if (!\R::testConnection()) {
-            $message = <<<HTML
-  <p>
-    A connection to the database could not be made. Double check your configuration and try again.
-  </p>
-HTML;
-            echo Templator::render_error('DB Connection Failed', $message);
-            exit(1);
-        }
-        unset($db);
+        self::connectDatabase();
 
         if (self::$config['db']['freeze']) {
             \R::useWriterCache(true);
@@ -232,11 +208,12 @@ HTML;
             error_reporting(0);
         }
 
-        /**
-         * AUTHENTICATION
-         */
+        // authentication
         Auth::setup(self::$config['auth']);
         Auth::run();
+
+        // static assets
+        self::serverAssets();
 
         /**
          * Check if installation is required
@@ -279,6 +256,105 @@ HTML;
         self::hook(new Libraries());
 
         Router::run();
+    }
+
+    /**
+     * Establishes a verified connection to the database
+     */
+    private static function connectDatabase() {
+        define('REDBEAN_MODEL_PREFIX', '\\model\\');
+        $db = self::$config['db'];
+        \R::setup('mysql:host=' . $db['host'] . ';dbname=' . $db['name'], $db['user'], $db['password']);
+        // test db connection
+        if (!\R::testConnection()) {
+            $message = <<<HTML
+  <p>
+    A connection to the database could not be made. Double check your configuration and try again.
+  </p>
+HTML;
+            echo Templator::render_error('DB Connection Failed', $message);
+            exit(1);
+        }
+        unset($db);
+
+        if (self::$config['db']['freeze']) {
+            \R::useWriterCache(true);
+            // TODO: breaks adding certain things to the db
+            \R::freeze(true);
+        }
+    }
+
+    /**
+     * Servers static assets
+     */
+    private static function serverAssets() {
+        $urls = self::hook(new StaticAssets());
+        $path = $_SERVER['REQUEST_URI'];
+        krsort($urls);
+
+        foreach($urls as $regex => $dir) {
+            $regex = str_replace('/', '\/', $regex);
+            $regex = '^' . $regex . '\/?$';
+            if (preg_match("/$regex/i", $path, $matches)) {
+                if(!isset($matches['path'])) {
+                    if(Auth::has_authentication('administer_site') || self::debug()) {
+                        http_response_code(500);
+                        echo Templator::renderDebug(new \Exception('static asset route expressions must define a \'path\'. e.g. \'/atomar/assets/(?P<path>.*)\''));
+                    } else {
+                        Router::displayServerResponseCode(500);
+                    }
+                    exit();
+                }
+                $file = rtrim($dir, '/').DIRECTORY_SEPARATOR.ltrim(explode('?', $matches['path'])[0], '/');
+                $ext = ltrim(strtolower(strrchr($file, '.')), '.');
+                switch ($ext) {
+                    case 'css';
+                        $mime = 'text/css';
+                        break;
+                    case 'js';
+                        $mime = 'application/javascript';
+                        break;
+                    case 'json':
+                        $mime = 'application/json';
+                        break;
+                    case 'html':
+                        $mime = 'application/html';
+                        break;
+                    case 'woff':
+                        $mime = 'application/font-woff';
+                        break;
+                    case 'ttf':
+                        $mime = 'application/x-font-ttf';
+                        break;
+                    case 'png':
+                        $mime = 'image/png';
+                        break;
+                    case 'jpg':
+                    case 'jpeg':
+                        $mime = 'image/jpg';
+                    break;
+                    case 'gif':
+                        $mime = 'image/gif';
+                        break;
+                    case 'svg':
+                        $mime = 'image/svg+xml';
+                        break;
+                    case 'tiff':
+                        $mime = 'image/tiff';
+                        break;
+                    default:
+                        $mime = 'application/octet-stream';
+                }
+                $args = array(
+                    'content_type' => $mime//mime_content_type($file),
+                );
+                if(!self::debug()) {
+                    $args['expires'] = Atomar::$config['expires_header'];
+                }
+                stream_file($file, $args);
+                exit;
+            }
+        }
     }
 
     /**
@@ -368,12 +444,21 @@ HTML;
         // execute hooks on extensions
         $extensions = \R::find('extension', 'is_enabled=\'1\' and slug<>?', array(self::application_namespace()));
         foreach ($extensions as $ext) {
+            if(vercmp($ext->atomar_version, self::version()) < 0) {
+                $message = $ext->slug . ' does not support this version of atomar';
+                if(Auth::has_authentication('administer_site') || self::debug()) {
+                    set_error($message);
+                } else {
+                    Logger::log_error($message);
+                }
+                continue;
+            } // skip un-supported modules
             try {
                 $state = self::hookModule($hook, $ext->slug, self::extension_dir() . $ext->slug . DIRECTORY_SEPARATOR, $state, $ext->box(), false);
             } catch (\Exception $e) {
                 $notice = 'Could not run hook "' . $hook_name . '" for "' . $ext->slug .'" module';
                 Logger::log_error($notice, $e->getMessage());
-                if(self::$config['debug']) set_error($notice);
+                if(self::debug() || Auth::has_authentication('administer_site')) set_error($notice);
                 continue;
             }
         }
@@ -381,7 +466,7 @@ HTML;
         // execute hook on application
         // TRICKY: we re-load the application during hooks in case its settings were changed
         self::$app = self::loadModule(self::application_dir(), self::application_namespace());
-        if (self::$app != null && self::$app->is_enabled) { //} && $hook->preProcess(self::$app) !== false) {
+        if (self::$app != null && self::$app->is_enabled && vercmp(self::$app->atomar_version, self::version()) >= 0) {
             $state = self::hookModule($hook, self::application_namespace(), self::application_dir(), $state, self::$app->box(), false);
         }
         return $hook->postProcess($state);

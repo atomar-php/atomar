@@ -108,14 +108,9 @@ abstract class Controller {
      * @param \Exception $e the exception
      */
     public function exceptionHandler($e) {
-        if(Atomar::$config['debug']) {
-            $version = phpversion();
-            echo Templator::render_template("@atomar/views/debug.html", array(
-                'e' => $e,
-                'body' => print_r($e, true),
-                'php_version' => $version
-            ));
-            exit(1);
+        if(Atomar::debug() || Auth::has_authentication('administer_site')) {
+            Templator::renderDebug($e);
+            exit();
         } else {
             Logger::log_error($e->getMessage(), $e);
             $this->throw500();

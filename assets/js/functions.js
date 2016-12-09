@@ -131,7 +131,7 @@ function addToInlineEdit(element) {
 //     if(field_val!='') {
 //       // add loading
 //       field.after('<div class="validate alert alert-info validate-is-checking">Validating</div>');
-//       $.post('/!/' + validation, {
+//       $.post('/atomar/api/' + validation, {
 //         value:field_val
 //       }, function(data) {
 //         // remove loading
