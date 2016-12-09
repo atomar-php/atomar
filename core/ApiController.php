@@ -58,7 +58,6 @@ abstract class ApiController extends Controller {
     $backwards_compatible_method_signature = strtoupper('_' . $prefix);
     if (method_exists($this, $method_signature)) {
       // execute the api method
-      error_reporting(0); // make sure errors do not corrupt the response.
       try {
         $response = $this->call_user_func_args($method_signature, $_REQUEST, true);
         $this->respond($response);
