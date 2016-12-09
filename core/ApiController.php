@@ -65,10 +65,10 @@ abstract class ApiController extends Controller {
         // send any parameter parsing exceptions as an error response
         $this->respond(new MalformedParameters($e->getMessage(), 400));
       } catch (\Error $e) {
+          Logger::log_error($e->getMessage(), $e);
           if(Atomar::debug() || Auth::has_authentication('administer_site')) {
               $this->respond(new ServerError($e->getMessage(), 500));
           } else {
-              Logger::log_error($e->getMessage(), $e);
               $this->respond(new ServerError('An error has occurred on the server. See the log for details', 500));
           }
       }
