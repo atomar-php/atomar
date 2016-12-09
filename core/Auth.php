@@ -286,8 +286,8 @@ class Auth {
             }
 
 
-            // add mission permission levels to the database
-            if (Atomar::$config['debug']) {
+            // add missing permission levels to the database
+            if (Atomar::debug()) {
                 foreach ($levels as $level) {
                     $p = \R::findOne('permission', 'slug=?', array($level));
                     if (!$p) {

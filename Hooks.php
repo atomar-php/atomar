@@ -113,7 +113,7 @@ class Hooks extends HookReceiver
         /**
          * PHP Info
          */
-        if (Atomar::$config['debug'] && isset($_REQUEST['phpinfo']) && $_REQUEST['phpinfo'] && Auth::has_authentication('administer_site')) {
+        if (Atomar::debug() && isset($_REQUEST['phpinfo']) && $_REQUEST['phpinfo'] && Auth::has_authentication('administer_site')) {
             phpinfo();
             exit;
         }

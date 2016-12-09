@@ -52,7 +52,7 @@ class CoreBeanModel extends BeanModel {
      */
     protected function security_check() {
         // only perform the security check when in debug mode.
-        if (Atomar::$config['debug']) {
+        if (Atomar::debug()) {
             foreach ($this->bean as $p => $v) {
                 if (!in_array($p, $this->_registered_properties)) {
                     // perform regular expression check

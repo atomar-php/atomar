@@ -108,7 +108,7 @@ abstract class Controller {
      * @param \Exception $e the exception
      */
     public function exceptionHandler($e) {
-        if(Atomar::$config['debug']) {
+        if(Atomar::debug() || Auth::has_authentication('administer_site')) {
             Templator::renderDebug($e);
             exit();
         } else {

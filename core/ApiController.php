@@ -23,7 +23,7 @@ abstract class ApiController extends Controller {
   public function exceptionHandler($e) {
     Logger::log_error($e->getMessage(), $e->getTrace());
     $message = get_class($this) . '->exception_handler: ';
-    if(Auth::has_authentication('administer_site') || Atomar::$config['debug']) {
+    if(Auth::has_authentication('administer_site') || Atomar::debug()) {
         $message .= $e->getMessage();
     } else {
         $message .= 'An exception has occurred. See the log for details.';

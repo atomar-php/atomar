@@ -297,7 +297,7 @@ HTML;
             $regex = '^' . $regex . '\/?$';
             if (preg_match("/$regex/i", $path, $matches)) {
                 if(!isset($matches['path'])) {
-                    if(Auth::has_authentication('administer_site') || self::$config['debug']) {
+                    if(Auth::has_authentication('administer_site') || self::debug()) {
                         http_response_code(500);
                         echo Templator::renderDebug(new \Exception('static asset route expressions must define a \'path\'. e.g. \'/atomar/assets/(?P<path>.*)\''));
                     } else {
@@ -348,7 +348,7 @@ HTML;
                 $args = array(
                     'content_type' => $mime//mime_content_type($file),
                 );
-                if(!self::$config['debug']) {
+                if(!self::debug()) {
                     $args['expires'] = Atomar::$config['expires_header'];
                 }
                 stream_file($file, $args);
@@ -444,12 +444,21 @@ HTML;
         // execute hooks on extensions
         $extensions = \R::find('extension', 'is_enabled=\'1\' and slug<>?', array(self::application_namespace()));
         foreach ($extensions as $ext) {
+            if(vercmp($ext->atomar_version, self::version()) < 0) {
+                $message = $ext->slug . ' does not support this version of atomar';
+                if(Auth::has_authentication('administer_site') || self::debug()) {
+                    set_error($message);
+                } else {
+                    Logger::log_error($message);
+                }
+                continue;
+            } // skip un-supported modules
             try {
                 $state = self::hookModule($hook, $ext->slug, self::extension_dir() . $ext->slug . DIRECTORY_SEPARATOR, $state, $ext->box(), false);
             } catch (\Exception $e) {
                 $notice = 'Could not run hook "' . $hook_name . '" for "' . $ext->slug .'" module';
                 Logger::log_error($notice, $e->getMessage());
-                if(self::$config['debug']) set_error($notice);
+                if(self::debug() || Auth::has_authentication('administer_site')) set_error($notice);
                 continue;
             }
         }
@@ -457,7 +466,7 @@ HTML;
         // execute hook on application
         // TRICKY: we re-load the application during hooks in case its settings were changed
         self::$app = self::loadModule(self::application_dir(), self::application_namespace());
-        if (self::$app != null && self::$app->is_enabled) { //} && $hook->preProcess(self::$app) !== false) {
+        if (self::$app != null && self::$app->is_enabled && vercmp(self::$app->atomar_version, self::version()) >= 0) {
             $state = self::hookModule($hook, self::application_namespace(), self::application_dir(), $state, self::$app->box(), false);
         }
         return $hook->postProcess($state);

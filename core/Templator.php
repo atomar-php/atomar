@@ -130,9 +130,9 @@ class Templator {
             $loader->addPath(Atomar::extension_dir() . $ext->slug, $ext->slug);
         }
         $loader->addPath(Atomar::atomar_dir(), Atomar::atomar_namespace());
-        if (Atomar::$config['debug']) {
+        if (Atomar::debug()) {
             $twig = new AtomarTwigEnvironment($loader, array(
-                'debug' => Atomar::$config['debug'],
+                'debug' => Atomar::debug(),
             ));
             $twig->addExtension(new \Twig_Extension_Debug());
             // delete the cache if it exists
@@ -340,7 +340,7 @@ CSS;
         }
 
         // load other system variables
-        $args['atomar']['debug'] = Atomar::$config['debug'];
+        $args['atomar']['debug'] = Atomar::debug();
         $args['atomar']['time'] = time();
         $args['atomar']['template']['name'] = $template;
         $args['atomar']['template']['variables'] = $variables;

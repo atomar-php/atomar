@@ -14,6 +14,6 @@
 
   "/atomar/settings/?(\\?.*)?": "atomar\\controller\\Settings",
 
-  "/atomar/modules/?": "atomar\\controller\\Extensions",
+  "/atomar/modules/?": "atomar\\controller\\Modules",
   "/atomar/modules/(?P<module>[a-z0-9\\_]+)/?(\\?.*)?": "atomar\\controller\\ModuleSettings"
 }
