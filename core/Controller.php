@@ -2,6 +2,8 @@
 
 namespace atomar\core;
 
+use atomar\Atomar;
+
 /**
  * The controller is initialized and ran at the end of a url route.
  */
@@ -56,10 +58,7 @@ abstract class Controller {
         } else if (!Router::is_active_url('/', true)) {
             Router::go('/');
         } else {
-            // we hit a redirect loop
-            Logger::log_warning('Detected a potential redirect loop', Router::request_path());
-            echo Templator::render_view('500.html');
-            exit;
+            $this->throw500();
         }
     }
 
@@ -73,14 +72,14 @@ abstract class Controller {
 
     /**
      * Renders the view and does some extra processing
-     * @param string $view the relative path to the view that will be redered
+     * @param string $view the relative path to the view that will be rendered
      * @param array $args custom options that will be sent to the view
      * @param array $options optional rules regarding how the template will be rendered.
      * @return string the rendered html
      */
     protected function renderView($view, $args = array(), $options = array()) {
         if (!isset($options['_controller'])) $options['_controller']['type'] = 'controller';
-        return Templator::render_view($view, $args, $options);
+        return Templator::renderView($view, $args, $options);
     }
 
     /**
@@ -88,37 +87,33 @@ abstract class Controller {
      * @param String|bool $url uri that we will be routed to.
      */
     protected function go($url = false) {
-        // TODO: need to decide if we actually want to set the return url each time.
-        // provide a default return uri
-        // $_SESSION['return'] = $_SERVER["REQUEST_URI"];
         // Reload the current page by default
         if (!$url) {
             $url = $_SERVER['REQUEST_URI'];
         }
-        // NOTE: the redirect loop detection does not work correctly so it is disabled.
-//      if(!l_active($url, true) || $_SESSION['system:last_route'] != $url) {
         Router::go($url);
-//      } else {
-//        // we hit a redirect loop
-//        log_warning('Detected a potential redirect loop', S::$_REQUEST_PATH);
-//        echo render_view('500.html');
-//        exit;
-//      }
+    }
+
+    protected function throw404() {
+        Router::displayServerResponseCode(404);
+    }
+
+    protected function throw500() {
+        Router::displayServerResponseCode(500);
     }
 
     /**
-     * Renders a 404 error on the current page.
+     * This method will be called automatically to handle any exceptions in the controller.
+     *
+     * @param \Exception $e the exception
      */
-    protected function throw404() {
-        if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
-            $scheme = 'https://';
+    public function exceptionHandler($e) {
+        if(Atomar::debug() || Auth::has_authentication('administer_site')) {
+            Templator::renderDebug($e);
+            exit();
         } else {
-            $scheme = 'http://';
+            Logger::log_error($e->getMessage(), $e);
+            $this->throw500();
         }
-        $path = $scheme . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        echo Templator::render_view('404.html', array(
-            'path' => $path
-        ));
-        exit(1);
     }
 }

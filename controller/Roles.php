@@ -41,7 +41,7 @@ ORDER BY
 SQL;
         $permissions = \R::getAll($sql_permissions);
         // render page
-        echo $this->renderView('admin/roles.html', array(
+        echo $this->renderView('@atomar/views/admin/roles.html', array(
             'roles' => $roles,
             'permissions' => $permissions
         ));

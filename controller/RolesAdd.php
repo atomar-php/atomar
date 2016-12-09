@@ -37,7 +37,7 @@ CSS;
         $this->width(500);
         $this->header('New Role');
 
-        echo $this->renderView('admin/modal.role.create.html', array(
+        echo $this->renderView('@atomar/views/admin/modal.role.create.html', array(
             'permissions' => $permissions
         ));
     }

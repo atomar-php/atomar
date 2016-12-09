@@ -2,7 +2,7 @@
 
 namespace atomar;
 
-use atomar\core\AssetManager;
+use atomar\controller\Install;
 use atomar\core\Auth;
 use atomar\core\AutoLoader;
 use atomar\core\HookReceiver;
@@ -10,9 +10,12 @@ use atomar\core\Logger;
 use atomar\core\ReadOnlyArray;
 use atomar\core\Router;
 use atomar\core\Templator;
+use atomar\exception\HookException;
 use atomar\hook\Hook;
 use atomar\hook\Libraries;
 use atomar\hook\PreBoot;
+use atomar\hook\StaticAssets;
+use atomar\hook\Uninstall;
 use model\Extension;
 
 require_once(__DIR__ . '/core/AutoLoader.php');
@@ -30,9 +33,8 @@ class Atomar {
     public static $config;
     /**
      * Embodies the site menu system.
-     * TODO: the menu should be placed in it's own class
      * You may modify this array at any time using the appropriate design pattern.
-     * You can see here we started with two empty menus. You may add as many menus as nessesary
+     * You can see here we started with two empty menus. You may add as many menus as necessary
      * and they will be rendered wherever they are called in the template.
      * @var array
      */
@@ -61,12 +63,6 @@ class Atomar {
      * @var bool
      */
     private static $is_initialized = false;
-
-    /**
-     * The function that will be executed when maintenance mode is active
-     * @var \Closure
-     */
-    private static $_maintenance_mode_callback = null;
 
     /**
      * The site application
@@ -133,6 +129,22 @@ class Atomar {
     }
 
     /**
+     * Returns the namespace of the atomar php framework
+     * @return string
+     */
+    public static function atomar_namespace() {
+        return 'atomar';
+    }
+
+    /**
+     * Checks if debug mode is active
+     * @return mixed|null
+     */
+    public static function debug() {
+        return self::$config['debug'];
+    }
+
+    /**
      * Returns the path to the root site dir
      * @return string
      */
@@ -175,31 +187,7 @@ class Atomar {
         Templator::init();
         Router::init();
 
-        /**
-         * Server static assets
-         */
-        // TODO: make this configurable so modules can define static directories
-        AssetManager::run();
-
-        /**
-         * Model
-         */
-        // prefix model names. e.g. MUser
-        define('REDBEAN_MODEL_PREFIX', '\\model\\');
-        // set up connection
-        $db = self::$config['db'];
-        \R::setup('mysql:host=' . $db['host'] . ';dbname=' . $db['name'], $db['user'], $db['password']);
-        // test db connection
-        if (!\R::testConnection()) {
-            $message = <<<HTML
-  <p>
-    A connection to the database could not be made. Double check your configuration and try again.
-  </p>
-HTML;
-            echo Templator::render_error('DB Connection Failed', $message);
-            exit(1);
-        }
-        unset($db);
+        self::connectDatabase();
 
         if (self::$config['db']['freeze']) {
             \R::useWriterCache(true);
@@ -220,63 +208,22 @@ HTML;
             error_reporting(0);
         }
 
-        /**
-         * Error and Exception handling
-         */
-//        set_exception_handler(function($e) {
-//            Logger::log_error($e->getMessage(), $e);
-//            throw $e;
-//        });
-
-        /**
-         * AUTHENTICATION
-         */
+        // authentication
         Auth::setup(self::$config['auth']);
         Auth::run();
 
-        /**
-         * PHP Info
-         */
-        if (self::$config['debug'] && isset($_REQUEST['phpinfo']) && $_REQUEST['phpinfo'] && Auth::has_authentication('administer_site')) {
-            phpinfo();
-            exit;
-        }
-
-        /**
-         * Default Maintenance handler
-         *
-         */
-        self::set_maintenance_mode_handler(function () {
-            $site_name = Atomar::$config['site_name'];
-            $message = <<<HTML
-  <p class="text-center">
-     $site_name is currently being updated and will be back online shortly.
-  </p>
-HTML;
-            echo Templator::render_error('Site Maintenance', $message);
-            exit;
-        });
+        // static assets
+        self::serverAssets();
 
         /**
          * Check if installation is required
          */
-        if (!Auth::$user) {
-            if (count(\R::findAll('user')) == 0) {
-                $urls = array(
-                    '/.*' => 'atomar\controller\Install',
-                );
-                Router::run($urls);
-                exit;
-            }
-        }
-
-        /**
-         * Autoload extensions
-         *
-         */
-        $extensions = \R::find('extension', 'is_enabled=\'1\'');
-        foreach ($extensions as $ext) {
-            AutoLoader::register(realpath(self::extension_dir() . $ext->slug));
+        if(!Auth::$user && Install::requiresInstall()) {
+            // TODO: rather than routing we should just execute the install controller
+            Router::run(array(
+                '/.*' => 'atomar\controller\Install',
+            ));
+            exit;
         }
 
         /**
@@ -284,6 +231,7 @@ HTML;
          *
          */
         AutoLoader::register(self::application_dir());
+        AutoLoader::register(self::application_dir(), 1);
         self::$app = self::loadModule(self::application_dir(), self::application_namespace());
         if (!isset(self::$app)) {
             Logger::log_error('Could not load the application from ' . self::application_dir());
@@ -291,7 +239,6 @@ HTML;
                 set_error('Failed to load the application');
             }
         } else {
-            self::$app->installed_version = self::get_system('app_installed_version', 0);
             if (vercmp(self::$app->version, self::$app->installed_version) > 0) {
                 self::$app->is_update_pending = '1';
             }
@@ -312,6 +259,105 @@ HTML;
     }
 
     /**
+     * Establishes a verified connection to the database
+     */
+    private static function connectDatabase() {
+        define('REDBEAN_MODEL_PREFIX', '\\model\\');
+        $db = self::$config['db'];
+        \R::setup('mysql:host=' . $db['host'] . ';dbname=' . $db['name'], $db['user'], $db['password']);
+        // test db connection
+        if (!\R::testConnection()) {
+            $message = <<<HTML
+  <p>
+    A connection to the database could not be made. Double check your configuration and try again.
+  </p>
+HTML;
+            echo Templator::render_error('DB Connection Failed', $message);
+            exit(1);
+        }
+        unset($db);
+
+        if (self::$config['db']['freeze']) {
+            \R::useWriterCache(true);
+            // TODO: breaks adding certain things to the db
+            \R::freeze(true);
+        }
+    }
+
+    /**
+     * Servers static assets
+     */
+    private static function serverAssets() {
+        $urls = self::hook(new StaticAssets());
+        $path = $_SERVER['REQUEST_URI'];
+        krsort($urls);
+
+        foreach($urls as $regex => $dir) {
+            $regex = str_replace('/', '\/', $regex);
+            $regex = '^' . $regex . '\/?$';
+            if (preg_match("/$regex/i", $path, $matches)) {
+                if(!isset($matches['path'])) {
+                    if(Auth::has_authentication('administer_site') || self::debug()) {
+                        http_response_code(500);
+                        echo Templator::renderDebug(new \Exception('static asset route expressions must define a \'path\'. e.g. \'/atomar/assets/(?P<path>.*)\''));
+                    } else {
+                        Router::displayServerResponseCode(500);
+                    }
+                    exit();
+                }
+                $file = rtrim($dir, '/').DIRECTORY_SEPARATOR.ltrim(explode('?', $matches['path'])[0], '/');
+                $ext = ltrim(strtolower(strrchr($file, '.')), '.');
+                switch ($ext) {
+                    case 'css';
+                        $mime = 'text/css';
+                        break;
+                    case 'js';
+                        $mime = 'application/javascript';
+                        break;
+                    case 'json':
+                        $mime = 'application/json';
+                        break;
+                    case 'html':
+                        $mime = 'application/html';
+                        break;
+                    case 'woff':
+                        $mime = 'application/font-woff';
+                        break;
+                    case 'ttf':
+                        $mime = 'application/x-font-ttf';
+                        break;
+                    case 'png':
+                        $mime = 'image/png';
+                        break;
+                    case 'jpg':
+                    case 'jpeg':
+                        $mime = 'image/jpg';
+                    break;
+                    case 'gif':
+                        $mime = 'image/gif';
+                        break;
+                    case 'svg':
+                        $mime = 'image/svg+xml';
+                        break;
+                    case 'tiff':
+                        $mime = 'image/tiff';
+                        break;
+                    default:
+                        $mime = 'application/octet-stream';
+                }
+                $args = array(
+                    'content_type' => $mime//mime_content_type($file),
+                );
+                if(!self::debug()) {
+                    $args['expires'] = Atomar::$config['expires_header'];
+                }
+                stream_file($file, $args);
+                exit;
+            }
+        }
+    }
+
+    /**
      * Returns the current version of the atomar core.
      *
      * @return string The site version.
@@ -321,15 +367,8 @@ HTML;
     }
 
     /**
-     * Allows the default maintenance mode callback to be overridden.
-     * @param \Closure $function the callback to execute when maintenance mode is active.
-     */
-    public static function set_maintenance_mode_handler(\Closure $function) {
-        self::$_maintenance_mode_callback = $function;
-    }
-
-    /**
      * Returns the path to the extension directory
+     * TODO: rename this to 'modules_dir'
      * @return string
      */
     public static function extension_dir() {
@@ -373,7 +412,10 @@ HTML;
                     $ext->atomar_version = null;
                 }
                 if (isset($manifest['dependencies'])) {
-                    $ext->set_dependencies(array_keys($manifest['dependencies']));
+                    // TODO: eventually we will support specific versions
+                    $ext->dependencies = implode(',', array_keys($manifest['dependencies']));
+                } else {
+                    $ext->dependencies = '';
                 }
                 try {
                     \R::store($ext);
@@ -391,55 +433,90 @@ HTML;
     /**
      * Performs operations on a hook
      * @param Hook $hook the hook to perform
-     * @return mixed
+     * @return mixed|null the hook state
      */
     public static function hook(Hook $hook) {
-        $state = array();
         $hook_name = 'hook' . ltrim(strrchr(get_class($hook), '\\'), '\\');
 
         // execute hook on atomar
-        $receiver = 'atomar\\Hooks';
-        $instance = new $receiver();
-        if($instance instanceof HookReceiver) {
-            $result = $instance->$hook_name();
-            $state = $hook->process($result, self::atomar_dir(), 'atomar', null, $state);
-        }
+        $state = self::hookModule($hook, 'atomar', self::atomar_dir(), null, null, false);
 
         // execute hooks on extensions
-        $extensions = \R::find('extension', 'is_enabled=\'1\'');
+        $extensions = \R::find('extension', 'is_enabled=\'1\' and slug<>?', array(self::application_namespace()));
         foreach ($extensions as $ext) {
-            $receiver = $ext->slug.'\\Hooks';
-            try {
-                $class_path = self::extension_dir() . $ext->slug . DIRECTORY_SEPARATOR . 'Hooks.php';
-                if(file_exists($class_path)) {
-                    include_once($class_path);
-                    $instance = new $receiver();
-                    if ($instance instanceof HookReceiver) {
-                        $result = $instance->$hook_name();
-                        $state = $hook->process($result, self::extension_dir() . $ext->slug . DIRECTORY_SEPARATOR, $ext->slug, $ext, $state);
-                    }
+            if(vercmp($ext->atomar_version, self::version()) < 0) {
+                $message = $ext->slug . ' does not support this version of atomar';
+                if(Auth::has_authentication('administer_site') || self::debug()) {
+                    set_error($message);
                 } else {
-                    set_error('Missing hook receiver in "' . $ext->slug . '" module');
+                    Logger::log_error($message);
                 }
-            } catch (\Error $e) {
+                continue;
+            } // skip un-supported modules
+            try {
+                $state = self::hookModule($hook, $ext->slug, self::extension_dir() . $ext->slug . DIRECTORY_SEPARATOR, $state, $ext->box(), false);
+            } catch (\Exception $e) {
                 $notice = 'Could not run hook "' . $hook_name . '" for "' . $ext->slug .'" module';
                 Logger::log_error($notice, $e->getMessage());
-                if(self::$config['debug']) set_error($notice);
+                if(self::debug() || Auth::has_authentication('administer_site')) set_error($notice);
                 continue;
             }
         }
 
         // execute hook on application
-        if (self::$app != null) {
-            $receiver = self::application_namespace().'\\Hooks';
-            require_once(self::application_dir().DIRECTORY_SEPARATOR.'Hooks.php');
+        // TRICKY: we re-load the application during hooks in case its settings were changed
+        self::$app = self::loadModule(self::application_dir(), self::application_namespace());
+        if (self::$app != null && self::$app->is_enabled && vercmp(self::$app->atomar_version, self::version()) >= 0) {
+            $state = self::hookModule($hook, self::application_namespace(), self::application_dir(), $state, self::$app->box(), false);
+        }
+        return $hook->postProcess($state);
+    }
+
+    /**
+     * Executes a hook on a single module.
+     *
+     * @param Hook $hook the hook that will be executed
+     * @param string $namespace the module namespace
+     * @param string $directory the module directory
+     * @param mixed $state the state object from another hook execution
+     * @param Extension $module the module db object if available
+     * @param bool $postProcess if true the hook will run it's post process method. Default is true
+     * @param bool $force if true the hook will be executed even if the pre process method returns false
+     * @return mixed|null the hook state
+     * @throws \Exception|HookException Exception is throw if parameters are missing, HookException is throw if the receiver is missing
+     */
+    public static function hookModule(Hook $hook, string $namespace, string $directory, $state=null, Extension $module=null, $postProcess=true, $force=false) {
+        if(!$hook) throw new \Exception('Missing hook parameter');
+        if(!$namespace) throw new \Exception('Missing namespace parameter');
+        if(!$directory) throw new \Exception('Missing directory parameter');
+        $module = isset($module) ? $module : null;
+
+        $hookMethod = 'hook' . ltrim(strrchr(get_class($hook), '\\'), '\\');
+        $receiver = $namespace . '\\Hooks';
+        $classPath = rtrim($directory, '\\/') . DIRECTORY_SEPARATOR . 'Hooks.php';
+
+        if($hook->preProcess($module) === false && $force === false) return $state;
+        if(!file_exists($classPath)) throw new HookException('Missing hook receiver in "' . $namespace . '"');
+
+        try {
+            require_once($classPath);
             $instance = new $receiver();
             if ($instance instanceof HookReceiver) {
-                $result = $instance->$hook_name();
-                $state = $hook->process($result, self::application_dir(), self::application_namespace(), self::$app, $state);
+                $result = $instance->$hookMethod($hook->params());
+                $state = $hook->process($result, $directory, $namespace, $module, $state);
+            } else {
+                throw new HookException('Receiver is not an instance of HookReceiver in "' . $namespace . '"');
             }
+        } catch (\Error $e) {
+            // convert errors to exceptions for simplicity
+            throw new \Exception($e->getMessage());
         }
-        return $hook->post_process($state);
+
+        if($postProcess) {
+            $state = $hook->postProcess($state);
+        }
+
+        return $state;
     }
 
     /**
@@ -451,219 +528,30 @@ HTML;
     }
 
     /**
-     * Executes the maintenance mode callback
-     * By default all template hooks and options are disabled
-     */
-    public static function run_maintenance() {
-        if (is_callable(self::$_maintenance_mode_callback)) {
-            $options['_controller']['type'] = 'controller';
-            $options['render_messages'] = false;
-            $options['render_menus'] = false;
-            $options['trigger_preprocess_page'] = false;
-            $options['trigger_twig_function'] = false;
-            $options['trigger_menu'] = false;
-            call_user_func(self::$_maintenance_mode_callback, array(), $options);
-            exit;
-        } else {
-            throw new \Exception('The site is currently being updated.', 1);
-        }
-    }
-
-    /**
-     * A hook to run installation procedures after an extension has been enabled
-     */
-    public static function install_extensions() {
-        $extensions = \R::find('extension', ' is_enabled=\'1\' AND version<>installed_version ');
-        foreach ($extensions as $ext) {
-
-            // install function
-            $ext_path = self::$config['ext_dir'] . $ext->slug . '/install.php';
-            try {
-                include_once($ext_path);
-            } catch (\Exception $e) {
-                Logger::log_warning('Could not load the installation file for extension ' . $ext->slug, $e->getMessage());
-                continue;
-            }
-
-            $file = file_get_contents($ext_path);
-            $matches = array();
-            if (preg_match_all('(update_[\d\_]+)', $file, $matches)) {
-                $methods = array_flip($matches[0]);
-                ksort($methods);
-                if (!$ext->installed_version) {
-                    $ext->installed_version = 0;
-                }
-
-                $errors = false;
-                foreach ($methods as $fun => $value) {
-                    $matches = array();
-                    if (preg_match('/^update_([\d\_]+)$/', $fun, $matches)) {
-                        $version = str_replace('_', '.', $matches[1]);
-                        $max_version_compare = vercmp($version, $ext->version);
-                        if (vercmp($version, $ext->installed_version) == 1 && ($max_version_compare == 0 || $max_version_compare == -1)) {
-                            // double check in case we accidentally picked up commented code.
-                            if (function_exists($ext->slug . '\\' . $fun)) {
-                                if (call_user_func($ext->slug . '\\' . $fun)) {
-                                    if ($version == $ext->version) {
-                                        // we are done so display success notice.
-                                        set_success('Updated extension ' . $ext->slug . ' to version ' . $ext->version);
-                                    }
-                                    $ext->installed_version = $version;
-                                    store($ext);
-                                } else {
-                                    // stop running updates for this extension.
-                                    set_error('Failed to process update ' . $version . ' for extension ' . $ext->slug);
-                                    $errors = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // display success notice
-                if (!$errors) {
-                    set_success('Updated extension ' . $ext->slug . ' to version ' . $ext->version);
-                    $ext->installed_version = $ext->version;
-                    store($ext);
-                }
-            }
-        }
-    }
-
-    /**
-     * Performs install/update procedures on the application
-     */
-    public static function install_application() {
-        if (self::$app != null) {
-            $app_install_path = self::application_dir() . 'install.php';
-            try {
-                if (file_exists($app_install_path)) {
-                    include_once($app_install_path);
-                } else {
-                    Logger::log_error('Missing application install file: ' . $app_install_path);
-                }
-            } catch (\Exception $e) {
-                Logger::log_error('Could not include file: ' . $app_install_path, $e->getMessage());
-            }
-
-            $file = file_get_contents($app_install_path);
-            $matches = array();
-            if (preg_match_all('(update_[\d\_]+)', $file, $matches)) {
-                $methods = array_flip($matches[0]);
-                ksort($methods);
-                if (!self::$app->installed_version) {
-                    self::$app->installed_version = 0;
-                }
-
-                $errors = false;
-                foreach ($methods as $fun => $value) {
-                    $matches = array();
-                    if (preg_match('/^update_([\d\_]+)$/', $fun, $matches)) {
-                        $version = str_replace('_', '.', $matches[1]);
-                        $max_version_compare = vercmp($version, self::$app->version);
-                        if (vercmp($version, self::$app->installed_version) == 1 && ($max_version_compare == 0 || $max_version_compare == -1)) {
-                            // double check in case we accidentally picked up commented code.
-                            if (function_exists(self::application_namespace() . '\\' . $fun)) {
-                                if (call_user_func(self::application_namespace() . '\\' . $fun)) {
-                                    if ($version == self::$app->version) {
-                                        // we are done so display success notice.
-                                        set_success('Updated application to version ' . self::$app->version);
-                                    }
-                                    self::$app->installed_version = $version;
-                                    Atomar::set_system('app_installed_version', $version);
-                                } else {
-                                    // stop running updates for this extension.
-                                    set_error('Failed to process update ' . $version . ' for application');
-                                    $errors = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // display success notice
-                if (!$errors) {
-                    set_success('Updated application to version ' . self::$app->version);
-                    self::$app->installed_version = self::$app->version;
-                    Atomar::set_system('app_installed_version', self::$app->installed_version);
-                }
-            }
-        }
-    }
-
-    /**
-     * Uninstalls a single extension
+     * Uninstalls a single module
      * @param int $id
-     * @return bool
+     * @return bool true if the module was successfully un-installed
      */
-    public static function uninstall_extension(int $id) {
+    public static function uninstall_module(int $id) {
         $ext = \R::load('extension', $id);
-
-        // extensions must be disabled before uninstalling them.
-        if ($ext->is_enabled) {
-            return false;
+        if($ext->id) {
+            self::hookModule(new Uninstall(), $ext->slug, self::extension_dir().$ext->slug.DIRECTORY_SEPARATOR, null, $ext->box());
+            $ext->installed_version = '';
+            store($ext);
+            return true;
+        } else {
+            set_error('That module does not exist');
         }
-
-        // uninstall function
-        $fun = $ext->slug . '\uninstall';
-        $ext_path = self::$config['ext_dir'] . $ext->slug . '/install.php';
-        try {
-            include_once($ext_path);
-        } catch (\Exception $e) {
-            Logger::log_warning('Could not load the un-installation file for extension ' . $ext->slug, $e->getMessage());
-            return false;
-        }
-        if (function_exists($fun)) {
-            if (call_user_func($fun)) {
-                $ext->installed_version = '';
-                if (!store($ext)) {
-                    Logger::log_error('Failed to update extension after uninstalling: ' . $ext->slug);
-                    return false;
-                }
-            } else {
-                Logger::log_error('Failed to uninstall extension ' . $ext->slug);
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * A hook to run uninstall processes after an extension has been disabled.
-     * This is rather dangerous so we are not using this method right now. See uninstall_extension()
-     */
-    public static function hook_uninstall() {
-        $extensions = \R::find('extension', 'is_enabled=\'1\'');
-        foreach ($extensions as $ext) {
-            // uninstall function
-            $fun = $ext->slug . '_uninstall';
-            $ext_path = self::$config['ext_dir'] . $ext->slug . '/install.php';
-            try {
-                include_once($ext_path);
-            } catch (\Exception $e) {
-                Logger::log_warning('Could not load the un-installation file for extension ' . $ext->slug, $e->getMessage());
-                continue;
-            }
-            if (function_exists($fun)) {
-                if (call_user_func($fun)) {
-                    $ext->installed_version = '';
-                    store($ext);
-                } else {
-                    Logger::log_error('Failed to uninstall extension ' . $ext->slug);
-                }
-            }
-        }
+        return false;
     }
 
     /**
      * Returns a variable stored in the database or the default value.
      * @param string $key
-     * @param string $default
+     * @param string|null $default
      * @return string
      */
-    public static function get_variable(string $key, string $default) {
+    public static function get_variable(string $key, string $default=null) {
         $var = \R::findOne('setting', ' name=? ', array($key));
         if ($var) {
             return $var->value;

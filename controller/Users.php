@@ -22,7 +22,7 @@ ORDER BY
 SQL;
         $users = \R::getAll($sql_users);
 
-        echo $this->renderView('admin/users.html', array(
+        echo $this->renderView('@atomar/views/admin/users.html', array(
             'users' => $users
         ));
     }

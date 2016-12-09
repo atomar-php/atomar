@@ -12,12 +12,12 @@ interface Hook {
     function __construct($params = null);
 
     /**
-     * Executed just before the hook implementation is ran
-     * @param $function_name string The name of the method that will be ran.
+     * Executed just before the hook implementation is ran.
+     * If this returns false the hook will not be executed.
      * @param $extension mixed The extension in which the hook implementation is running.
-     * @deprecated
+     * @return bool true if the hook execution can proceed otherwise false
      */
-    public function pre_process($function_name, $extension);
+    public function preProcess($extension);
 
     /**
      * Executes the hook with the result of the hooked.
@@ -35,5 +35,11 @@ interface Hook {
      * @param $state mixed The final state of the hook.
      * @return mixed You can return whatever you need to here
      */
-    public function post_process($state);
+    public function postProcess($state);
+
+    /**
+     * Returns an array of parameters that will be passed to the hook receiver
+     * @return array
+     */
+    public function params();
 }

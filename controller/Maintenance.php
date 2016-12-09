@@ -4,7 +4,7 @@ namespace atomar\controller;
 
 use atomar\core\Controller;
 use atomar\Atomar;
-use atomar\core\Logger;
+use atomar\core\Templator;
 
 class Maintenance extends Controller {
 
@@ -13,12 +13,10 @@ class Maintenance extends Controller {
     }
 
     public function GET($matches = array()) {
-        // Run Maintenance Mode
-        if (Atomar::get_system('maintenance_mode') == '1') {
-            error_reporting(0);
-            Atomar::run_maintenance();
-        } else {
-            Logger::log_warning('The maintenance controller was called when maintenance mode was not enabled');
-        }
+        $message = "We are performing some updates and will be back shortly.";
+        echo Templator::render_template('@atomar/views/maintenance.html', array(
+            'title'=> Atomar::$config['site_name'],
+            'message'=> $message
+        ));
     }
-} 
+}

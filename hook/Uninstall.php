@@ -17,11 +17,11 @@ class Uninstall implements Hook {
 
     /**
      * Executed just before the hook implementation is ran
-     * @param $function_name string The name of the method that will be ran.
      * @param $extension mixed The extension in which the hook implementation is running.
+     * @return bool true if the hook execution can proceed otherwise false
      */
-    public function pre_process($function_name, $extension) {
-
+    public function preProcess($extension) {
+        return $extension->is_enabled != '1';
     }
 
     /**
@@ -46,9 +46,18 @@ class Uninstall implements Hook {
     /**
      * Executed after the hook implementations have finished executing.
      * @param $state mixed The final state of the hook.
-     * @return mixed|void
+     * @return mixed
      */
-    public function post_process($state) {
+    public function postProcess($state) {
+        return $state;
+    }
 
+    /**
+     * Returns an array of parameters that will be passed to the hook receiver
+     * @return array
+     */
+    public function params()
+    {
+        return null;
     }
 }

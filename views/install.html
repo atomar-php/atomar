@@ -1,17 +1,20 @@
-{% extends "_plain.html" %}
+{% extends "@atomar/views/_plain.html" %}
 
 {% block title %}Installation{% endblock %}
 
 {% block content %}
-<form class="form-install" action="/install" method="POST">
+<form class="form-install" method="POST" autocomplete="off">
   <h2 class="form-install-heading">Installation</h2>
-  <p>We need to create the super user and set up some optional settings in the database.
+  <p>
+    Caution: You are about to perform changes to the database. Existing data may be destroyed.
   </p>
 
-  <input type="text" class="form-control" placeholder="Email address" autofocus="" id="field-email"   name="email" required>
-  <input type="password" class="form-control" id="field-password" placeholder="Password" name="password" required>
+  <input type="email" class="form-control" placeholder="email" autofocus="" id="field-email" value="{{ email }}" name="email" required>
+  <!-- TRICKY: hack to prevent auto completing password -->
+  <input type="password" id="password" hidden readonly>
+  <input type="password" class="form-control" id="field-password" placeholder="password" name="password" required>
   <label class="checkbox">
-    <input type="checkbox" name="full" checked> Perform complete install
+    <input type="checkbox" name="full_install" {% if full_install %}checked{% endif %}> Perform complete install
   </label>
   <button class="btn btn-lg btn-primary btn-block" type="submit">Install</button>
 </form>

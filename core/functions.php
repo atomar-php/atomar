@@ -451,11 +451,11 @@ function word_trim($string, $max_width) {
  * @return string the formatted time period.
  */
 function relative_date($time, $round_to_date=true) {
-    if(is_string($time)) $time = strtotime($time);
+    if(!ctype_digit($time)) $time = strtotime($time);
     $now = time();
     $time_is_past = $time < $now;
-    $time = abs($time - $now);
-    $seconds = floor(abs($time));
+    $relative_time = abs($time - $now);
+    $seconds = floor(abs($relative_time));
 
     if($seconds < 60) {
         $result = 'less than a minute';
@@ -666,6 +666,7 @@ function deleteDir($dir_path) {
  * @param boolean $active used interally for recursive calls
  * @param string $name the name of the menu. IF this is set an id will be created from it and added to the ul.
  * @return string the rendered menue
+ * @deprecated we will not support menu generation in the future
  */
 function render_menu($menu, $active = false, $name = null) {
     // ul classes
@@ -814,6 +815,7 @@ function render_menu($menu, $active = false, $name = null) {
 
 /**
  * Create a link. This is used especially for render_menu()
+ * @deprecated the render_menu() method will go away too
  * TODO: this is old and ugly and needs to be updated.
  * @param string $text the title of the link
  * @param string $url the link url

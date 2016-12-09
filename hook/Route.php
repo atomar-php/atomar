@@ -8,7 +8,7 @@ use atomar\exception\UnknownController;
 
 class Route implements Hook {
 
-    private $root_ext_dir;
+    private $ext;
 
     /**
      * Hooks may receive optional params
@@ -20,11 +20,12 @@ class Route implements Hook {
 
     /**
      * Executed just before the hook implementation is ran
-     * @param $function_name string The name of the method that will be ran.
      * @param $extension mixed The extension in which the hook implementation is running.
+     * @return bool true if the hook execution can proceed otherwise false
      */
-    public function pre_process($function_name, $extension) {
-
+    public function preProcess($extension) {
+        $this->ext = $extension;
+        return true;
     }
 
     /**
@@ -84,10 +85,19 @@ class Route implements Hook {
      * @param $state mixed The final state of the hook.
      * @return mixed|void
      */
-    public function post_process($state) {
+    public function postProcess($state) {
         if ($state == null) {
             $state = array();
         }
         return $state;
+    }
+
+    /**
+     * Returns an array of parameters that will be passed to the hook receiver
+     * @return array
+     */
+    public function params()
+    {
+        return $this->ext;
     }
 }

@@ -43,9 +43,9 @@ function InlineEdit(element) {
     // TODO: eventually we will combine this along with the commented code below to generate the form for different field types.
 
     // if(self.fieldType == 'select') {
-    //   var url = '/!/get_key_value_'+self.modelField;
+    //   var url = '/atomar/api/get_key_value_'+self.modelField;
     //   if (self.module) {
-    //     url = '/!/'+self.module+'/get_key_value_'+self.modelField;   
+    //     url = '/atomar/api/'+self.module+'/get_key_value_'+self.modelField;
     //   }
     //   // submit data
     //   $.get(url, function(data) {
@@ -222,15 +222,15 @@ function InlineEdit(element) {
     });
 
     return true;
-  }
+  };
 
   /**
    *  Close the inline form
    */
   self.close = function(keepinput) {
-    keepinput = keepinput || false
-    if (!self.isOpen || self.isSaving) return
-    self.isOpen = false
+    keepinput = keepinput || false;
+    if (!self.isOpen || self.isSaving) return;
+    self.isOpen = false;
 
     self.$form.replaceWith(self.$element);
     if (!keepinput) self.$input.val(self.previousValue);
@@ -288,7 +288,7 @@ function InlineEdit(element) {
     //   }
     // });
     return true;
-  }
+  };
 
   /**
    *  Submit the inline form
@@ -322,8 +322,8 @@ function InlineEdit(element) {
     payload.model = self.model
 
     // send to system or module
-    var url = '/!/inline_edit'
-    if (self.module)  url = '/!/'+self.module+'/edit_'+self.model
+    var url = '/atomar/api/inline_edit'
+    if (self.module)  url = '/atomar/api/'+self.module+'/edit_'+self.model
 
     // submit data
     $.post(url, payload, function(response) {

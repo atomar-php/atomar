@@ -130,7 +130,6 @@ class SessionDBHandler implements \SessionHandlerInterface{
             $pieces = explode(';', $session_data);
             foreach ($pieces as $part) {
                 try {
-//                    list($key, $value) d;
                     $key_value = explode('|', $part);
                     if (count($key_value) == 2) {
                         if ($key_value[0] == 'user_id') {
@@ -147,6 +146,6 @@ class SessionDBHandler implements \SessionHandlerInterface{
                 }
             }
         }
-        return \R::store($session);
+        return \R::store($session) > 0;
     }
 }

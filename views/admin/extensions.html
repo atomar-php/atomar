@@ -1,6 +1,6 @@
-{% extends "admin/_base.html" %}
+{% extends "@atomar/views/admin/_base.html" %}
 
-{% block title %}Extensions{% endblock %}
+{% block title %}Modules{% endblock %}
 
 {% block content %}
 <div class="jumbotron hidden-phone">
@@ -8,21 +8,24 @@
     <p>Below are a list of available modules. Everything is a module, even the main application.</p>
     <hr/>
     {% if app %}
-        <h2>Application: {{ app.name }}</h2>
+        <h2>Application: {{ app.name }} {% if app.installed_version and app.is_enabled %}<small>v{{ app.installed_version }} {% if app.has_controls %}<a href="/atomar/modules/{{app.slug}}"><span class="glyphicon glyphicon-cog"></span></a>{% endif %}</small>{% endif %}</h2>
         <p>{{ app.description }}</p>
-        {% if app.installed_version != '0' %}
-            <p>Version: {{ app.installed_version }} {% if app.is_update_pending %}<a href="/!/install_app" class="btn btn-success">Update to {{ app.version }}</a>{% endif %}</p>
+        {% if app.installed_version != app.version %}
+            {% if app.is_update_pending %}<p>v{{ app.version }} is available</p>{% endif %}
             <!--TODO: need to provide an uninstall button-->
-        {% else %}
-            <p><a href="/!/install_app" class="btn btn-success">Install {{ app.version }}</a></p>
+        {% elseif not app.is_enabled %}
+            <p class="text-muted">Run update to install v{{ app.version }}</p>
         {% endif %}
         {% if app.is_missing_dependencies %}
         <p class="warning">Some dependencies are missing</p>
         {% endif %}
     {% endif %}
 </div>
-{% if extensions%}
-<form action="/atomar/extensions" method="POST">
+<p class="text-muted">
+    These modules were found in <code>{{ modules_dir }}</code>
+</p>
+{% if modules%}
+<form action="/atomar/modules" method="POST">
     <table class="table table-striped table-bordered table-hover">
         <tr>
             <th>Name</th>
@@ -32,13 +35,13 @@
             <th>Dependencies</th>
             <th></th>
         </tr>
-        {% for ext in extensions %}
+        {% for ext in modules %}
         {% if ext.is_enabled %}
         <tr class="success">
             {% else %}
         <tr>
             {% endif %}
-            <td>{{ ext.name }}</td>
+            <td>{{ ext.name }} {% if ext.is_enabled and ext.has_controls %}<a href="/atomar/modules/{{ ext.slug }}"><span class="glyphicon glyphicon-cog"></span></a>{% endif %}</td>
             <td>{{ ext.description }}</td>
             <td>
                 {% if ext.is_enabled %}
@@ -50,9 +53,9 @@
                 {% else %}
                 {{ ext.version }}
                 {% if ext.installed_version %}
-                <a href="/!/uninstall_extension?id={{ ext.id }}" class="tip pull-right text-muted"
-                   data-confirm="CAUTION! Are you sure you want to completely uninstall this extension. This may result in data loss."
-                   title="Completely uninstall extension"><span class="glyphicon glyphicon-trash"></span></a>
+                <a href="/atomar/api/uninstall_module?id={{ ext.id }}" class="tip pull-right text-muted"
+                   data-confirm="CAUTION! Are you sure you want to completely uninstall this module. This may result in data loss."
+                   title="Completely uninstall module"><span class="glyphicon glyphicon-trash"></span></a>
                 {% endif %}
                 {% endif %}
             </td>
@@ -90,7 +93,7 @@
 </form>
 {% else %}
 <div class="well">
-    No extensions were found in <code>{{ ext_dir }}</code>
+    No modules were found.
 </div>
 {% endif%}
 {% endblock %}

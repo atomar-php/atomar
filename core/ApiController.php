@@ -1,6 +1,7 @@
 <?php
 
 namespace atomar\core;
+use atomar\Atomar;
 
 /**
  * The api extends the controller to provide some advanced functionality to the api controllers.
@@ -19,9 +20,15 @@ abstract class ApiController extends Controller {
    *
    * @param \Exception $e the exception
    */
-  public function exception_handler($e) {
+  public function exceptionHandler($e) {
     Logger::log_error($e->getMessage(), $e->getTrace());
-    render_json(array('status' => 'error', 'message' => get_class($this) . '->exception_handler: An exception has occurred. See the log for details.'));
+    $message = get_class($this) . '->exception_handler: ';
+    if(Auth::has_authentication('administer_site') || Atomar::debug()) {
+        $message .= $e->getMessage();
+    } else {
+        $message .= 'An exception has occurred. See the log for details.';
+    }
+    render_json(array('status' => 'error', 'message' => $message));
   }
 
   /**

@@ -1,4 +1,4 @@
-{% extends "_lightbox.html" %}
+{% extends "@atomar/views/_lightbox.html" %}
 
 {% block lightbox %}
 <div class="row">
@@ -35,11 +35,11 @@
 {% if user %}
 <div class="row">
   <div class="col-xs-12">
-    <a href="/!/delete_user?id={{ user.id }}&amp;r={{ lightbox.dismiss_url|url_encode }}" class="btn btn-danger btn-xs" data-confirm="Are you sure you want to delete the user? This cannot be undone.">Delete Account</a>
+    <a href="/atomar/api/delete_user?id={{ user.id }}&amp;r={{ lightbox.dismiss_url|url_encode }}" class="btn btn-danger btn-xs" data-confirm="Are you sure you want to delete the user? This cannot be undone.">Delete Account</a>
     {% if user.is_enabled %}
-    <a href="/!/enable_user?enabled=0&amp;id={{ user.id }}&amp;r={{ lightbox.return_url|url_encode }}" class="btn btn-warning btn-xs">Disable Account</a>
+    <a href="/atomar/api/enable_user?enabled=0&amp;id={{ user.id }}&amp;r={{ lightbox.return_url|url_encode }}" class="btn btn-warning btn-xs">Disable Account</a>
     {% else %}
-    <a href="/!/enable_user?enabled=1&amp;id={{ user.id }}&amp;r={{ lightbox.return_url|url_encode }}" class="btn btn-success btn-xs">Enable Account</a>
+    <a href="/atomar/api/enable_user?enabled=1&amp;id={{ user.id }}&amp;r={{ lightbox.return_url|url_encode }}" class="btn btn-success btn-xs">Enable Account</a>
     {% endif %}
   </div>
 </div>

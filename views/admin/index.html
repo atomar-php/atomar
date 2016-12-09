@@ -1,4 +1,4 @@
-{% extends "admin/_base.html" %}
+{% extends "@atomar/views/admin/_base.html" %}
 
 {% block title %}Admin{% endblock %}
 
@@ -7,20 +7,20 @@
   <h1>Atomar <small>v{{ atomar.version }}</small></h1>
   <hr class="dark">
   <div>
-    <a class="btn btn-default" href="{{ sys.site_url }}!/cron?token={{ sys.cron_token }}" target="_blank">Run Cron</a>
+    <a class="btn btn-default" href="{{ sys.site_url }}atomar/api/cron?token={{ sys.cron_token }}" target="_blank">Run Cron</a>
     {% if atomar.maintenance %}
-    <a class="btn btn-primary" href="/!/maintenance?enabled=0" class="tip" title="Only administrators will be able to login and view the site">Disable Maintenance Mode</a>
+    <a class="btn btn-primary" href="/atomar/api/maintenance?enabled=0" class="tip" title="Only administrators will be able to login and view the site">Disable Maintenance Mode</a>
     {% else %}
-    <a class="btn btn-default" href="/!/maintenance?enabled=1" class="tip" title="Only administrators will be able to login and view the site">Enable Maintenance Mode</a>
+    <a class="btn btn-default" href="/atomar/api/maintenance?enabled=1" class="tip" title="Only administrators will be able to login and view the site">Enable Maintenance Mode</a>
     {% endif %}
 
     {% if atomar.debug %}
-    <div class="btn-group">
-      <a href="/!/debug_mode?enable=0" class="btn btn-primary">Disable debug mode</a>
-      <a class="btn btn-default" href="/!/empty_cache">Empty Cache</a>
-    </div>
+    <a href="/atomar/api/debug_mode?enable=0" class="btn btn-primary">Disable debug mode</a>
     {% else %}
-    <a href="/!/debug_mode?enable=1" class="btn btn-default">Enable debug mode</a>
+    <div class="btn-group">
+      <a href="/atomar/api/debug_mode?enable=1" class="btn btn-default">Enable debug mode</a>
+      <a class="btn btn-default" href="/atomar/api/empty_cache">Empty Cache</a>
+    </div>
     {% endif %}
   </div>
 </div>

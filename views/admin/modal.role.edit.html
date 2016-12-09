@@ -1,4 +1,4 @@
-{% extends "_lightbox.html" %}
+{% extends "@atomar/views/_lightbox.html" %}
 
 {% block lightbox %}
 <div class="row">
@@ -26,7 +26,7 @@
 
 {% block lightbox_controls %}
 <div class="pull-left">
-  <a href="/!/delete_role?id={{ role.id }}&amp;r={{ lightbox.dismiss_url|url_encode }}" class="btn btn-danger btn-small" data-confirm="Are you sure you want to delete the role? This cannot be undone."><span class="glyphicon glyphicon-trash"></span> Delete Role</a>
+  <a href="/atomar/api/delete_role?id={{ role.id }}&amp;r={{ lightbox.dismiss_url|url_encode }}" class="btn btn-danger btn-small" data-confirm="Are you sure you want to delete the role? This cannot be undone."><span class="glyphicon glyphicon-trash"></span> Delete Role</a>
 </div>
 
 <button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Cancel</button>

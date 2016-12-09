@@ -62,14 +62,13 @@ class Auth {
             self::$_min_password_length = self::$_config['min_password_length'];
         }
         self::$_auth_failure_callback = function ($user, $url) {
+            // TODO: might it be better to use a hook?
             set_error('You are not authorized to access ' . $url);
             Logger::log_error('Authentication Failure by user: ' . $user->id . ' at: ' . $url);
             if (!Router::is_active_url('/', true)) {
                 Router::go('/');
             } else {
-                Logger::log_warning('Detected a potential redirect loop', '/');
-                echo Templator::render_view('500.html');
-                exit;
+                Router::displayServerResponseCode(500);
             }
         };
     }
@@ -146,8 +145,7 @@ class Auth {
     private static function _start_session() {
         if (!self::$_session_active) {
             // initialize a new session handler to store sessions in the database.
-            // This variable is discarded.
-            $session_handler = new SessionDBHandler();
+            session_set_save_handler(new SessionDBHandler(), true);
 
             self::$_session_active = true;
             $session_name = self::$_config['session_name']; // Set a custom session name
@@ -163,23 +161,8 @@ class Auth {
                 set_error('Unable to start the session.');
                 return false;
             }
-            // regenerate the session id every once in awhile to make it harder to hack.
-            // TRICKY JL 01/02/2014 - regenerating the id too often may cause the user to be logged out while
-            // clicking on links too fast.
-            return true; // NOTE: JL 02/24/2014 - Session regeneration is temporarily disabled while debugging session expiration bug.
-            if (!isset($_SESSION['session_last_regenerated_at'])) {
-                $_SESSION['session_last_regenerated_at'] = self::$_now - self::$_config['session_id_regeneration_period'];
-            }
-            if (self::$_now - $_SESSION['session_last_regenerated_at'] >= self::$_config['session_id_regeneration_period']) {
-                $old_id = session_id();
-                $_SESSION['session_last_regenerated_at'] = self::$_now;
-                if (session_regenerate_id(true)) { // regenerated the session, delete the old one.
-                    if (Atomar::$config['debug']) Logger::log_notice('Regenerated the session id: ' . $old_id . ' to: ' . session_id(), $_SESSION);
-                } else {
-                    Logger::log_error('An error occured while regenerating the session id: ' . $old_id, $_SESSION);
-                }
-            }
         }
+        return true;
     }
 
     /**
@@ -192,21 +175,25 @@ class Auth {
     }
 
     /**
-     * Log out the user
+     * Logs a user out of the system.
+     * If no parameter is given the current user will be logged out softly
+     * e.g. the session will remain intact, but authentication will be revoked.
+     *
+     * If a specific user is given as a parameter that user will receive a hard log out
+     * e.g. the entire session will be destroyed.
+     *
      * @param RedBeanPHP /OODBBean $user the user to log out
      */
     public static function logout($user = null) {
         if ($user == null || $user->id == self::$_user->id) {
-            // Unset all session values
-            $_SESSION = array();
-            // get session parameters
-            $params = session_get_cookie_params();
-            // Delete the actual cookie.
-            setcookie(session_name(), '', self::$_now - 42000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
-            // Destroy session
-            session_unset();
-            session_destroy();
+            // log out the current user
+            unset($_SESSION['auth']);
+            unset($_SESSION['user_id']);
+            unset($_SESSION['email']);
+            unset($_SESSION['last_activity']);
+            unset($_SESSION['remember_me']);
         } else {
+            // log out the chosen user
             $session = \R::findOne('session', 'user_id=:id', array(
                 ':id' => $user->id
             ));
@@ -217,6 +204,15 @@ class Auth {
         self::$_user = false;
         self::$user = false;
         self::$_session_active = false;
+    }
+
+    /**
+     * Returns an array of users that have the given role
+     * @param string $role_slug the role to search by
+     * @return array the users in this role.
+     */
+    public static function get_users_by_role(string $role_slug) {
+        return \R::findAll('user', 'role_id in (select id from role where slug=?)', array($role_slug));
     }
 
     /**
@@ -290,17 +286,15 @@ class Auth {
             }
 
 
-            // check if permission level exists in database.
-            if (Atomar::$config['debug']) {
+            // add missing permission levels to the database
+            if (Atomar::debug()) {
                 foreach ($levels as $level) {
                     $p = \R::findOne('permission', 'slug=?', array($level));
                     if (!$p) {
-                        // add new permissions to database
                         $p = \R::dispense('permission');
                         $p->slug = $level;
                         $p->name = machine_to_human($level);
                         \R::store($p);
-                        set_notice('Added permission "' . $level . '" to database.');
                     }
                 }
             }
@@ -364,11 +358,11 @@ class Auth {
 
     /**
      * Create a new account for the user
-     * TODO: check if registration is enabled by system
+     * T
      * @param RedBeanPHP /OODBBean $user the user that will be registered
      * @param string $password the human readable password
      * @param RedBeanPHP /OODBBean $role the role assigned to the user
-     * @return mixed the user id if registration suceeded otherwise false.
+     * @return mixed the user id if registration succeeded otherwise false.
      */
     public static function register($user, $password, $role) {
         if (!$role->id) {
@@ -427,7 +421,7 @@ class Auth {
     /**
      * Log in the user
      * If log in is successful you can access the user via A::$user
-     * TODO: check if logins are enabled by the system
+     *
      * @param string $email the email of the user
      * @param string $password the human readable password of the user account
      * @param bool $remember_me if set to true the user will be logged in indefinitely
@@ -553,7 +547,7 @@ class Auth {
 
     /**
      * Grants a user access to the site without creating an authenticated session.
-     * TODO: check of logins are enabled by the system
+     *
      * @param int $user_id the id of the user who will be logged in
      * @return boolean true if login was successful
      */

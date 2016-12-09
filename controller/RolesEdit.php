@@ -62,7 +62,7 @@ SQL;
             $this->width(500);
             $this->header('Edit Role');
 
-            echo $this->renderView('admin/modal.role.edit.html', array(
+            echo $this->renderView('@atomar/views/admin/modal.role.edit.html', array(
                 'role' => $role,
                 'permissions' => $permissions
             ));

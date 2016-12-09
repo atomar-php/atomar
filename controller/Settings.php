@@ -14,7 +14,7 @@ class Settings extends Controller {
             self::go('/');
         }
         $settings = \R::findAll('setting', ' ORDER BY name ASC ');
-        echo $this->renderView('admin/settings.html', array(
+        echo $this->renderView('@atomar/views/admin/settings.html', array(
             'settings' => $settings
         ));
     }

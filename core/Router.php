@@ -4,6 +4,9 @@ namespace atomar\core;
 
 use atomar\Atomar;
 use atomar\exception\UnknownController;
+use atomar\hook\ServerResponseCode;
+use atomar\hook\MaintenanceController;
+use atomar\hook\MaintenanceRoute;
 use atomar\hook\PostBoot;
 use atomar\hook\PreBoot;
 use atomar\hook\Route;
@@ -54,17 +57,11 @@ class Router {
      */
     public static function init() {
         // set up request variables
-        $regex = '^(?<path>((?!\?).)*)(?<query>.*)$';
-        if (preg_match("/$regex/i", $_SERVER['REQUEST_URI'], $matches)) {
-            self::$_request_path = $matches['path'];
-            if (isset($matches['query'])) {
-                self::$_request_query = $matches['query'];
-            }
-        }
-        if (substr(self::$_request_path, 0, 3) == '/!/') {
+        self::$_request_path = explode('?', $_SERVER['REQUEST_URI'])[0];
+        self::$_request_query = $_SERVER['QUERY_STRING'];
+        if (substr(self::$_request_path, 0, 12) == '/atomar/api/') {
             self::$is_process = true;
-        }
-        if (substr(self::$_request_path, 0, 6) == '/atomar') {
+        } else if (substr(self::$_request_path, 0, 7) == '/atomar') {
             self::$is_backend = true;
         }
 
@@ -79,57 +76,21 @@ class Router {
      */
     public static function run($urls = null) {
         if ($urls == null) {
-            // validate cache and files path
-            if (Auth::has_authentication('administer_site')) {
-                if (!file_exists(Atomar::$config['cache'])) {
-                    mkdir(Atomar::$config['cache'], 0775, true);
-                }
-                if (!file_exists(Atomar::$config['files'])) {
-                    mkdir(Atomar::$config['files'], 0770, true);
-                }
-                if (!is_writable(Atomar::$config['cache'])) {
-                    set_error('The cache directory (' . Atomar::$config['cache'] . ') is not write-able');
-                }
-                if (!is_writable(Atomar::$config['files'])) {
-                    set_error('The files directory (' . Atomar::$config['files'] . ') is not write-able');
-                }
+            if(Atomar::get_system('maintenance_mode', '0') == '1' && !Auth::has_authentication('administer_site')) {
+                $urls = Atomar::hook(new MaintenanceRoute());
+            } else {
+                $urls = Atomar::hook(new Route());
             }
-
-            if (Auth::$user) {
-                // give the user info to js
-                $fname = str_replace('\'', '\\\'', Auth::$user->first_name);
-                $lname = str_replace('\'', '\\\'', Auth::$user->last_name);
-                $id = Auth::$user->id;
-                Templator::$js_onload[] = <<<JAVASCRIPT
-var user = {
-  first_name:'$fname',
-  last_name:'$lname',
-  id:$id
-}
-if(typeof RegisterGlobal == 'function') RegisterGlobal('user', user);
-JAVASCRIPT;
-            }
-
-            // hook urls
-//            try {
-            $urls = Atomar::hook(new Route());
-//            } catch (UnknownController $e) {
-//                if (Atomar::$config['debug']) {
-//                    // TODO: perform some automated tasks to facilitate development
-//                    throw $e;
-//                }
-//            }
-
-            Atomar::hook(new PostBoot());
         }
+
+        Atomar::hook(new PostBoot());
 
         // begin routing
         try {
             self::route($urls);
-            /**
-             * Display debugging info
-             */
-            if (Auth::has_authentication('administer_site') && Atomar::$config['debug'] && isset($_GET['debug']) && $_GET['debug'] == 1) {
+
+            // show debugging info
+            if (Auth::has_authentication('administer_site') && isset($_GET['debug'])) {
                 if (Auth::$user) {
                     $user = Auth::$user->export();
                 } else {
@@ -143,43 +104,20 @@ JAVASCRIPT;
                     $urls
                 ));
             }
-        } catch (\Exception $e) {
-            if(Atomar::$config['debug']) {
-                Logger::log_warning('Routing exception', $e->getMessage());
-            }
-            $path = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-            if (Atomar::get_system('maintenance_mode', '0') == '1' && !Auth::has_authentication('administer_site')) {
-                // prevent redirect loops.
-                if (!self::is_active_url('/', true)) {
-                    self::go('/');
-                } else {
-                    self::redirect_loop_catcher($path);
-                }
-            } else if (Atomar::$config['debug'] || Auth::has_authentication('administer_site')) {
-                // print the error
-                $version = phpversion();
-                echo Templator::render_view('debug.html', array(
-                    'exception' => $e,
-                    'php_version' => $version
-                ));
-            } else if (!Auth::$user) {
-                // un-authenticated users
-                Logger::log_error('An exception occurred in the controller while on the route ' . $path, $e->getMessage());
-                if (!self::is_active_url('/', true)) {
-                    self::go('/');
-                } else {
-                    self::redirect_loop_catcher($path);
-                }
+        } catch (UnknownRouteException $e) {
+            // url not found
+            if(Auth::has_authentication('administer_site') || Atomar::debug()) {
+                echo Templator::renderDebug($e);
             } else {
-                if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
-                    $scheme = 'https://';
-                } else {
-                    $scheme = 'http://';
-                }
-                $path = $scheme . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-                echo Templator::render_view('404.html', array(
-                    'path' => $path
-                ));
+                self::displayServerResponseCode(404);
+            }
+        } catch (\Exception $e) {
+            // route error
+            if(Auth::has_authentication('administer_site') || Atomar::debug()) {
+                echo Templator::renderDebug($e);
+            } else {
+                Logger::log_warning('Routing exception', $e->getMessage());
+                self::displayServerResponseCode(500);
             }
         }
     }
@@ -188,44 +126,74 @@ JAVASCRIPT;
      * Begins routing to the appropriate classes
      *
      * @param   array $urls The regex-based url to class mapping
-     * @throws \Exception Thrown if no match is found
+     * @throws \Exception|UnknownRouteException
      */
     private static function route($urls) {
         $method = strtoupper($_SERVER['REQUEST_METHOD']);
         $path = $_SERVER['REQUEST_URI'];
 
-        $found = false;
-
         krsort($urls);
 
+        // match route
         foreach ($urls as $regex => $class) {
             $regex = str_replace('/', '\/', $regex);
             $regex = '^' . $regex . '\/?$';
             if (preg_match("/$regex/i", $path, $matches)) {
-                $found = true;
                 if (class_exists($class)) {
-                    $obj = new $class(false);
-                    if (method_exists($obj, $method)) {
-                        try {
-                            $obj->$method($matches);
-                        } catch (\Exception $e) {
-                            if (method_exists($obj, 'exception_handler')) {
-                                $obj->exception_handler($e);
-                            } else {
-                                throw $e;
-                            }
-                        }
-                    } else {
-                        throw new \BadMethodCallException("Method, $method, not supported.");
-                    }
+                    $controller = new $class(false);
+                    self::callController($controller, $method, $matches);
                 } else {
                     throw new \Exception("Class, $class, not found.");
                 }
-                break;
+                return;
             }
         }
-        if (!$found) {
-            throw new \Exception("URL, $path, not found.");
+
+        // handle maintenance mode
+        if(Atomar::get_system('maintenance_mode', '0') == '1') {
+            $controller = Atomar::hook(new MaintenanceController());
+            self::callController($controller, $method, array());
+            return;
+        }
+
+        // un-matched route
+        throw new UnknownRouteException("URL, $path, not found.");
+    }
+
+    /**
+     * Displays a server response code in the browser and halts execution.
+     * This is usually used to display error codes.
+     *
+     * @param int $code
+     */
+    public static function displayServerResponseCode(int $code) {
+        $controller = Atomar::hook(new ServerResponseCode($code));
+        http_response_code($code);
+        if($controller instanceof Controller) {
+            $controller->GET(array('code' => $code));
+        } else {
+            // in the rare event there is no controller just print the code
+            echo $code;
+        }
+        exit();
+    }
+
+    /**
+     * Executes a controller.
+     * @param Controller $controller the controller to run
+     * @param string $method the method to be called
+     * @param array $matches the matched arguments found in the url
+     * @throws \BadMethodCallException if the request method is not implemented in the controller
+     */
+    private static function callController($controller, $method, $matches=array()) {
+        if($controller instanceof Controller && method_exists($controller, $method)) {
+            try {
+                $controller->$method($matches);
+            } catch (\Exception $e) {
+                $controller->exceptionHandler($e);
+            }
+        } else {
+            throw new \BadMethodCallException("Method, $method, not supported on " . get_class($controller) . ".");
         }
     }
 
@@ -271,13 +239,11 @@ JAVASCRIPT;
     }
 
     /**
-     * Display a 404 page instead of starting a redirect loop
-     * @param $path
+     * Returns the fully qualified url of the current page
+     * @return string
      */
-    private static function redirect_loop_catcher($path) {
-        Logger::log_warning('Detected a potential redirect loop', $path);
-        echo Templator::render_view('500.html');
-        exit;
+    public static function page_url() {
+        return rtrim(Atomar::$config['site_url'], '/') . '/' . ltrim(self::request_path(), '/') . self::request_query();
     }
 
     /**
@@ -293,6 +259,7 @@ JAVASCRIPT;
     /**
      * Check if the current url is executing a process.
      * TODO: technically these are rest APIs not processes.
+     * @deprecated
      * @return boolean true if the url is a process
      */
     public static function is_url_process() {
@@ -325,9 +292,14 @@ JAVASCRIPT;
 
     /**
      * Check if the current url is a backend url a.k.a /atomar
+     * @deprecated
      * @return boolean true if the url is a backend url.
      */
     public static function is_url_backend() {
         return self::$is_backend;
     }
+}
+
+class UnknownRouteException extends \Exception {
+
 }

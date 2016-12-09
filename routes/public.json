@@ -1,0 +1,4 @@
+{
+  "/atomar/api/(?P<api>cron)/?(\\?.*)?": "atomar\\controller\\API",
+  "/(\\?.*)?": "atomar\\controller\\Index"
+}

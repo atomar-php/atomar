@@ -43,7 +43,7 @@ class UserEdit extends Lightbox {
             $this->header('Edit User <small>' . $user['username'] . '</small>');
 
             // render page
-            echo $this->renderView('admin/modal.user.edit.html', array(
+            echo $this->renderView('@atomar/views/admin/modal.user.edit.html', array(
                 'user' => $user,
                 'roles' => $user_roles,
                 'is_admin' => Auth::has_authentication('administer_users')
@@ -56,10 +56,19 @@ class UserEdit extends Lightbox {
     }
 
     function POST($matches = array()) {
+        $min_password_length = 6;
         // require authentication
         if (!Auth::has_authentication('administer_users')) {
             set_error('You are not authorized to edit users');
             $this->redirect('/');
+        }
+
+        $password = trim($_POST['password']);
+        unset($_POST['password']);
+        if($password && strlen($password) < $min_password_length) {
+            set_error("Password too short");
+            self::GET(array_merge($matches, $_POST));
+            return;
         }
 
         // load user
@@ -81,6 +90,11 @@ class UserEdit extends Lightbox {
             } else {
                 // update user fields
                 $user->email = $email;
+                if($password) {
+                    if(!Auth::set_password($user, $password)) {
+                        set_warning("Password Not Changed");
+                    }
+                }
                 if (!store($user)) {
                     set_error($user->errors());
                 } else {

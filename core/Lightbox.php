@@ -102,7 +102,7 @@ parent.$(parent.window.document).trigger('lightbox.redirect', {
   url:'$url'
 });
 JAVASCRIPT;
-        echo parent::renderView('_lightbox_utility.html', array(), array(
+        echo parent::renderView('@atomar/views/_lightbox_utility.html', array(), array(
             'render_messages' => false,
             'render_menus' => false
         ));
@@ -114,7 +114,7 @@ JAVASCRIPT;
      *
      * @param Exception $e the exception
      */
-    public function exception_handler($e) {
+    public function exceptionHandler($e) {
         Logger::log_error($e->getMessage(), $e->getTrace());
         set_error('A Lightbox exception has occured. See the log for details.');
         $this->dismiss();
@@ -158,7 +158,7 @@ parent.$(parent.window.document).trigger('lightbox.dismiss',  {
   }
 });
 JAVASCRIPT;
-        echo parent::renderView('_lightbox_utility.html', array(), array(
+        echo parent::renderView('@atomar/views/_lightbox_utility.html', array(), array(
             'render_messages' => false,
             'render_menus' => false
         ));
