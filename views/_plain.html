@@ -7,9 +7,11 @@
     <meta name=viewport content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="Neutrino Graphics LLC">
-    {% for style in atomar.css %}
-    <link rel="stylesheet" type="text/css" href="{{ style }}?v={{ atomar.version }}">
-    {% endfor %}
+    <link rel="stylesheet" type="text/css" href="/atomar/assets/css/bootstrap.min.css?v={{ atomar.version }}">
+    <link rel="stylesheet" type="text/css" href="/atomar/assets/css/chosen.min.css?v={{ atomar.version }}">
+    <link rel="stylesheet" type="text/css" href="/atomar/assets/css/chosen-bootstrap.css?v={{ atomar.version }}">
+    <link rel="stylesheet" type="text/css" href="/atomar/assets/css/bootstrap-datetimepicker.min.css?v={{ atomar.version }}">
+    <link rel="stylesheet" type="text/css" href="/atomar/assets/css/main.css?v={{ atomar.version }}">
     <style>
     {{ atomar.css_inline|raw }}
     </style>
@@ -52,25 +54,27 @@
     </div>
 
     <!-- scripts -->
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="/atomar/assets/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/atomar/assets/js/bootstrap.file-input.js"></script>
+    <script type="text/javascript" src="/atomar/assets/js/bootstrap-datetimepicker.js"></script>
+    <script type="text/javascript" src="/atomar/assets/js/chosen.jquery.min.js"></script>
+    <script type="text/javascript" src="/atomar/assets/js/Validate.js"></script>
+    <script type="text/javascript" src="/atomar/assets/js/Process.js"></script>
+    <script type="text/javascript" src="/atomar/assets/js/Confirmation.js"></script>
+    <script type="text/javascript" src="/atomar/assets/js/InlineEdit.js"></script>
+    <script type="text/javascript" src="/atomar/assets/js/Lightbox.js"></script>
+    <script type="text/javascript" src="/atomar/assets/js/sonic.js"></script>
+    <script type="text/javascript" src="/atomar/assets/js/js_loader_animation.js"></script>
+    <script type="text/javascript" src="/atomar/assets/js/functions.js"></script>
     <script type="text/javascript" src="/atomar/assets/js/head.js"></script>
+    <script type="text/javascript" src="/atomar/assets/js/main.js"></script>
     <script>
-      {% if atomar.js %}
-      head.js({{ atomar.js|raw }}, function() {
-        {% if atomar.jquery_no_conflict %}
-        jQuery.noConflict();
-        {% endif %}
-        $(document).ready(function() {
-          {{ atomar.js_onload|raw }}
+        head.js({{ atomar.js|raw }}, function() {
+            $(document).ready(function() {
+                {{ atomar.js_onload|raw }}
+            });
         });
-      });
-      {% else %}
-        {% if atomar.jquery_no_conflict %}
-        jQuery.noConflict();
-        {% endif %}
-        $(document).ready(function() {
-          {{ atomar.js_onload|raw }}
-        });
-      {% endif %}
     </script>
   </body>
 </html>

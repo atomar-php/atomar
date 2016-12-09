@@ -112,7 +112,7 @@ JAVASCRIPT;
     /**
      * This method will be called automatically to handle any exceptions in the class
      *
-     * @param Exception $e the exception
+     * @param \Exception $e the exception
      */
     public function exceptionHandler($e) {
         Logger::log_error($e->getMessage(), $e->getTrace());

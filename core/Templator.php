@@ -68,31 +68,10 @@ class Templator {
      */
     public static function init() {
         // set up scripts. Order does matter.
-        self::$js = array(
-            '/atomar/assets/js/jquery.min.js',
-            '/atomar/assets/js/bootstrap.min.js',
-            '/atomar/assets/js/bootstrap.file-input.js',
-            '/atomar/assets/js/bootstrap-datetimepicker.js',
-            '/atomar/assets/js/chosen.jquery.min.js',
-            '/atomar/assets/js/Validate.js',
-            '/atomar/assets/js/Process.js',
-            '/atomar/assets/js/Confirmation.js',
-            '/atomar/assets/js/InlineEdit.js',
-            '/atomar/assets/js/Lightbox.js',
-            '/atomar/assets/js/sonic.js',
-            '/atomar/assets/js/js_loader_animation.js',
-            '/atomar/assets/js/functions.js',
-            '/atomar/assets/js/main.js',
-        );
+        self::$js = array();
 
         // set up css. Order does matter
-        self::$css = array(
-            '/atomar/assets/css/bootstrap.min.css',
-            '/atomar/assets/css/chosen.min.css',
-            '/atomar/assets/css/chosen-bootstrap.css',
-            '/atomar/assets/css/bootstrap-datetimepicker.min.css',
-            '/atomar/assets/css/main.css',
-        );
+        self::$css = array();
 
         self::$is_initialized = true;
     }
