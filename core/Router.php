@@ -72,21 +72,20 @@ class Router {
      * Starts up the router
      * @param null|array $urls An array of urls to route. If left null the system will provide the default and hooked urls
      * @throws UnknownController
-     * @throws \Exception
      */
     public static function run($urls = null) {
-        if ($urls == null) {
-            if(Atomar::get_system('maintenance_mode', '0') == '1' && !Auth::has_authentication('administer_site')) {
-                $urls = Atomar::hook(new MaintenanceRoute());
-            } else {
-                $urls = Atomar::hook(new Route());
-            }
-        }
-
-        Atomar::hook(new PostBoot());
-
-        // begin routing
         try {
+            if ($urls == null) {
+                if (Atomar::get_system('maintenance_mode', '0') == '1' && !Auth::has_authentication('administer_site')) {
+                    $urls = Atomar::hook(new MaintenanceRoute());
+                } else {
+                    $urls = Atomar::hook(new Route());
+                }
+            }
+
+            Atomar::hook(new PostBoot());
+
+            // begin routing
             self::route($urls);
 
             // show debugging info
@@ -111,6 +110,15 @@ class Router {
                 echo Templator::renderDebug($e);
             } else {
                 self::displayServerResponseCode(404);
+            }
+        } catch(UnknownController $e) {
+            // missing controller
+            if(Auth::has_authentication('administer_site') || Atomar::debug()) {
+                http_response_code(500);
+                echo Templator::renderDebug($e);
+            } else {
+                Logger::log_warning('Missing controller', $e->getMessage());
+                self::displayServerResponseCode(500);
             }
         } catch (\Exception $e) {
             // route error
@@ -205,7 +213,7 @@ class Router {
      * @param bool $exact If true the url must match exactly e.g. sub pages will not match
      * @return bool
      */
-    public static function is_active_url($uri, $exact = false) {
+    public static function is_url_active($uri, $exact = false) {
         $uri = trim($uri, '/');
         $parts = explode('/', trim(self::request_path(), '/'));
         if ($uri == trim(self::request_path(), '/') || $uri == trim(self::request_path() . self::request_query(), '/')) {

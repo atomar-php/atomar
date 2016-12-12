@@ -53,9 +53,9 @@ abstract class Controller {
             $url = $default_url;
         }
         // prevent loops
-        if (is_string($url) && !Router::is_active_url($url, true)) {
+        if (is_string($url) && !Router::is_url_active($url, true)) {
             Router::go($url);
-        } else if (!Router::is_active_url('/', true)) {
+        } else if (!Router::is_url_active('/', true)) {
             Router::go('/');
         } else {
             $this->throw500();
@@ -76,6 +76,7 @@ abstract class Controller {
      * @param array $args custom options that will be sent to the view
      * @param array $options optional rules regarding how the template will be rendered.
      * @return string the rendered html
+     * @throws \Exception
      */
     protected function renderView($view, $args = array(), $options = array()) {
         if (!isset($options['_controller'])) $options['_controller']['type'] = 'controller';
@@ -110,7 +111,7 @@ abstract class Controller {
     public function exceptionHandler($e) {
         if(Atomar::debug() || Auth::has_authentication('administer_site')) {
             http_response_code(500);
-            Templator::renderDebug($e);
+            echo Templator::renderDebug($e);
             exit();
         } else {
             Logger::log_error($e->getMessage(), $e);
