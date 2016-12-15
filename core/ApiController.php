@@ -22,7 +22,8 @@ abstract class ApiController extends Controller {
    */
   public function exceptionHandler($e) {
     Logger::log_error($e->getMessage(), $e->getTrace());
-    $message = get_class($this) . '->exception_handler: ';
+    $message = get_class($this) . '->exceptionHandler: ';
+    http_response_code(500);
     if(Auth::has_authentication('administer_site') || Atomar::debug()) {
         $message .= $e->getMessage();
     } else {
@@ -58,13 +59,19 @@ abstract class ApiController extends Controller {
     $backwards_compatible_method_signature = strtoupper('_' . $prefix);
     if (method_exists($this, $method_signature)) {
       // execute the api method
-      error_reporting(0); // make sure errors do not corrupt the response.
       try {
         $response = $this->call_user_func_args($method_signature, $_REQUEST, true);
         $this->respond($response);
       } catch (ParameterException $e) {
         // send any parameter parsing exceptions as an error response
         $this->respond(new MalformedParameters($e->getMessage(), 400));
+      } catch (\Error $e) {
+          Logger::log_error($e->getMessage(), $e);
+          if(Atomar::debug() || Auth::has_authentication('administer_site')) {
+              $this->respond(new ServerError($e->getMessage(), 500));
+          } else {
+              $this->respond(new ServerError('An error has occurred on the server. See the log for details', 500));
+          }
       }
     } elseif (method_exists($this, $backwards_compatible_method_signature)) {
       // run backwards compatible methods e.g. _POST and _GET if they exist.
@@ -268,6 +275,7 @@ abstract class ApiController extends Controller {
    * @param array $args custom options that will be sent to the view
    * @param array $options optional rules regarding how the template will be rendered.
    * @return string the rendered html
+   * @throws \Exception
    */
   protected function renderView($view, $args = array(), $options = array()) {
     if (!isset($options['_controller'])) $options['_controller']['type'] = 'api';

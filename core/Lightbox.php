@@ -112,7 +112,7 @@ JAVASCRIPT;
     /**
      * This method will be called automatically to handle any exceptions in the class
      *
-     * @param Exception $e the exception
+     * @param \Exception $e the exception
      */
     public function exceptionHandler($e) {
         Logger::log_error($e->getMessage(), $e->getTrace());
@@ -245,6 +245,7 @@ JAVASCRIPT;
      * @param array $args custom options that will be sent to the view
      * @param array $options optional rules regarding how the template will be rendered.
      * @return string the rendered html
+     * @throws \Exception
      */
     protected function renderView($view, $args = array(), $options = array()) {
         $id = $this->id;

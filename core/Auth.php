@@ -65,7 +65,7 @@ class Auth {
             // TODO: might it be better to use a hook?
             set_error('You are not authorized to access ' . $url);
             Logger::log_error('Authentication Failure by user: ' . $user->id . ' at: ' . $url);
-            if (!Router::is_active_url('/', true)) {
+            if (!Router::is_url_active('/', true)) {
                 Router::go('/');
             } else {
                 Router::displayServerResponseCode(500);

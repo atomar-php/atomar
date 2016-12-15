@@ -2,16 +2,18 @@
 <html>
   <head></head>
   <body>
-    <script type="text/javascript" src="/atomar/assets/js/head.js"></script>
-    <script>
+  <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="/atomar/assets/js/Lightbox.js"></script>
+  <script type="text/javascript" src="/atomar/assets/js/sonic.js"></script>
+  <script type="text/javascript" src="/atomar/assets/js/js_loader_animation.js"></script>
+  <script type="text/javascript" src="/atomar/assets/js/functions.js"></script>
+  <script type="text/javascript" src="/atomar/assets/js/head.js"></script>
+  <script>
       head.js({{ atomar.js|raw }}, function() {
-        {% if atomar.jquery_no_conflict %}
-        jQuery.noConflict();
-        {% endif %}
-        $(document).ready(function() {
-          {{ atomar.js_onload|raw }}
-        });
+          $(document).ready(function() {
+              {{ atomar.js_onload|raw }}
+          });
       });
-    </script>
+  </script>
   </body>
 </html>

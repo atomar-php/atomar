@@ -6,6 +6,7 @@ use atomar\controller\ServerResponseHandler;
 use atomar\core\Auth;
 use atomar\core\AutoLoader;
 use atomar\core\HookReceiver;
+use atomar\core\Router;
 use atomar\core\Templator;
 
 class Hooks extends HookReceiver
@@ -222,6 +223,9 @@ class Hooks extends HookReceiver
                 echo simple_date(strtotime($date));
             }
         });
+        $is_url_active = new \Twig_SimpleFunction('is_url_active', function($url, $exact=false) {
+            return Router::is_url_active($url, $exact);
+        });
         $word_trim = new \Twig_simpleFunction('word_trim', 'word_trim');
         $letter_trim = new \Twig_simpleFunction('letter_trim', 'letter_trim');
         $print_debug = new \Twig_simpleFunction('print_debug', 'print_debug');
@@ -237,6 +241,7 @@ class Hooks extends HookReceiver
         $twig->addFunction($word_trim);
         $twig->addFunction($letter_trim);
         $twig->addFunction($print_debug);
+        $twig->addFunction($is_url_active);
     }
 
     function hookInstall()

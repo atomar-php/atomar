@@ -846,7 +846,7 @@ function l($text, $url = '#', $classes = array(), $attributes = array(), $title 
  * @return boolean
  */
 function l_active($uri, $exact = false) {
-    return Router::is_active_url($uri, $exact);
+    return Router::is_url_active($uri, $exact);
 }
 
 /**
