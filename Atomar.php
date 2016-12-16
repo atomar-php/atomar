@@ -296,7 +296,6 @@ HTML;
             $regex = str_replace('/', '\/', $regex);
             $regex = '^' . $regex . '\/?$';
             if (preg_match("/$regex/i", $path, $matches)) {
-                Logger::log_notice('looking up asset', $path);
                 if(!isset($matches['path'])) {
                     if(Auth::has_authentication('administer_site') || self::debug()) {
                         http_response_code(500);
@@ -307,6 +306,7 @@ HTML;
                     exit();
                 }
                 $file = rtrim($dir, '/').DIRECTORY_SEPARATOR.ltrim(explode('?', $matches['path'])[0], '/');
+                Logger::log_notice('looking up asset', $file);
                 $ext = ltrim(strtolower(strrchr($file, '.')), '.');
                 switch ($ext) {
                     case 'css';
