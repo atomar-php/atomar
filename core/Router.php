@@ -177,13 +177,26 @@ class Router {
      * @param int $code
      */
     public static function displayServerResponseCode(int $code) {
-        $controller = Atomar::hook(new ServerResponseCode($code));
+        $controller = null;
+        try {
+            // attempt to hook everything first
+            $controller = Atomar::hook(new ServerResponseCode($code));
+        } catch (\Exception $e) {
+        }
+        if($controller == null) {
+            try {
+                // fall back to atomar hooks
+                $controller = Atomar::hookAtomar(new ServerResponseCode($code));
+            } catch (\Exception $e) {
+
+            }
+        }
         http_response_code($code);
         if($controller instanceof Controller) {
             $controller->GET(array('code' => $code));
         } else {
             // in the rare event there is no controller just print the code
-            echo $code;
+            echo $code . '. Check the logs for details.';
         }
         exit();
     }

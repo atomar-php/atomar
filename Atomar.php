@@ -440,7 +440,7 @@ HTML;
         $hook_name = 'hook' . ltrim(strrchr(get_class($hook), '\\'), '\\');
 
         // execute hook on atomar
-        $state = self::hookModule($hook, 'atomar', self::atomar_dir(), null, null, false);
+        $state = self::hookModule($hook, self::atomar_namespace(), self::atomar_dir(), null, null, false);
 
         // execute hooks on extensions
         $extensions = \R::find('extension', 'is_enabled=\'1\' and slug<>?', array(self::application_namespace()));
@@ -471,6 +471,15 @@ HTML;
             $state = self::hookModule($hook, self::application_namespace(), self::application_dir(), $state, self::$app->box(), false);
         }
         return $hook->postProcess($state);
+    }
+
+    /**
+     * A convenience method to only run a hook against atomar
+     * @param Hook $hook the hook to perform
+     * @return mixed|null the hook state
+     */
+    public static function hookAtomar(Hook $hook) {
+        return Atomar::hookModule($hook, self::atomar_namespace(), self::atomar_dir(), null, null, false);
     }
 
     /**
