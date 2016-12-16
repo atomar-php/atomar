@@ -52,7 +52,7 @@ class StaticAssets implements Hook
         if(!is_array($params)) $params = array();
 
         foreach($params as $regex => $dir) {
-            $state[$regex] = $ext_path.DIRECTORY_SEPARATOR.$dir;
+            $state[$regex] = rtrim($ext_path, '/').DIRECTORY_SEPARATOR.ltrim($dir, '/');
         }
 
         return $state;

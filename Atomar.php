@@ -305,7 +305,8 @@ HTML;
                     }
                     exit();
                 }
-                $file = rtrim($dir, '/').DIRECTORY_SEPARATOR.ltrim(explode('?', $matches['path'])[0], '/');
+                $clean_path = explode('?', $matches['path'])[0];
+                $file = rtrim($dir, '/').DIRECTORY_SEPARATOR.ltrim($clean_path, '/');
                 Logger::log_notice('looking up asset', $file);
                 $ext = ltrim(strtolower(strrchr($file, '.')), '.');
                 switch ($ext) {
