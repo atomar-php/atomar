@@ -1,5 +1,5 @@
 .idea
 atomar_modules
 composer.phar
-vendor
+/vendor
 vendor.old
