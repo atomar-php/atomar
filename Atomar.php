@@ -307,7 +307,6 @@ HTML;
                 }
                 $clean_path = explode('?', $matches['path'])[0];
                 $file = rtrim($dir, '/').DIRECTORY_SEPARATOR.ltrim($clean_path, '/');
-                Logger::log_notice('looking up asset', $file);
                 $ext = ltrim(strtolower(strrchr($file, '.')), '.');
                 switch ($ext) {
                     case 'css';
@@ -352,6 +351,9 @@ HTML;
                 );
                 if(!self::debug()) {
                     $args['expires'] = Atomar::$config['expires_header'];
+                }
+                if(!file_exists($file)) {
+                    Logger::log_error('file does not exist', $file);
                 }
                 stream_file($file, $args);
                 exit;
