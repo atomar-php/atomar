@@ -292,11 +292,11 @@ HTML;
         $urls = self::hook(new StaticAssets());
         $path = $_SERVER['REQUEST_URI'];
         krsort($urls);
-        Logger::log_notice('serving assets by the following urls', $urls);
         foreach($urls as $regex => $dir) {
             $regex = str_replace('/', '\/', $regex);
             $regex = '^' . $regex . '\/?$';
             if (preg_match("/$regex/i", $path, $matches)) {
+                Logger::log_notice('looking up asset', $path);
                 if(!isset($matches['path'])) {
                     if(Auth::has_authentication('administer_site') || self::debug()) {
                         http_response_code(500);
