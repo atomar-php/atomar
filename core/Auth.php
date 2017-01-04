@@ -87,7 +87,7 @@ class Auth {
     public static function run() {
         ini_set('session.gc_probability', 1);
         ini_set('session.gc_divisor', 100);
-        ini_set('session.gc_maxlifetime', self::$_config['session_ttl']);
+        ini_set('session.gc_maxlifetime', 60*60*60*24*365); // 1 year
 
         self::_start_session();
 
