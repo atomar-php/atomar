@@ -211,28 +211,29 @@ function vercmp($ver1, $ver2) {
     // normalize version numbers. x or * are wild cards.
     if (count($parts1) > count($parts2)) {
         if (strtolower($parts2[count($parts2) - 1]) == 'x' || strtolower($parts2[count($parts2) - 1]) == '*') {
-            $attachement = 'x';
+            $attachment = 'x';
         } else {
-            $attachement = '0';
+            $attachment = '0';
         }
         for ($i = count($parts2); $i < count($parts1); $i++) {
-            $parts2[] = $attachement;
+            $parts2[] = $attachment;
         }
     } else if (count($parts2) > count($parts1)) {
         if (strtolower($parts1[count($parts1) - 1]) == 'x' || strtolower($parts1[count($parts1) - 1]) == '*') {
-            $attachement = 'x';
+            $attachment = 'x';
         } else {
-            $attachement = '0';
+            $attachment = '0';
         }
         for ($i = count($parts1); $i < count($parts2); $i++) {
-            $parts1[] = $attachement;
+            $parts1[] = $attachment;
         }
     }
 
     // compare components
     $result = 0;
     foreach ($parts1 as $i => $value) {
-        if (strtolower($value) == 'x' || strtolower($parts2[$i]) == 'x') {
+        if (strtolower($value) == 'x' || strtolower($parts2[$i]) == 'x'
+            || strtolower($value) == '*' || strtolower($parts2[$i]) == '*') {
             continue;
         }
         if (($result = numcmp((float)$value, (float)$parts2[$i])) != 0) {
