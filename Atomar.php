@@ -417,7 +417,7 @@ HTML;
                 }
                 if (isset($manifest['dependencies'])) {
                     // TODO: eventually we will support specific versions
-                    $ext->dependencies = implode(',', $manifest['dependencies']);
+                    $ext->dependencies = implode(',', array_keys($manifest['dependencies']));
                 } else {
                     $ext->dependencies = '';
                 }
