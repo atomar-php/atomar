@@ -10,6 +10,8 @@
     {% if app %}
         <h2>Application: {{ app.name }} {% if app.installed_version and app.is_enabled %}<small>v{{ app.installed_version }} {% if app.has_controls %}<a href="/atomar/modules/{{app.slug}}"><span class="glyphicon glyphicon-cog"></span></a>{% endif %}</small>{% endif %}</h2>
         <p>{{ app.description }}</p>
+        <strong class="small">Dependencies:</strong>
+        <small>{{ app.dependencies }}</small></strong>
         {% if app.installed_version != app.version %}
             {% if app.is_update_pending %}<p>v{{ app.version }} is available</p>{% endif %}
             <!--TODO: need to provide an uninstall button-->
