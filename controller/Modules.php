@@ -36,8 +36,9 @@ class Modules extends Controller {
                 // load extension
                 $ext = Atomar::loadModule($ext_path . $f, $f);
                 $ext = $this->prepareModule($ext);
-
-                $extensions[$ext->slug] = $ext;
+                if($ext != null) {
+                    $extensions[$ext->slug] = $ext;
+                }
             }
         }
 
