@@ -450,7 +450,7 @@ HTML;
         $hook_name = 'hook' . ltrim(strrchr(get_class($hook), '\\'), '\\');
 
         // execute hook on atomar
-        $state = self::hookModule($hook, self::atomar_namespace(), self::atomar_dir(), null, null, false);
+        $state = self::hookAtomar($hook);
 
         // execute hooks on extensions
         try {

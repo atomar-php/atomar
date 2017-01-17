@@ -54,7 +54,11 @@ class ModuleSettings extends Controller
             $this->go('/atomar/modules');
         }
 
-        $controls = Atomar::hookModule(new Controls(), Atomar::application_namespace(), Atomar::application_dir(), null, $module->box(), false, false);
+        if($module_slug == Atomar::application_namespace()) {
+            $controls = Atomar::hookModule(new Controls(), Atomar::application_namespace(), Atomar::application_dir(), null, $module->box(), false, false);
+        } else {
+            $controls = Atomar::hookModule(new Controls(), $module_slug, Atomar::extension_dir() . $module_slug . DIRECTORY_SEPARATOR, null, $module->box(), false, false);
+        }
         if(count($controls) && isset($controls[$module_slug])) {
             $class = $controls[$module_slug];
             $instance = new $class();
