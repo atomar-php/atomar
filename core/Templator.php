@@ -178,61 +178,13 @@ class Templator {
      */
     public static function render_error($title, $message) {
         $loader = new \Twig_Loader_Filesystem(Atomar::atomar_dir() . '/views');
-        $twig = new AtomarTwigEnvironment($loader, array(
-            'debug' => true
-        ));
-        $twig->addExtension(new \Twig_Extension_Debug());
-        $atomar['css'][] = '/atomar/assets/css/bootstrap.min.css';
-        $atomar['css'][] = '/atomar/assets/css/main.css';
+        $twig = new AtomarTwigEnvironment($loader);
         $atomar['version'] = Atomar::version();
 
-        $atomar['css_inline'] = <<<CSS
-body {
-  padding-top: 40px;
-  padding-bottom: 40px;
-  background-color: #eee;
-}
-.error-page {
-  max-width: 330px;
-  padding: 15px;
-  margin: 0 auto;
-}
-.error-page .error-page-heading, .error-page .checkbox {
-  margin-bottom: 10px;
-}
-.error-page .form-control {
-  position: relative;
-  font-size: 16px;
-  height: auto;
-  padding: 10px;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-}
-.error-page #field-username {
-  margin-bottom: -1px;
-  border-radius: 0;
-}
-.error-page #field-email {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  margin-bottom: -1px;
-}
-.error-page #field-password {
-  margin-bottom: 10px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-.error-page .checkbox {
-  font-weight: normal;
-}
-CSS;
-        return $twig->render('@atomar/views/error.html', array(
-            'body_class' => 'install',
+        return $twig->render('error.html', array(
             'title' => $title,
             'message' => $message,
-            'atomar' => $atomar,
-            'sys' => $atomar // TRICKY: backwards compatibility
+            'atomar' => $atomar
         ));
     }
 

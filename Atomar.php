@@ -17,6 +17,7 @@ use atomar\hook\PreBoot;
 use atomar\hook\StaticAssets;
 use atomar\hook\Uninstall;
 use model\Extension;
+use PDOException;
 
 require_once(__DIR__ . '/core/AutoLoader.php');
 
@@ -187,7 +188,17 @@ class Atomar {
         Templator::init();
         Router::init();
 
-        self::connectDatabase();
+        if(!self::connectDatabase()) {
+            // serve at least the Stomar assets
+            self::serveAssets();
+            $message = <<<HTML
+  <p>
+    A connection to the database could not be made. Double check your configuration and try again.
+  </p>
+HTML;
+            echo Templator::render_error('DB Connection Failed', $message);
+            exit(1);
+        }
 
         if (self::$config['db']['freeze']) {
             \R::useWriterCache(true);
@@ -214,7 +225,7 @@ class Atomar {
         Auth::run();
 
         // static assets
-        self::serverAssets();
+        self::serveAssets();
 
         /**
          * Check if installation is required
@@ -261,6 +272,7 @@ class Atomar {
 
     /**
      * Establishes a verified connection to the database
+     * @return true if a connection to the database was successful
      */
     private static function connectDatabase() {
         define('REDBEAN_MODEL_PREFIX', '\\model\\');
@@ -268,13 +280,7 @@ class Atomar {
         \R::setup('mysql:host=' . $db['host'] . ';dbname=' . $db['name'], $db['user'], $db['password']);
         // test db connection
         if (!\R::testConnection()) {
-            $message = <<<HTML
-  <p>
-    A connection to the database could not be made. Double check your configuration and try again.
-  </p>
-HTML;
-            echo Templator::render_error('DB Connection Failed', $message);
-            exit(1);
+            return false;
         }
         unset($db);
 
@@ -283,12 +289,13 @@ HTML;
             // TODO: breaks adding certain things to the db
             \R::freeze(true);
         }
+        return true;
     }
 
     /**
-     * Servers static assets
+     * Serves static assets
      */
-    private static function serverAssets() {
+    private static function serveAssets() {
         $urls = self::hook(new StaticAssets());
         $path = $_SERVER['REQUEST_URI'];
         krsort($urls);
@@ -352,9 +359,9 @@ HTML;
                 if(!self::debug()) {
                     $args['expires'] = Atomar::$config['expires_header'];
                 }
-                if(!file_exists($file)) {
-                    Logger::log_error('file does not exist', $file);
-                }
+//                if(!file_exists($file)) {
+//                    Logger::log_error('file does not exist', $file);
+//                }
                 stream_file($file, $args);
                 exit;
             }
@@ -446,32 +453,37 @@ HTML;
         $state = self::hookModule($hook, self::atomar_namespace(), self::atomar_dir(), null, null, false);
 
         // execute hooks on extensions
-        $extensions = \R::find('extension', 'is_enabled=\'1\' and slug<>?', array(self::application_namespace()));
-        foreach ($extensions as $ext) {
-            if(vercmp($ext->atomar_version, self::version()) < 0) {
-                $message = $ext->slug . ' does not support this version of atomar';
-                if(Auth::has_authentication('administer_site') || self::debug()) {
-                    set_error($message);
-                } else {
-                    Logger::log_error($message);
+        try {
+            $extensions = \R::find('extension', 'is_enabled=\'1\' and slug<>?', array(self::application_namespace()));
+            foreach ($extensions as $ext) {
+                if (vercmp($ext->atomar_version, self::version()) < 0) {
+                    $message = $ext->slug . ' does not support this version of atomar';
+                    if (Auth::has_authentication('administer_site') || self::debug()) {
+                        set_error($message);
+                    } else {
+                        Logger::log_error($message);
+                    }
+                    continue;
+                } // skip un-supported modules
+                try {
+                    $state = self::hookModule($hook, $ext->slug, self::extension_dir() . $ext->slug . DIRECTORY_SEPARATOR, $state, $ext->box(), false);
+                } catch (\Exception $e) {
+                    $notice = 'Could not run hook "' . $hook_name . '" for "' . $ext->slug . '" module';
+                    Logger::log_error($notice, $e->getMessage());
+                    if (self::debug() || Auth::has_authentication('administer_site')) set_error($notice);
+                    continue;
                 }
-                continue;
-            } // skip un-supported modules
-            try {
-                $state = self::hookModule($hook, $ext->slug, self::extension_dir() . $ext->slug . DIRECTORY_SEPARATOR, $state, $ext->box(), false);
-            } catch (\Exception $e) {
-                $notice = 'Could not run hook "' . $hook_name . '" for "' . $ext->slug .'" module';
-                Logger::log_error($notice, $e->getMessage());
-                if(self::debug() || Auth::has_authentication('administer_site')) set_error($notice);
-                continue;
             }
-        }
 
-        // execute hook on application
-        // TRICKY: we re-load the application during hooks in case its settings were changed
-        self::$app = self::loadModule(self::application_dir(), self::application_namespace());
-        if (self::$app != null && self::$app->is_enabled && vercmp(self::$app->atomar_version, self::version()) >= 0) {
-            $state = self::hookModule($hook, self::application_namespace(), self::application_dir(), $state, self::$app->box(), false);
+            // execute hook on application
+            // TRICKY: we re-load the application during hooks in case its settings were changed
+            self::$app = self::loadModule(self::application_dir(), self::application_namespace());
+            if (self::$app != null && self::$app->is_enabled && vercmp(self::$app->atomar_version, self::version()) >= 0) {
+                $state = self::hookModule($hook, self::application_namespace(), self::application_dir(), $state, self::$app->box(), false);
+            }
+        } catch (PDOException $e) {
+            // TRICKY: don't die if the database is missing
+            if(\R::testConnection()) throw $e;
         }
         return $hook->postProcess($state);
     }
