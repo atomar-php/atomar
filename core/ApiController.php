@@ -2,6 +2,7 @@
 
 namespace atomar\core;
 use atomar\Atomar;
+use MongoDB\Driver\Server;
 
 /**
  * The api extends the controller to provide some advanced functionality to the api controllers.
@@ -22,14 +23,11 @@ abstract class ApiController extends Controller {
    */
   public function exceptionHandler($e) {
     Logger::log_error($e->getMessage(), $e->getTrace());
-    $message = get_class($this) . '->exceptionHandler: ';
-    http_response_code(500);
+    $error = new ServerError();
     if(Auth::has_authentication('administer_site') || Atomar::debug()) {
-        $message .= $e->getMessage();
-    } else {
-        $message .= 'An exception has occurred. See the log for details.';
+      $error = new ServerError($e->getMessage());
     }
-    render_json(array('status' => 'error', 'message' => $message));
+    $this->respond($error);
   }
 
   /**
@@ -310,15 +308,15 @@ class ParameterException extends \Exception {
  *
  */
 class APIError {
-  protected $message = 'An unknown error has occurred';
-  protected $code = 500;
+  protected $message;
+  protected $code;
 
   /**
    * Creates a new api error
    * @param $message
    * @param int $code
    */
-  function __construct($message, $code = 0) {
+  function __construct($message='An unknown error has occurred', $code=500) {
     $this->message = $message;
     $this->code = $code;
   }
