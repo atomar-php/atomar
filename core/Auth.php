@@ -8,6 +8,8 @@ use atomar\Atomar;
  * Requires RedBean to be initialized before use.
  */
 class Auth {
+    protected static $session_max_lifetime = 1892160000; // 1 year
+
     /**
      * This is the user of the current session.
      * @var \RedBeanPHP\OODBBean or boolean
@@ -128,7 +130,7 @@ class Auth {
             ini_set('session.use_trans_sid', 0);
             ini_set('session.gc_probability', 1);
             ini_set('session.gc_divisor', 100);
-            ini_set('session.gc_maxlifetime', 60*60*60*24*365); // 1 year
+            ini_set('session.gc_maxlifetime', self::$session_max_lifetime);
 
             $cookieParams = session_get_cookie_params(); // Gets current cookies params.
             session_set_cookie_params($cookieParams["lifetime"], $cookieParams["path"], $cookieParams["domain"], $secure, $httponly);
@@ -476,7 +478,7 @@ class Auth {
             }
 
             // Check Password
-            $valid = self::_check_hash($password, $user->pass_hash);
+            $valid = self::validatePasswordHash($password, $user->pass_hash);
 
             // check if already logged in
             if (self::$user && self::$user->id == $user->id) {
@@ -519,14 +521,16 @@ class Auth {
     }
 
     /**
-     * Logs in a user without an email and password.
+     * Logs in the user without an email and password.
      * This is handy if using a third party service for authentication e.g. social media
+     *
      * @param int $user_id the id of the user who will be logged in
-     * @param bool $remember_me if set to true the user will be logged in indefinitely
+     * @param bool $remember_me if set to true the user will be logged in for self::$session_max_lifetime
      * @return bool
      */
     public static function login_silent($user_id, $remember_me = false) {
-        $user = \R::load('user',$user_id);
+        self::regenerateSession();
+        $user = \R::load('user', $user_id);
         if (!$user || !$user->id) {
             // user does not exist
             return false;
@@ -538,7 +542,7 @@ class Auth {
             $_SESSION['email'] = $user->email;
             $_SESSION['auth'] = self::generateAuthToken($user);
             $_SESSION['last_activity'] = time();
-            $_SESSION['remember_me'] = $remember_me == true; // force to be boolean
+            $_SESSION['remember_me'] = !!$remember_me;
 
             self::$_access->login_failed = '0';
             \R::store(self::$_access);
@@ -555,11 +559,11 @@ class Auth {
 
     /**
      * Check if a string matches a hash.
-     * @param string $string the unhashed string
+     * @param string $string the un-hashed string
      * @param string $hash the hashed string
      * @return boolean true if the string matches the hash otherwise false
      */
-    private static function _check_hash($string, $hash) {
+    private static function validatePasswordHash($string, $hash) {
         $hasher = new PasswordHash(8, false);
 
         if (strlen($string) > 72) {
@@ -576,6 +580,7 @@ class Auth {
 
     /**
      * Grants a user access to the site without creating an authenticated session.
+     * TODO: does this still work?
      *
      * @param int $user_id the id of the user who will be logged in
      * @return boolean true if login was successful
@@ -589,18 +594,13 @@ class Auth {
         self::$_access->user = $user;
         \R::store(self::$_access);
 
-        $ip_address = $_SERVER['REMOTE_ADDR']; // Get the IP address of the user.
-        $user_browser = $_SERVER['HTTP_USER_AGENT']; // Get the user-agent string of the user.
-
         self::$_access->login_failed = '0';
         \R::store(self::$_access);
 
         // Record login
         $last_login = db_date(time());
-        // $ip_address = $_SERVER['REMOTE_ADDR']; // Get the IP address of the user.
-        // $user_browser = $_SERVER['HTTP_USER_AGENT'];
-        $user->last_ip = $ip_address;
-        $user->last_user_agent = $user_browser;
+        $user->last_ip = $_SERVER['REMOTE_ADDR'];
+        $user->last_user_agent = $_SERVER['HTTP_USER_AGENT'];
         $user->last_login = $last_login;
         \R::store($user);
         self::$user = $user;
