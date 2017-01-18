@@ -19,3 +19,23 @@ You can learn more about the system at https://github.com/neutrinog/atomar/wiki.
 You ask if we have a command line client? Why yes we do.
 
 https://github.com/neutrinog/node-atomar-cli
+
+##Performance
+
+Considering all the goodness Atomar gives you... Good enough.
+
+A controller that does basically nothing will load in in about 200ms.
+That can seem crazy slow! However, consider these comparisons:
+
+| Site      | Waiting to download | DOM loaded |
+|-----------|---------------------|------------|
+| Atomar    | 200ms               | 1.2s       |
+| Facebook  | 55ms                | 1.5s       |
+| Microsoft | 400ms               | 1.6s       |
+
+> The moral of the story is that **response times don't matter**.
+Only the time it takes for the DOM to load.
+
+####Disclaimer
+I ran these test on Jan 17, 2017 in Chrome by opening the developer tools on each site and reloading the page several times.
+The values above are not the result of rigorous testing.
