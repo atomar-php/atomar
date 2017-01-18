@@ -140,7 +140,6 @@ JAVASCRIPT;
         }
         Templator::$js_onload = array(); // clear any leftovers
         Templator::$js_onload[] = <<<JAVASCRIPT
-parent.close_alerts();
 var alerts = '$alerts';
 if (alerts != false) {
   alerts = JSON.parse(alerts);
