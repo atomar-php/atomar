@@ -121,7 +121,6 @@ class Auth {
             session_set_save_handler(new SessionDBHandler(), true);
 
             self::$_session_active = true;
-            $session_name = self::$_config['session_name']; // Set a custom session name
             $secure = self::$_config['secure_session'] ? true : false; // Set to true if using https.
             $httponly = true; // This stops javascript being able to access the session id.
 
@@ -133,14 +132,11 @@ class Auth {
 
             $cookieParams = session_get_cookie_params(); // Gets current cookies params.
             session_set_cookie_params($cookieParams["lifetime"], $cookieParams["path"], $cookieParams["domain"], $secure, $httponly);
-            session_name($session_name); // Sets the session name to the one set above.
+            session_name(self::$_config['session_name']);
+
             // Start the php session
-            if (!session_start()) {
-                set_error('Unable to start the session.');
-                return false;
-            }
+            session_start();
         }
-        return true;
     }
 
     /**
@@ -231,7 +227,8 @@ class Auth {
             $_SESSION = array();
             self::$user = false;
             self::$_session_active = false;
-            self::regenerateSession();
+            session_destroy();
+            session_start();
         } else {
             // log out targeted user
             $session = \R::findOne('session', 'user_id=?', array($user->id));
