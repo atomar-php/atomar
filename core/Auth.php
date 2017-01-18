@@ -9,8 +9,8 @@ use atomar\Atomar;
  */
 class Auth {
     /**
-     * This is the user of the corrent session. You can do whatever you want with this object.
-     * @var RedBeanPHP/OODBBean or boolean
+     * This is the user of the current session.
+     * @var \RedBeanPHP\OODBBean or boolean
      */
     public static $user = false;
     /**
@@ -21,19 +21,10 @@ class Auth {
      * @var boolean
      */
     private static $_session_active = false;
-    /**
-     * @var int
-     */
-    private static $_now = 0;
-    /**
-     * This is the user of the corrent session. This is for internal use only
-     * @var RedBeanPHP/OODBBean
-     */
-    private static $_user = false;
 
     /**
      * The current site access log
-     * @var RedBeanPHP/OODBBean
+     * @var \RedBeanPHP\OODBBean
      */
     private static $_access = null;
 
@@ -56,7 +47,6 @@ class Auth {
      */
     public static function setup($configuration) {
         self::$_config = $configuration;
-        self::$_now = time();
         // min_password_length if overridable by the config.
         if (isset(self::$_config['min_password_length'])) {
             self::$_min_password_length = self::$_config['min_password_length'];
@@ -85,55 +75,38 @@ class Auth {
      * Begin authentication
      */
     public static function run() {
-        ini_set('session.gc_probability', 1);
-        ini_set('session.gc_divisor', 100);
-        ini_set('session.gc_maxlifetime', 60*60*60*24*365); // 1 year
+        self::bootSession();
 
-        self::_start_session();
+        self::recordAccess();
 
-        // log access
-        self::$_access = \R::dispense('access');
-        self::$_access->accessed_at = db_date(self::$_now);
-        self::$_access->ip_address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'unknown';
-        self::$_access->user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown';
-        self::$_access->url = $_SERVER['REQUEST_URI'];
-        \R::store(self::$_access);
-        $_SESSION['access_id'] = self::$_access->id;
-
-        // Check if all session variables are set
-        if (isset($_SESSION['user_id'], $_SESSION['email'], $_SESSION['auth'], $_SESSION['last_activity'])) {
-            $user_id = $_SESSION['user_id'];
-            $auth = $_SESSION['auth'];
-            $last_activity = $_SESSION['last_activity'];
-
-            // Check if session expired. "remember_me" sessions never expire.
-            if ((isset($_SESSION['remember_me']) && $_SESSION['remember_me']) || self::$_config['session_ttl'] > self::$_now - $last_activity) {
-                // Validate session
-                $user = \R::load('user', $user_id);
-                if ($user->id) {
-                    $hash = self::_generate_auth_token($user);
-                    if ($hash == $auth) {
-                        $_SESSION['last_activity'] = self::$_now;
-                        $user->last_activity = self::$_now;
-                        $user->last_user_agent = self::$_access->user_agent;
-                        $user->last_ip = self::$_access->ip_address;
-                        self::$user = $user;
-                        self::$_user = $user;
-                        self::$_access->user = self::$_user;
-                        store(self::$_access);
-                        return true;
-                    }
-                }
-            } else {
+        if(self::validateSession()) {
+            if(!self::authenticateSesion()) {
+                // authentication failed
                 self::logout();
+            } else {
+                // update user activity
+                $user = \R::load('user', $_SESSION['user_id']);
+                $user->last_activity = time();
+                $user->last_user_agent = self::$_access->user_agent;
+                $user->last_ip = self::$_access->ip_address;
+                self::$user = $user;
+                self::$_access->user = self::$user;
+                store(self::$_access);
+
+                // periodically regenerate authenticated sessions
+                if (rand(1, 100) <= 5) self::regenerateSession();
             }
+        } else {
+            // session id is obsolete
+            self::logout();
         }
-        return false;
+        $_SESSION['last_activity'] = time();
+        $_SESSION['access_id'] = self::$_access->id;
     }
 
     /**
      * Returns the access object that represents the current http request.
-     * @return RedBeanPHP
+     * @return \RedBeanPHP\OODBBean
      */
     public static function getAccessEntry() {
         return self::$_access;
@@ -142,7 +115,7 @@ class Auth {
     /**
      * Start the session
      */
-    private static function _start_session() {
+    private static function bootSession() {
         if (!self::$_session_active) {
             // initialize a new session handler to store sessions in the database.
             session_set_save_handler(new SessionDBHandler(), true);
@@ -153,6 +126,11 @@ class Auth {
             $httponly = true; // This stops javascript being able to access the session id.
 
             ini_set('session.use_only_cookies', 1); // Forces sessions to only use cookies.
+            ini_set('session.use_trans_sid', 0);
+            ini_set('session.gc_probability', 1);
+            ini_set('session.gc_divisor', 100);
+            ini_set('session.gc_maxlifetime', 60*60*60*24*365); // 1 year
+
             $cookieParams = session_get_cookie_params(); // Gets current cookies params.
             session_set_cookie_params($cookieParams["lifetime"], $cookieParams["path"], $cookieParams["domain"], $secure, $httponly);
             session_name($session_name); // Sets the session name to the one set above.
@@ -170,8 +148,71 @@ class Auth {
      * @param RedBeanPHP /OODBBean $user the use for which the token will be generated
      * @return string
      */
-    private static function _generate_auth_token($user) {
-        return hash('sha512', $user->pass_hash . self::$_access->user_agent);;
+    private static function generateAuthToken($user) {
+        return hash('sha512', $user->pass_hash . $user->id . $user->email);
+    }
+
+    /**
+     * Generates a new session id
+     */
+    protected static function regenerateSession() {
+        // If this session is obsolete it means there already is a new id
+        if(isset($_SESSION['OBSOLETE']) || $_SESSION['OBSOLETE'] == true) return;
+
+        // Set current session to expire in 10 seconds
+        $_SESSION['OBSOLETE'] = true;
+        $_SESSION['EXPIRES'] = time() + 10;
+
+        // Create new session without destroying the old one
+        session_regenerate_id(false);
+
+        // Grab current session ID and close both sessions to allow other scripts to use them
+        $newSession = session_id();
+        session_write_close();
+
+        // Set session ID to the new one, and start it back up again
+        session_id($newSession);
+        session_start();
+
+        // Now we unset the obsolete and expiration values for the session we want to keep
+        unset($_SESSION['OBSOLETE']);
+        unset($_SESSION['EXPIRES']);
+    }
+
+    /**
+     * Checks if the session id is still valid
+     * @return bool
+     */
+    protected static function validateSession() {
+        if(isset($_SESSION['OBSOLETE']) && !isset($_SESSION['EXPIRES'])) return false;
+        if(isset($_SESSION['EXPIRES']) && $_SESSION['EXPIRES'] < time()) return false;
+        return true;
+    }
+
+    /**
+     * Checks if the session is authenticated
+     * @return bool
+     */
+    protected static function authenticateSesion() {
+        if(!isset($_SESSION['user_id'], $_SESSION['auth'], $_SESSION['last_activity'])) return false;
+        $remember_me = isset($_SESSION['remember_me']) && $_SESSION['remember_me'] == true;
+        if(self::$_config['session_ttl'] < time() - $_SESSION['last_activity'] && !$remember_me) return false;
+        $user = \R::load('user', $_SESSION['user_id']);
+        if (!$user->id) return false;
+        $hash = self::generateAuthToken($user);
+        return $hash == $_SESSION['auth'];
+    }
+
+    /**
+     * Logs the access to the db
+     */
+    protected static function recordAccess() {
+        self::$_access = \R::dispense('access');
+        self::$_access->accessed_at = db_date(time());
+        self::$_access->ip_address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : 'unknown';
+        self::$_access->user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown';
+        self::$_access->url = $_SERVER['REQUEST_URI'];
+        \R::store(self::$_access);
     }
 
     /**
@@ -185,25 +226,17 @@ class Auth {
      * @param RedBeanPHP /OODBBean $user the user to log out
      */
     public static function logout($user = null) {
-        if ($user == null || $user->id == self::$_user->id) {
-            // log out the current user
-            unset($_SESSION['auth']);
-            unset($_SESSION['user_id']);
-            unset($_SESSION['email']);
-            unset($_SESSION['last_activity']);
-            unset($_SESSION['remember_me']);
+        if ($user == null || $user->id == self::$user->id) {
+            // log out current user
+            $_SESSION = array();
+            self::$user = false;
+            self::$_session_active = false;
+            self::regenerateSession();
         } else {
-            // log out the chosen user
-            $session = \R::findOne('session', 'user_id=:id', array(
-                ':id' => $user->id
-            ));
-            if ($session) {
-                \R::trash($session);
-            }
+            // log out targeted user
+            $session = \R::findOne('session', 'user_id=?', array($user->id));
+            if ($session) \R::trash($session);
         }
-        self::$_user = false;
-        self::$user = false;
-        self::$_session_active = false;
     }
 
     /**
@@ -219,7 +252,7 @@ class Auth {
      * A utility method that returns a permission bean given it's slug.
      *
      * @param string $permission_slug the slug of the permission
-     * @return object the bean model of the permission or false.
+     * @return object|boolean the bean model of the permission or false.
      */
     public static function get_permission($permission_slug) {
         $p = \R::findOne('permission', ' slug=? ', array($permission_slug));
@@ -235,7 +268,7 @@ class Auth {
      * Access will be revoked if authentication fails. It will either throw an exception or execute a callback
      *
      * @param mixed $options an array of authentication options or false
-     * @throws Unauthorized access exception
+     * @throws \Exception access exception
      */
     public static function authenticate($options = false) {
         if (!self::has_authentication($options)) {
@@ -261,7 +294,7 @@ class Auth {
                 if (isset($options['users'])) {
                     foreach ($options['users'] as $user) {
                         // authenticated logged in user
-                        if ($user->id && self::$_user && self::$_user->id == $user->id) {
+                        if ($user->id && self::$user && self::$user->id == $user->id) {
                             $revoke = false;
                         }
                     }
@@ -274,8 +307,8 @@ class Auth {
             }
 
             // check levels
-            if (self::$_user) {
-                $permissions = self::$_user->role->sharedPermissionList;
+            if (self::$user) {
+                $permissions = self::$user->role->sharedPermissionList;
                 if ($permissions) {
                     foreach ($permissions as $permission) {
                         if (in_array($permission->slug, $levels)) {
@@ -318,14 +351,14 @@ class Auth {
      * Check if a given user has a given role
      * The currently logged in user will be checked if the $user parameter is left null.
      * @param string $role the name of the role
-     * @param $user RedBean or null the user to check against.
+     * @param $user \model\User or null the user to check against.
      * @return boolean true if the user has the role.
      */
     public static function has_role($role, $user = null) {
         if ($user) {
             return $user->role->slug == $role;
-        } else if (self::$_user) {
-            return self::$_user->role->slug == $role;
+        } else if (self::$user) {
+            return self::$user->role->slug == $role;
         } else {
             return false;
         }
@@ -339,7 +372,7 @@ class Auth {
     public static function revoke_access() {
         if (is_callable(self::$_auth_failure_callback)) {
             call_user_func(self::$_auth_failure_callback, array(
-                self::$_user,
+                self::$user,
                 $_SERVER['REQUEST_URI']
             ));
         } else {
@@ -358,7 +391,7 @@ class Auth {
 
     /**
      * Create a new account for the user
-     * T
+     *
      * @param RedBeanPHP /OODBBean $user the user that will be registered
      * @param string $password the human readable password
      * @param RedBeanPHP /OODBBean $role the role assigned to the user
@@ -428,13 +461,14 @@ class Auth {
      * @return boolean true if login was successful otherwise false.
      */
     public static function login($email, $password, $remember_me = false) {
+        self::regenerateSession();
         $user = \R::findOne('user', ' email=? AND is_enabled=\'1\' AND role_id IS NOT NULL AND role_id<>\'\'', array($email));
         if (!$user || !$user->id) {
             // invalid email
             return false;
         } else {
             // Gard Against Brute Force Attacks
-            $valid_date = db_date(self::$_now - self::$_config['login_attempts_time']);
+            $valid_date = db_date(time() - self::$_config['login_attempts_time']);
             $access_logs = \R::find('access', 'login_failed=\'1\' AND user_id=:user_id AND accessed_at=:valid_date', array(
                 ':user_id' => $user->id,
                 ':valid_date' => $valid_date
@@ -448,7 +482,7 @@ class Auth {
             $valid = self::_check_hash($password, $user->pass_hash);
 
             // check if already logged in
-            if (self::$_user && self::$_user->id == $user->id) {
+            if (self::$user && self::$user->id == $user->id) {
                 // kick the user out if credentials are incorrect
                 if (!$valid) {
                     self::logout();
@@ -469,9 +503,9 @@ class Auth {
                 // Success
                 $_SESSION['user_id'] = $user->id;
                 $_SESSION['email'] = $user->email;
-                $_SESSION['auth'] = self::_generate_auth_token($user);
-                $_SESSION['last_activity'] = self::$_now;
-                $_SESSION['remember_me'] = $remember_me == true; // force to be boolean
+                $_SESSION['auth'] = self::generateAuthToken($user);
+                $_SESSION['last_activity'] = time();
+                $_SESSION['remember_me'] = !!$remember_me;
 
                 self::$_access->login_failed = '0';
                 \R::store(self::$_access);
@@ -479,10 +513,9 @@ class Auth {
                 // Record login
                 $user->last_ip = self::$_access->ip_address;
                 $user->last_user_agent = self::$_access->user_agent;
-                $user->last_login = db_date(self::$_now);
+                $user->last_login = db_date(time());
                 \R::store($user);
                 self::$user = $user;
-                self::$_user = $user;
                 return true;
             }
         }
@@ -506,8 +539,8 @@ class Auth {
 
             $_SESSION['user_id'] = $user->id;
             $_SESSION['email'] = $user->email;
-            $_SESSION['auth'] = self::_generate_auth_token($user);
-            $_SESSION['last_activity'] = self::$_now;
+            $_SESSION['auth'] = self::generateAuthToken($user);
+            $_SESSION['last_activity'] = time();
             $_SESSION['remember_me'] = $remember_me == true; // force to be boolean
 
             self::$_access->login_failed = '0';
@@ -516,10 +549,9 @@ class Auth {
             // Record login
             $user->last_ip = self::$_access->ip_address;
             $user->last_user_agent = self::$_access->user_agent;
-            $user->last_login = db_date(self::$_now);
+            $user->last_login = db_date(time());
             \R::store($user);
             self::$user = $user;
-            self::$_user = $user;
             return true;
         }
     }
@@ -553,7 +585,7 @@ class Auth {
      */
     public static function authorize($user_id) {
         // check if already logged in
-        if (self::$_user && self::$_user->id == $user_id) return true;
+        if (self::$user && self::$user->id == $user_id) return true;
         $user = \R::load('user', $user_id);
         if (!$user->id || !$user->is_enabled == '1') return false;
 
@@ -567,7 +599,7 @@ class Auth {
         \R::store(self::$_access);
 
         // Record login
-        $last_login = db_date(self::$_now);
+        $last_login = db_date(time());
         // $ip_address = $_SERVER['REMOTE_ADDR']; // Get the IP address of the user.
         // $user_browser = $_SERVER['HTTP_USER_AGENT'];
         $user->last_ip = $ip_address;
@@ -575,7 +607,6 @@ class Auth {
         $user->last_login = $last_login;
         \R::store($user);
         self::$user = $user;
-        self::$_user = $user;
         return true;
     }
 
@@ -603,7 +634,7 @@ class Auth {
      * @return int the user id of the validated user or 0
      */
     public static function validate_pw_reset_token($token) {
-        $now = db_date(self::$_now);
+        $now = db_date(time());
         $user = \R::findOne('user', 'pass_reset_token=:token AND is_enabled=\'1\' AND pass_reset_expires_at>:time', array(
             ':token' => $token,
             ':time' => $now
@@ -637,7 +668,7 @@ class Auth {
             // Generate reset token using the old password hash
             $token = self::_hash($user->pass_hash);
             if ($token) {
-                $expire_time = self::$_now + self::$_config['password_reset_ttl'];
+                $expire_time = time() + self::$_config['password_reset_ttl'];
                 $expires = db_date($expire_time);
                 $user->pass_reset_token = $token;
                 $user->pass_reset_expires_at = $expires;
