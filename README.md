@@ -12,6 +12,7 @@ Atomar is an opinionated web-app development framework that follows the Model Vi
 
 ##Docs
 > We are slowly moving the documentation into the wiki. Please bear with us while we transition from documentation everywhere to just one place.
+> For now just about everything in the wiki is outdated.
 
 You can learn more about the system at https://github.com/neutrinog/atomar/wiki.
 
