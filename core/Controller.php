@@ -33,13 +33,17 @@ abstract class Controller {
      * Process GET requests
      * @param array $matches the matched patterns from the route
      */
-    abstract function GET($matches = array());
+    public function GET($matches = array()) {
+        echo 'Hello world';
+    }
 
     /**
      * Process POST requests
      * @param array $matches the matched patterns from the route
      */
-    abstract function POST($matches = array());
+    public function POST($matches = array()) {
+        echo 'Hello world';
+    }
 
     /**
      * Route to the return uri.
