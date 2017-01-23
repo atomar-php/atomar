@@ -84,7 +84,9 @@ CSS;
     /**
      * This method will be called before GET, POST, and PUT when the lightbox is returned to e.g. when using lightbox.dismiss_url or lightbox.return_url
      */
-    abstract function RETURNED();
+    public function RETURNED() {
+
+    }
 
     /**
      * Triggers the parent window to redirect to a different page.
