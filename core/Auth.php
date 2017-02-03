@@ -49,7 +49,7 @@ class Auth {
      */
     public static function setup($configuration) {
         self::$_config = $configuration;
-        // min_password_length if overridable by the config.
+        // min_password_length is override-able by the config.
         if (isset(self::$_config['min_password_length'])) {
             self::$_min_password_length = self::$_config['min_password_length'];
         }
@@ -82,7 +82,7 @@ class Auth {
         self::recordAccess();
 
         if(self::validateSession()) {
-            if(!self::authenticateSesion()) {
+            if(!self::authenticateSession()) {
                 // authentication failed
                 self::logout();
             } else {
@@ -191,7 +191,7 @@ class Auth {
      * Checks if the session is authenticated
      * @return bool
      */
-    protected static function authenticateSesion() {
+    protected static function authenticateSession() {
         if(!isset($_SESSION['user_id'], $_SESSION['auth'], $_SESSION['last_activity'])) return false;
         $remember_me = isset($_SESSION['remember_me']) && $_SESSION['remember_me'] == true;
         if(self::$_config['session_ttl'] < time() - $_SESSION['last_activity'] && !$remember_me) return false;
