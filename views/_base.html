@@ -107,11 +107,17 @@
     <script type="text/javascript" src="/atomar/assets/js/functions.js"></script>
     <script type="text/javascript" src="/atomar/assets/js/head.js"></script>
     <script>
+        {% if atomar.js|length > 0 %}
         head.js({{ atomar.js|raw }}, function() {
             $(document).ready(function() {
                 {{ atomar.js_onload|raw }}
             });
         });
+        {% else %}
+        $(document).ready(function() {
+            {{ atomar.js_onload|raw }}
+        });
+        {% endif %}
     </script>
     <script type="text/javascript" src="/atomar/assets/js/main.js"></script>
   </body>

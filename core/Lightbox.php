@@ -263,7 +263,7 @@ body {
 CSS;
 
         // JS
-        Templator::$js_onload[] = <<<JAVASCRIPT
+        Templator::$js_onload[] = <<<JS
 var lbox = new Box();
 RegisterGlobal('lightbox', lbox);
 $('.modal-dialog').fadeIn();
@@ -377,7 +377,7 @@ function Box() {
     });
   }
 }
-JAVASCRIPT;
+JS;
 
         $request = explode('?', $_SERVER["REQUEST_URI"]);
         // default args
