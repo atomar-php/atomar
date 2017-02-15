@@ -8,7 +8,7 @@ use atomar\Atomar;
  * Requires RedBean to be initialized before use.
  */
 class Auth {
-    protected static $session_max_lifetime = 1892160000; // 1 year
+    protected static $session_max_lifetime = 31536000; // 1 year
 
     /**
      * This is the user of the current session.
