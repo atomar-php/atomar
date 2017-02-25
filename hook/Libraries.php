@@ -38,7 +38,12 @@ class Libraries implements Hook {
         if (is_array($params)) {
             foreach ($params as $library) {
                 try {
-                    include_once(realpath($ext_path . ltrim($library, '/')));
+                    $path = realpath($ext_path . ltrim($library, '/'));
+                    if($path) {
+                        include_once($path);
+                    } else {
+                        Logger::log_error('Library "' . $library . '" not found for ' . $ext_namespace);
+                    }
                 } catch (\Exception $e) {
                     Logger::log_error('Could not load library', $e->getMessage());
                 }
@@ -50,7 +55,7 @@ class Libraries implements Hook {
     /**
      * Executed after the hook implementations have finished executing.
      * @param $state mixed The final state of the hook.
-     * @return mixed|void
+     * @return mixed
      */
     public function postProcess($state) {
         return $state;
