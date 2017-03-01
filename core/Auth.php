@@ -84,7 +84,12 @@ class Auth {
         if(self::validateSession()) {
             if(!self::authenticateSession()) {
                 // authentication failed
-                self::logout();
+                // TRICKY: keep the session intact to maintain custom state e.g. flash messages
+                self::$user = false;
+                unset($_SESSION['user_id']);
+                unset($_SESSION['email']);
+                unset($_SESSION['auth']);
+                unset($_SESSION['remember_me']);
             } else {
                 // update user activity
                 $user = \R::load('user', $_SESSION['user_id']);
