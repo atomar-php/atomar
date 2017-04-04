@@ -1,4 +1,4 @@
-> UPDATE: I started this project a few years ago because I couldn't find a good framework that I liked. However, since then [Laravel](https://laravel.com/) has matured a lot since then and does everything and a lot more that I was trying to accomplish. So I am at long last laying this to rest.
+> UPDATE: I started this framework a few years ago because I couldn't find a good framework that I liked. However, since then [Laravel](https://laravel.com/) has matured a lot since then and does everything and a lot more that I was trying to accomplish. So I am at long last laying this to rest.
 
 Atomar
 ---
