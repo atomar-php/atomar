@@ -1,3 +1,5 @@
+> UPDATE: I started this project a few years ago because I couldn't find a good framework that I liked. However, since then [Laravel](https://laravel.com/) has matured a lot since then and does everything and a lot more that I was trying to accomplish. So I am at long last laying this to rest.
+
 Atomar
 ---
 
@@ -7,7 +9,7 @@ Atomar is an opinionated web-app development framework that follows the Model Vi
 * **view**: [Twig](http://twig.sensiolabs.org/) is a flexible, fast, and secure template engine for PHP
 * **controller**: Atomar uses a currated set of custom controllers.
 
-###Requirements
+##Requirements
 * PHP 7.0
 
 ##Docs
