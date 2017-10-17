@@ -143,10 +143,10 @@ class Modules extends Controller {
                 foreach($dependencies as $d) {
                     $raw_slug = explode('/', $d);
                     $d = $raw_slug[count($raw_slug) - 1]; // TRICKY: take just the slug from the dependency path
-                    if(!isset($modules[$d])) {
+                    if($d !== 'atomar' && !isset($modules[$d])) {
                         set_error($m->slug . ' is missing dependencies: ' . $m->dependencies);
                         // continue in outer foreach
-//                        continue 2;
+                        continue 2;
                     }
                 }
             }
