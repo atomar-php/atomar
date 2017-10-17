@@ -2,8 +2,10 @@
 
 namespace atomar\controller;
 
+use atomar\Atomar;
 use atomar\core\Auth;
 use atomar\core\Controller;
+use atomar\hook\UserProfileRoute;
 
 class Users extends Controller {
     function GET($matches = array()) {

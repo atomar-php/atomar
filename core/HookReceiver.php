@@ -135,4 +135,13 @@ abstract class HookReceiver
     function hookStaticAssets($module) {
         return array();
     }
+
+    /**
+     * Gives the route used for user profiles
+     * @param $user
+     * @return null
+     */
+    function hookUserProfileRoute($user) {
+        return null;
+    }
 }

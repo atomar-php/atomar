@@ -8,6 +8,7 @@ use atomar\core\AutoLoader;
 use atomar\core\HookReceiver;
 use atomar\core\Router;
 use atomar\core\Templator;
+use atomar\hook\UserProfileRoute;
 
 class Hooks extends HookReceiver
 {
@@ -230,7 +231,11 @@ class Hooks extends HookReceiver
         $letter_trim = new \Twig_simpleFunction('letter_trim', 'letter_trim');
         $print_debug = new \Twig_simpleFunction('print_debug', 'print_debug');
         $relative_date = new \Twig_simpleFunction('relative_date', 'relative_date');
+        $hook_profile_route = new \Twig_SimpleFunction('hook_profile_route', function($user) {
+            return Atomar::hook(new UserProfileRoute($user));
+        });
         $twig->addFunction(new \Twig_simpleFunction('strip_tags', 'strip_tags'));
+        $twig->addFunction($hook_profile_route);
         $twig->addFunction($relative_date);
         $twig->addFunction($multi_select);
         $twig->addFunction($single_select);

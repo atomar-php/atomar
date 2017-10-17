@@ -26,7 +26,12 @@
     <tr class="warning tip" title="This user is disabled">
       {% endif %}
       <td>
-        <a href="/user/{{ user.id }}?r=/atomar/users">{{ user.email }}</a>
+        {% set profile_route = hook_profile_route(user) %}
+        {% if profile_route != null %}
+        <a href="{{ profile_route }}?r=/atomar/users">{{ user.email }}</a>
+        {% else %}
+        {{ user.email }}
+        {% endif %}
       </td>
       <td>
           {{ user.role }}
