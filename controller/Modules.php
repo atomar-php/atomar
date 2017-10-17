@@ -32,7 +32,7 @@ class Modules extends Controller {
         $files = scandir($ext_path);
         $extensions = array();
         foreach ($files as $f) {
-            if ($f != '.' && $f != '..' && is_dir($ext_path . $f)) {
+            if ($f != '.' && $f != '..' && $f != 'atomar' && is_dir($ext_path . $f)) {
                 // load extension
                 $ext = Atomar::loadModule($ext_path . $f, $f);
                 $ext = $this->prepareModule($ext);
@@ -146,7 +146,7 @@ class Modules extends Controller {
                     if(!isset($modules[$d])) {
                         set_error($m->slug . ' is missing dependencies: ' . $m->dependencies);
                         // continue in outer foreach
-                        continue 2;
+//                        continue 2;
                     }
                 }
             }
