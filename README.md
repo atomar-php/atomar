@@ -9,21 +9,21 @@ Atomar is an opinionated web-app development framework that follows the Model Vi
 * **view**: [Twig](http://twig.sensiolabs.org/) is a flexible, fast, and secure template engine for PHP
 * **controller**: Atomar uses a currated set of custom controllers.
 
-##Requirements
+## Requirements
 * PHP 7.0
 
-##Docs
+## Docs
 > We are slowly moving the documentation into the wiki. Please bear with us while we transition from documentation everywhere to just one place.
 > For now just about everything in the wiki is outdated.
 
 You can learn more about the system at https://github.com/neutrinog/atomar/wiki.
 
-##CLI
+## CLI
 You ask if we have a command line client? Why yes we do.
 
 https://github.com/neutrinog/node-atomar-cli
 
-##Performance
+## Performance
 
 Considering all the goodness Atomar gives you... Good enough.
 
@@ -39,6 +39,6 @@ That can seem crazy slow! However, consider these comparisons:
 > The moral of the story is that **response times don't matter**.
 Only the time it takes for the DOM to load.
 
-####Disclaimer
+#### Disclaimer
 I ran these test on Jan 17, 2017 in Chrome by opening the developer tools on each site and reloading the page several times.
 The values above are not the result of rigorous testing.
