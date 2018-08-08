@@ -279,6 +279,8 @@ class Templator {
         // load scripts
         if (count(self::$js)) {
             $args['atomar']['js'] = '\'' . implode('?v=' . Atomar::version() . '\',\'', self::$js) . '?v=' . Atomar::version() . '\'';
+        } else {
+            $args['atomar']['js'] = [];
         }
         $args['atomar']['js_onload'] = implode(' ', self::$js_onload);
         $args['atomar']['jquery_no_conflict'] = self::$jquery_no_conflict;
