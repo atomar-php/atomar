@@ -431,7 +431,7 @@ HTML;
                 try {
                     \R::store($ext);
                 } catch(\Exception $e) {
-                    Logger::log_error("Failed to load the module " + $slug, $e);
+                    Logger::log_error("Error saving extension '" . $slug . "'. " . $e->getMessage(), $e);
                     return null;
                 }
 

@@ -600,7 +600,7 @@ function trash($bean) {
  * returns array of ids of input is array of beans. id will be zero if
  * an exception occured.
  * @param mixed $bean the bean or array of beans to save
- * @return int returns the id(s) of the bean(s) or 0.
+ * @return {int|int[]} returns the id(s) of the bean(s) or 0.
  */
 function store($bean) {
     if (is_array($bean)) {
@@ -608,7 +608,7 @@ function store($bean) {
         foreach ($bean as $b) {
             try {
                 $ids[] = R::store($b);
-            } catch (ModelException $e) {
+            } catch (Error $e) {
                 $ids[] = 0;
             }
         }
@@ -616,7 +616,7 @@ function store($bean) {
     } else {
         try {
             return R::store($bean);
-        } catch (ModelException $e) {
+        } catch (Error $e) {
             return 0;
         }
     }
