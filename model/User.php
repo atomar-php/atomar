@@ -32,7 +32,7 @@ class User extends CoreBeanModel {
 
         if (!isset($this->pass_hash)) $this->kill('The password hash is required');
         if (!isset($this->email)) $this->kill('The email is required');
-        if (!isset($this->is_enabled)) $this->is_enabled = '1';
+        if (!isset($this->is_enabled)) $this->is_enabled = 1;
 
         // check for duplicates
         $conflict = \R::findOne('user', 'email=:email AND id<>:id LIMIT 1', array(

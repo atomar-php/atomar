@@ -25,7 +25,7 @@ class Install implements Hook
     public function preProcess($extension)
     {
         // ensures we do not install if this is atomar or the extension does not have an update.
-        return $extension instanceof Extension && $extension->version != $extension->installed_version && $extension->is_enabled == '1';
+        return $extension instanceof Extension && $extension->version != $extension->installed_version && $extension->is_enabled == 1;
     }
 
     /**

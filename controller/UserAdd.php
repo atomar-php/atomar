@@ -49,7 +49,7 @@ class UserAdd extends Lightbox {
 
         $user = \R::dispense('user');
         $user->email = $_POST['email'];
-        $user->is_enabled = '1';
+        $user->is_enabled = 1;
         $password = $_POST['password'];
         $role_id = $_POST['role'];
         $role = \R::load('role', $role_id);

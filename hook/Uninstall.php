@@ -21,7 +21,7 @@ class Uninstall implements Hook {
      * @return bool true if the hook execution can proceed otherwise false
      */
     public function preProcess($extension) {
-        return $extension->is_enabled != '1';
+        return $extension->is_enabled != 1;
     }
 
     /**

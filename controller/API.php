@@ -285,12 +285,12 @@ class API extends ApiController {
                     set_error('The super user cannot be disabled!');
                     $this->go_back();
                 }
-                $user->is_enabled = $enabled ? '1' : '0';
+                $user->is_enabled = $enabled ? 1 : 0;
                 \R::store($user);
-                if ($user->is_enabled != '1') {
+                if ($user->is_enabled != 1) {
                     Auth::logout($user);
                 }
-                set_success('User "' . $user->username . '" has been ' . ($user->is_enabled == '1' ? 'en' : 'dis') . 'abled');
+                set_success('User "' . $user->username . '" has been ' . ($user->is_enabled == 1 ? 'en' : 'dis') . 'abled');
             } else {
                 set_error('Unknown user');
             }

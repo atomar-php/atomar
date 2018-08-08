@@ -252,7 +252,7 @@ HTML;
             }
         } else {
             if (vercmp(self::$app->version, self::$app->installed_version) > 0) {
-                self::$app->is_update_pending = '1';
+                self::$app->is_update_pending = 1;
             }
             // restrict usage of application if it specifies a supported version of atomar
             if (isset(self::$app->atomar_version) && vercmp(self::$app->atomar_version, self::version()) < 0) {

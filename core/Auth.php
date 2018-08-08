@@ -500,7 +500,7 @@ class Auth {
             self::$_access->user = $user;
 
             if (!$valid) {
-                self::$_access->login_failed = '1';
+                self::$_access->login_failed = 1;
                 \R::store(self::$_access);
                 return false;
             } else {
@@ -594,7 +594,7 @@ class Auth {
         // check if already logged in
         if (self::$user && self::$user->id == $user_id) return true;
         $user = \R::load('user', $user_id);
-        if (!$user->id || !$user->is_enabled == '1') return false;
+        if (!$user->id || !$user->is_enabled == 1) return false;
 
         self::$_access->user = $user;
         \R::store(self::$_access);

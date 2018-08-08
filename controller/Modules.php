@@ -22,7 +22,7 @@ class Modules extends Controller {
 
         // prepare the application module
         $app = $this->prepareModule(Atomar::loadModule(Atomar::application_dir(), Atomar::application_namespace()));
-        $controls = Atomar::hookModule(new Controls(), Atomar::application_namespace(), Atomar::application_dir(), null, $app->box(), false, false);
+        $controls = Atomar::hookModule(new Controls(), Atomar::application_namespace(), Atomar::application_dir(), [], $app->box(), false, false);
         if(count($controls)) {
             $app->has_controls = true;
         }
@@ -57,8 +57,8 @@ class Modules extends Controller {
                     );
                 }
             }
-            if($ext->is_enabled == '1') {
-                $controls = Atomar::hookModule(new Controls(), $ext->slug, Atomar::extension_dir() . DIRECTORY_SEPARATOR . $ext->slug, null, $ext->box(), false, false);
+            if($ext->is_enabled == 1) {
+                $controls = Atomar::hookModule(new Controls(), $ext->slug, Atomar::extension_dir() . DIRECTORY_SEPARATOR . $ext->slug, [], $ext->box(), false, false);
                 if(count($controls)) {
                     $ext->has_controls = true;
                 }
@@ -150,7 +150,7 @@ class Modules extends Controller {
                     }
                 }
             }
-            $m->is_enabled = '1';
+            $m->is_enabled = 1;
             $valid_modules[$m->slug] = $m;
         }
 

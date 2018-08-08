@@ -103,7 +103,7 @@ CSS;
         // create user
         $user = \R::dispense('user');
         $user->email = $email;
-        $user->is_enabled = '1';
+        $user->is_enabled = 1;
 
         // register super user
         $user = Auth::register($user, $password, $super_role);
