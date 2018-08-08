@@ -637,7 +637,7 @@ class Auth {
      */
     public static function validate_pw_reset_token($token) {
         $now = db_date(time());
-        $user = \R::findOne('user', 'pass_reset_token=:token AND is_enabled=\'1\' AND pass_reset_expires_at>:time', array(
+        $user = \R::findOne('user', 'pass_reset_token=:token AND is_enabled=1 AND pass_reset_expires_at>:time', array(
             ':token' => $token,
             ':time' => $now
         ));

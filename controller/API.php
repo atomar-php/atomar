@@ -94,7 +94,7 @@ class API extends ApiController {
         switch ($action) {
             case 'project-stage-name':
                 Auth::authenticate('administer_project_stages');
-                $stage = \R::findOne('projectstage', 'name=:name AND deleted<>\'1\' LIMIT 1', array(
+                $stage = \R::findOne('projectstage', 'name=:name AND deleted<>1 LIMIT 1', array(
                     ':name' => $value
                 ));
                 $result = array();

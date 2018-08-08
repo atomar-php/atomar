@@ -454,7 +454,7 @@ HTML;
 
         // execute hooks on extensions
         try {
-            $extensions = \R::find('extension', 'is_enabled=\'1\' and slug<>?', array(self::application_namespace()));
+            $extensions = \R::find('extension', 'is_enabled=1 and slug<>?', array(self::application_namespace()));
             foreach ($extensions as $ext) {
                 if (vercmp($ext->atomar_version, self::version()) < 0) {
                     $message = $ext->slug . ' does not support this version of atomar';

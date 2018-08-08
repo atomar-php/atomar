@@ -104,7 +104,7 @@ class Templator {
         $loader = new \Twig_Loader_Filesystem();
         $loader->addPath(getcwd()); // TRICKY: we set a path in the _main namespace so template error messages make more sense.
         $loader->addPath(Atomar::application_dir(), Atomar::application_namespace());
-        $extensions = \R::find('extension', 'is_enabled=\'1\' and slug<>?', array(Atomar::application_namespace()));
+        $extensions = \R::find('extension', 'is_enabled=1 and slug<>?', array(Atomar::application_namespace()));
         foreach($extensions as $ext) {
             $loader->addPath(Atomar::extension_dir() . $ext->slug, $ext->slug);
         }

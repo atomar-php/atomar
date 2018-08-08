@@ -116,7 +116,7 @@ class Modules extends Controller {
         $ids =  array_keys($_POST['extensions']);
 
         // disable all extensions
-        \R::exec('UPDATE extension SET is_enabled=\'0\'');
+        \R::exec('UPDATE extension SET is_enabled=0');
 
         // process extensions
         if (isset($ids)) {

@@ -48,7 +48,7 @@ class ModuleSettings extends Controller
      * @param $module_slug
      */
     private function loadController($module_slug) {
-        $module = \R::findOne('extension', 'slug=? and is_enabled=\'1\'', array($module_slug));
+        $module = \R::findOne('extension', 'slug=? and is_enabled=1', array($module_slug));
         if(!$module) {
             set_warning($module_slug . ' could not be found');
             $this->go('/atomar/modules');
