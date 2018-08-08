@@ -466,14 +466,14 @@ class Auth {
      */
     public static function login($email, $password, $remember_me = false) {
         self::regenerateSession();
-        $user = \R::findOne('user', ' email=? AND is_enabled=\'1\' AND role_id IS NOT NULL AND role_id<>\'\'', array($email));
+        $user = \R::findOne('user', ' email=? AND is_enabled=1 AND role_id IS NOT NULL AND role_id<>\'\'', array($email));
         if (!$user || !$user->id) {
             // invalid email
             return false;
         } else {
             // Gard Against Brute Force Attacks
             $valid_date = db_date(time() - self::$_config['login_attempts_time']);
-            $access_logs = \R::find('access', 'login_failed=\'1\' AND user_id=:user_id AND accessed_at=:valid_date', array(
+            $access_logs = \R::find('access', 'login_failed=1 AND user_id=:user_id AND accessed_at=:valid_date', array(
                 ':user_id' => $user->id,
                 ':valid_date' => $valid_date
             ));

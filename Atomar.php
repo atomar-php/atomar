@@ -413,7 +413,7 @@ HTML;
                     // create new extension
                     $ext = \R::dispense('extension');
                     $ext->slug = $slug;
-                    $ext->is_enabled = 0;
+                    $ext->is_enabled = '0';
                     $ext->is_update_pending = 0;
                 }
 
