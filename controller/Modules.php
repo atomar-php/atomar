@@ -88,22 +88,22 @@ class Modules extends Controller {
      */
     private function prepareModule($module) {
         if ($module !== null) {
-            $module->is_update_pending = '0';
+            $module->is_update_pending = 0;
             if ($module->installed_version && $module->is_enabled) {
                 // check for updates
                 if (vercmp($module->version, $module->installed_version) == 1) {
-                    $module->is_update_pending = '1';
+                    $module->is_update_pending = 1;
                 }
             } else {
-                $module->is_enabled = '0';
+                $module->is_enabled = 0;
             }
 
             // check supported core versions
             if ($module->atomar_version && vercmp($module->atomar_version, Atomar::version()) >= 0) {
-                $module->is_supported = '1';
+                $module->is_supported = 1;
             } else {
-                $module->is_supported = '0';
-                $module->is_enabled = '0';
+                $module->is_supported = 0;
+                $module->is_enabled = 0;
             }
             store($module);
         }

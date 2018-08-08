@@ -297,9 +297,9 @@ CREATE TABLE IF NOT EXISTS `extension` (
   `installed_version` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
   `core` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `dependencies` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `is_supported` enum('0','1') COLLATE utf8_unicode_ci DEFAULT '0',
-  `is_enabled` enum('0','1') COLLATE utf8_unicode_ci DEFAULT '0',
-  `is_update_pending` enum('0','1') COLLATE utf8_unicode_ci DEFAULT '0',
+  `is_supported` int(1) COLLATE utf8_unicode_ci DEFAULT '0',
+  `is_enabled` int(1) COLLATE utf8_unicode_ci DEFAULT '0',
+  `is_update_pending` int(1) COLLATE utf8_unicode_ci DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `slug` (`slug`),
   KEY `is_enabled` (`is_enabled`)
